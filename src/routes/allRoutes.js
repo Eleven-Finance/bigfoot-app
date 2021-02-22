@@ -25,10 +25,10 @@ const userRoutes = [
 ]
 
 const authRoutes = [
-  { path: "/logout", component: Logout },
-  { path: "/login", component: Login },
-  { path: "/forgot-password", component: ForgetPwd },
-  { path: "/register", component: Register },
+  // { path: "/logout", component: Logout },
+  // { path: "/login", component: Login },
+  // { path: "/forgot-password", component: ForgetPwd },
+  // { path: "/register", component: Register },
 ]
 
 export { userRoutes, authRoutes }

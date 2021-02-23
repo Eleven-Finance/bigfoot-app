@@ -3,17 +3,17 @@ import {
   Container,
 } from "reactstrap"
 
-const Dashboard = props => {
+const Positions = props => {
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <h3>Dashboard</h3>
+          <h3>Positions</h3>
 
         </Container>
       </div>
     </React.Fragment>
   )
 }
-export default Dashboard;
+export default Positions;

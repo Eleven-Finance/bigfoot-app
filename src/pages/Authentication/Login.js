@@ -69,7 +69,7 @@ const Login = props => {
   return (
     <React.Fragment>
      <MetaTags>
-          <title>Login | Skote - Responsive Bootstrap 5 Admin Dashboard</title>
+          <title>Login | BigFoot - Cryptocurrency & Yield Farming</title>
         </MetaTags>
       <div className="home-btn d-none d-sm-block">
         <Link to="/" className="text-dark">

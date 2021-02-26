@@ -1,5 +1,4 @@
 import React, { Component } from "react"
-import MetaTags from 'react-meta-tags';
 import {
   Container,
   Row,
@@ -12,7 +11,21 @@ import {
   CardBody,
   Media,
   Table,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  TabContent,
+  TabPane,
+  NavItem,
+  NavLink,
+  Label,
+  Button,
+  Input,
+  Form,
+  FormGroup,
 } from "reactstrap"
+
+import classnames from "classnames"
 import { Link } from "react-router-dom"
 
 class Dashboard extends Component {
@@ -82,14 +95,34 @@ class Dashboard extends Component {
         },
       ],
       isMenu: false,
+      modal: false,
+      activeTab: 1,
     }
     this.toggleMenu = this.toggleMenu.bind(this)
+    this.togglemodal.bind(this)
+    this.toggleTab.bind(this)
   }
 
   toggleMenu() {
     this.setState(prevState => ({
       isMenu: !prevState.isMenu,
     }))
+  }
+
+  togglemodal = () => {
+    this.setState(prevState => ({
+      modal: !prevState.modal,
+    }))
+  }
+
+  toggleTab(tab) {
+    if (this.state.activeTab !== tab) {
+      if (tab >= 1 && tab <= 3) {
+        this.setState({
+          activeTab: tab,
+        })
+      }
+    }
   }
 
   render() {
@@ -171,6 +204,7 @@ class Dashboard extends Component {
                                 <Link
                                   to="#"
                                   className="btn btn-primary btn-sm w-xs"
+                                  onClick={this.togglemodal}
                                 >
                                   Farm
                                 </Link>
@@ -181,6 +215,208 @@ class Dashboard extends Component {
                       </Table>
                     </div>
                   </CardBody>
+
+                  {/* modal */}
+                  <Modal
+                    isOpen={this.state.modal}
+                    role="dialog"
+                    size="lg"
+                    autoFocus={true}
+                    centered={true}
+                    id="verificationModal"
+                    tabIndex="-1"
+                    toggle={this.togglemodal}
+                  >
+                    <div className="modal-content">
+                      <ModalHeader toggle={this.togglemodal}>
+                        Verify your Account
+                      </ModalHeader>
+                      <ModalBody>
+                        <div
+                          id="kyc-verify-wizard"
+                          className="wizard clearfix"
+                        >
+                          <div className="steps clearfix">
+                            <ul>
+                              <NavItem
+                                className={classnames({
+                                  current: this.state.activeTab === 1,
+                                })}>
+                                <NavLink
+                                  className={classnames({
+                                    active: this.state.activeTab === 1,
+                                  })}
+                                  onClick={() => {
+                                    this.toggleTab(1)
+                                  }}
+                                >
+                                  <span className="number">1.</span>
+                                Supply tokens
+                              </NavLink>
+                              </NavItem>
+                              <NavItem
+                                className={classnames({
+                                  current: this.state.activeTab === 2,
+                                })}>
+                                <NavLink
+                                  className={classnames({
+                                    active: this.state.activeTab === 2,
+                                  })}
+                                  onClick={() => {
+                                    this.toggleTab(2)
+                                  }}
+                                >
+                                  <span className="number">2.</span>
+                                Borrow tokens
+                              </NavLink>
+                              </NavItem>
+                              <NavItem
+                                className={classnames({
+                                  current: this.state.activeTab === 3,
+                                })}>
+                                <NavLink
+                                  className={classnames({
+                                    active: this.state.activeTab === 3,
+                                  })}
+                                  onClick={() => {
+                                    this.toggleTab(3)
+                                  }}
+                                >
+                                  <span className="number">3.</span>
+                                Confirm strategy
+                              </NavLink>
+                              </NavItem>
+                            </ul>
+                          </div>
+                          <div className="content clearfix">
+                            <TabContent
+                              activeTab={this.state.activeTab}
+                              className="twitter-bs-wizard-tab-content"
+                            >
+                              <TabPane tabId={1} id="farm-step-1">
+                                <Form>
+                                  <Row>
+                                    <Col lg="12">
+                                      <FormGroup className="mb-3">
+                                        <Label htmlFor="kycfirstname-input" className="form-label">
+                                          First name
+                                      </Label>
+                                        <Input
+                                          type="text"
+                                          className="form-control"
+                                          id="kycfirstname-input"
+                                          placeholder="Enter First name"
+                                        />
+                                      </FormGroup>
+                                    </Col>
+                                  </Row>
+
+                                  <Row>
+                                    <Col lg="12">
+                                      <FormGroup className="mb-3">
+                                        <Label htmlFor="kycselectcity-input" className="form-label">
+                                          City
+                                      </Label>
+                                        <select
+                                          className="form-select"
+                                          id="kycselectcity-input"
+                                        >
+                                          <option>San Francisco</option>
+                                          <option>Los Angeles</option>
+                                          <option>San Diego</option>
+                                        </select>
+                                      </FormGroup>
+                                    </Col>
+                                  </Row>
+
+                                  <Row>
+                                    <Col lg="12">
+                                      Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
+                                    </Col>
+                                  </Row>
+                                </Form>
+                              </TabPane>
+                              <TabPane tabId={2} id="farm-step-2">
+                                <div>
+                                  <Form>
+                                    <Row>
+                                      <Col lg="12">
+                                        <FormGroup className="mb-3">
+                                          <Label htmlFor="kycemail-input">
+                                            Email
+                                        </Label>
+                                          <Input
+                                            type="email"
+                                            className="form-control"
+                                            id="kycemail-input"
+                                            placeholder="Enter Email Address"
+                                          />
+                                        </FormGroup>
+
+                                        <FormGroup className="mb-3">
+                                          <Label htmlFor="kycconfirmcode-input">
+                                            Confirm code
+                                        </Label>
+                                          <Input
+                                            type="email"
+                                            className="form-control"
+                                            id="kycconfirmcode-input"
+                                            placeholder="Enter Confirm code"
+                                          />
+                                        </FormGroup>
+                                      </Col>
+                                    </Row>
+                                  </Form>
+                                </div>
+                              </TabPane>
+                              <TabPane tabId={3} id="farm-step-3">
+                                <h5 className="font-size-14 mb-3">
+                                  Details for step 3
+                                </h5>
+                              </TabPane>
+                            </TabContent>
+                          </div>
+                          <div className="actions clearfix">
+                            <ul role="menu" aria-label="Pagination">
+                              <li
+                                className={
+                                  this.state.activeTab === 1
+                                    ? "previous disabled"
+                                    : "previous"
+                                }
+                              >
+                                <Link
+                                  to="#"
+                                  onClick={() => {
+                                    this.toggleTab(this.state.activeTab - 1)
+                                  }}
+                                >
+                                  Previous
+                                </Link>
+                              </li>
+                              <li
+                                className={
+                                  this.state.activeTab === 3
+                                    ? "next disabled"
+                                    : "next"
+                                }
+                              >
+                                <Link
+                                  to="#"
+                                  onClick={() => {
+                                    this.toggleTab(this.state.activeTab + 1)
+                                  }}
+                                >
+                                  Next
+                                </Link>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </ModalBody>
+                    </div>
+                  </Modal>
+
                 </Card>
               
                 <Card>

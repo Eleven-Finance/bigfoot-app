@@ -96,7 +96,7 @@
     "toastr": "^2.1.4"
   },
   "scripts": {
-    "start": "PORT=3501 react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build ",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,jsx,json,md,html,css,less,scss}\"",

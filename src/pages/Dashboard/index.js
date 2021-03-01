@@ -23,7 +23,11 @@ import {
   Input,
   Form,
   FormGroup,
+  InputGroup,
 } from "reactstrap"
+
+import Slider from "react-rangeslider"
+import "react-rangeslider/lib/index.css"
 
 import classnames from "classnames"
 import { Link } from "react-router-dom"
@@ -94,6 +98,9 @@ class Dashboard extends Component {
           totalPrice: "4536.24",
         },
       ],
+      formFields: {
+        min_max: 70
+      },
       isMenu: false,
       modal: false,
       activeTab: 1,
@@ -101,6 +108,13 @@ class Dashboard extends Component {
     this.toggleMenu = this.toggleMenu.bind(this)
     this.togglemodal.bind(this)
     this.toggleTab.bind(this)
+  }
+
+  setMin_max(value){
+    this.setState(state => {
+      state.formFields.min_max = value;
+      return state;
+    });
   }
 
   toggleMenu() {
@@ -300,7 +314,7 @@ class Dashboard extends Component {
                                       <FormGroup className="mb-3">
                                         <Label htmlFor="kycfirstname-input" className="form-label">
                                           First name
-                                      </Label>
+                                        </Label>
                                         <Input
                                           type="text"
                                           className="form-control"
@@ -316,16 +330,50 @@ class Dashboard extends Component {
                                       <FormGroup className="mb-3">
                                         <Label htmlFor="kycselectcity-input" className="form-label">
                                           City
-                                      </Label>
+                                        </Label>
                                         <select
                                           className="form-select"
                                           id="kycselectcity-input"
                                         >
-                                          <option>San Francisco</option>
-                                          <option>Los Angeles</option>
-                                          <option>San Diego</option>
+                                          <option>Madrid</option>
+                                          <option>Barcelona</option>
+                                          <option>Berlin</option>
                                         </select>
                                       </FormGroup>
+                                    </Col>
+                                  </Row>
+
+                                  <Row>
+                                    <Col lg="12">
+                                      <FormGroup>
+                                        <InputGroup className="mb-3">
+                                          <Label className="input-group-text">
+                                            Price
+                                          </Label>
+                                          <Input type="text" className="form-control" />
+                                          <Label className="input-group-text">$</Label>
+                                        </InputGroup>
+                                      </FormGroup>
+                                    </Col>
+                                  </Row>
+
+                                  <Row>
+                                    <Col lg={6}>
+                                      <div className="p-3">
+                                        <label className="form-label">Min-Max</label>
+                                        <span className="float-left mt-4">30</span>{" "}
+                                        <span className="float-right  mt-4">90</span>
+                                        <Slider
+                                          value={this.state.formFields.min_max}
+                                          min={0}
+                                          max={90}
+                                          step={0.5}
+                                          orientation="horizontal"
+                                          onChange={value => {
+                                            this.setMin_max(value)
+                                          }}
+                                        />
+                                      </div>
                                     </Col>
                                   </Row>
 

@@ -4,12 +4,7 @@ import {
   Row,
   Col,
   Card,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   CardBody,
-  Media,
   Table,
   Modal,
   ModalHeader,
@@ -19,7 +14,6 @@ import {
   NavItem,
   NavLink,
   Label,
-  Button,
   Input,
   Form,
   FormGroup,
@@ -103,11 +97,9 @@ class Dashboard extends Component {
       formFields: {
         min_max: 70
       },
-      isMenu: false,
       modal: false,
       activeTab: 1,
     }
-    this.toggleMenu = this.toggleMenu.bind(this)
     this.togglemodal.bind(this)
     this.toggleTab.bind(this)
   }
@@ -117,12 +109,6 @@ class Dashboard extends Component {
       state.formFields.min_max = value;
       return state;
     });
-  }
-
-  toggleMenu() {
-    this.setState(prevState => ({
-      isMenu: !prevState.isMenu,
-    }))
   }
 
   togglemodal = () => {
@@ -200,21 +186,6 @@ class Dashboard extends Component {
               <Col md="4">
                 <Card>
                   <CardBody>
-                    <Dropdown
-                      isOpen={this.state.isMenu}
-                      toggle={this.toggleMenu}
-                      className="float-end ms-2"
-                    >
-                      <DropdownToggle tag="a" className="text-muted">
-                        <i className="mdi mdi-dots-horizontal font-size-18"/>
-                      </DropdownToggle>
-                      <DropdownMenu right>
-                        <DropdownItem href="#">Action</DropdownItem>
-                        <DropdownItem href="#">Another action</DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
-
-
                     <h4 className="card-title">
                       <i className="mdi mdi-account-circle text-primary h1"/>
                       Your info

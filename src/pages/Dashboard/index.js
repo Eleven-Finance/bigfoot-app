@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import {
   Container,
   Row,
+  Button,
   Col,
   Card,
   CardBody,
@@ -109,7 +110,7 @@ class Dashboard extends Component {
         },
       ],
       formFields: {
-        min_max: 70
+        min_max: 2
       },
       modal: false,
       activeTab: 1,
@@ -328,7 +329,7 @@ class Dashboard extends Component {
                   >
                     <div className="modal-content">
                       <ModalHeader toggle={this.togglemodal}>
-                        Verify your Account
+                        Farm
                       </ModalHeader>
                       <ModalBody>
                         <div
@@ -396,75 +397,69 @@ class Dashboard extends Component {
                                 <Form>
                                   <Row>
                                     <Col lg="12">
-                                      <FormGroup className="mb-3">
-                                        <Label htmlFor="kycfirstname-input" className="form-label">
-                                          First name
-                                        </Label>
-                                        <Input
-                                          type="text"
-                                          className="form-control"
-                                          id="kycfirstname-input"
-                                          placeholder="Enter First name"
-                                        />
-                                      </FormGroup>
-                                    </Col>
-                                  </Row>
-
-                                  <Row>
-                                    <Col lg="12">
-                                      <FormGroup className="mb-3">
-                                        <Label htmlFor="kycselectcity-input" className="form-label">
-                                          City
-                                        </Label>
-                                        <select
-                                          className="form-select"
-                                          id="kycselectcity-input"
-                                        >
-                                          <option>Madrid</option>
-                                          <option>Barcelona</option>
-                                          <option>Berlin</option>
-                                        </select>
-                                      </FormGroup>
-                                    </Col>
-                                  </Row>
-
-                                  <Row>
-                                    <Col lg="12">
+                                      <p>I'd like to supply...</p>
+                                      
                                       <FormGroup>
-                                        <InputGroup className="mb-3">
-                                          <Label className="input-group-text">
-                                            Price
-                                          </Label>
-                                          <Input type="text" className="form-control" />
-                                          <Label className="input-group-text">$</Label>
-                                        </InputGroup>
+                                        <Row>
+                                          <Col sm="6" lg="8">
+                                            <InputGroup className="mb-3">
+                                              <Label className="input-group-text">
+                                                <i className="mdi mdi-bitcoin" />
+                                                BTC
+                                              </Label>
+                                              <Input type="number" className="form-control" value={"0"} />
+                                            </InputGroup>
+                                          </Col>
+                                          <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                                            <span className="me-3">
+                                              Balance: 0.0000
+                                            </span>
+                                            <Button 
+                                              outline
+                                              onClick={()=>{
+                                                console.log("set max.")
+                                              }}
+                                            >
+                                              MAX
+                                            </Button>
+                                          </Col>
+                                        </Row>
                                       </FormGroup>
+                                      
+                                      <FormGroup>
+                                        <Row>
+                                          <Col sm="6" lg="8">
+                                            <InputGroup className="mb-3">
+                                              <Label className="input-group-text">
+                                                <i className="mdi mdi-ethereum" />
+                                                ETH
+                                              </Label>
+                                              <Input type="number" className="form-control" value={"0"} />
+                                            </InputGroup>
+                                          </Col>
+                                          <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                                            <span className="me-3">
+                                              Balance: 0.0000
+                                            </span>
+                                            <Button 
+                                              outline
+                                              onClick={()=>{
+                                                console.log("set max.")
+                                              }}
+                                            >
+                                              MAX
+                                            </Button>
+                                          </Col>
+                                        </Row>
+                                      </FormGroup>
+                                    
                                     </Col>
                                   </Row>
-
-                                  <Row>
-                                    <Col lg={6}>
-                                      <div className="p-3">
-                                        <label className="form-label">Min-Max</label>
-                                        <span className="float-left mt-4">30</span>{" "}
-                                        <span className="float-right  mt-4">90</span>
-                                        <Slider
-                                          value={this.state.formFields.min_max}
-                                          min={0}
-                                          max={90}
-                                          step={0.5}
-                                          orientation="horizontal"
-                                          onChange={value => {
-                                            this.setMin_max(value)
-                                          }}
-                                        />
-                                      </div>
-                                    </Col>
-                                  </Row>
-
                                   <Row>
                                     <Col lg="12">
-                                      Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
+                                      <p>
+                                        Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
+                                      </p>
                                     </Col>
                                   </Row>
                                 </Form>
@@ -473,30 +468,19 @@ class Dashboard extends Component {
                                 <div>
                                   <Form>
                                     <Row>
-                                      <Col lg="12">
-                                        <FormGroup className="mb-3">
-                                          <Label htmlFor="kycemail-input">
-                                            Email
-                                        </Label>
-                                          <Input
-                                            type="email"
-                                            className="form-control"
-                                            id="kycemail-input"
-                                            placeholder="Enter Email Address"
-                                          />
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                          <Label htmlFor="kycconfirmcode-input">
-                                            Confirm code
-                                        </Label>
-                                          <Input
-                                            type="email"
-                                            className="form-control"
-                                            id="kycconfirmcode-input"
-                                            placeholder="Enter Confirm code"
-                                          />
-                                        </FormGroup>
+                                      <Col lg={12}>
+                                        <p>Choose how much you'd like to borrow...</p>
+                                        <Slider
+                                          value={this.state.formFields.min_max}
+                                          min={1.5}
+                                          max={3}
+                                          step={0.5}
+                                          labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
+                                          orientation="horizontal"
+                                          onChange={value => {
+                                            this.setMin_max(value)
+                                          }}
+                                        />
                                       </Col>
                                     </Row>
                                   </Form>

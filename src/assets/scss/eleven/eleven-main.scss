@@ -11,6 +11,25 @@
     }
 }
 
+// Modals
+.modal {
+    form {
+        .input-group-text {
+            padding-top: 2px;
+            padding-bottom: 2px;
+            .mdi {
+                font-size: 200%;
+                margin-right: 5px;
+                color: #fff;
+            }
+        }
+        .max-balance-wrapper {
+            padding: 2px 0;
+        }
+    }
+}
+
+
 
 // Header
 .navbar-header a {

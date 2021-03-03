@@ -37,61 +37,75 @@ class Dashboard extends Component {
           icon: "mdi mdi-bitcoin",
           color: "warning",
           title: "BTC",
-          investRate: "1.2601",
-          investPrice: "6225.74",
-          price: "7525.47",
-          loansRate: "0.1512",
-          loansPrice: "742.32",
-          totalRate: "4.2562",
-          totalPrice: "6425.42",
+          percentage: "61.66",
+          percentageOut: "25.53",
+          typeTitle: "Liquidity Providing",
+          typeDetails: "Uniswap UNI/ETH",
+          details: [
+            { title: "Trading Fee", percentage: "51.68 " },
+            { title: "Alpha APY", percentage: "25.96" },
+            { title: "Borrow APY", percentage: "-16.13" },
+          ]
         },
         {
           icon: "mdi mdi-ethereum",
           color: "primary",
           title: "ETH",
-          investRate: "0.0814",
-          investPrice: "3256.29",
-          price: "4235.78",
-          loansRate: "0.0253",
-          loansPrice: "675.04",
-          totalRate: "0.0921",
-          totalPrice: "4536.24",
+          percentage: "114.82",
+          percentageOut: "51.81",
+          typeTitle: "Liquidity Providing",
+          typeDetails: "Uniswap UNI/ETH",
+          details: [
+            { title: "Yield Farming", percentage: "83.95" },
+            { title: "Trading Fee", percentage: "51.68 " },
+            { title: "Alpha APY", percentage: "25.96" },
+            { title: "Borrow APY", percentage: "-16.13" },
+          ]
         },
         {
           icon: "mdi mdi-litecoin",
           color: "info",
           title: "LTC",
-          investRate: "0.0682",
-          investPrice: "2936.14",
-          price: "3726.06",
-          loansRate: "0.0234",
-          loansPrice: "523.17",
-          totalRate: "0.0823",
-          totalPrice: "3254.23",
+          percentage: "244.42",
+          percentageOut: "91.19",
+          typeTitle: "Liquidity Providing",
+          typeDetails: "Uniswap UNI/ETH",
+          details: [
+            { title: "Yield Farming", percentage: "83.95" },
+            { title: "Trading Fee", percentage: "51.68 " },
+            { title: "Alpha APY", percentage: "25.96" },
+            { title: "Borrow APY", percentage: "-16.13" },
+          ]
         },
         {
           icon: "mdi mdi-bitcoin",
           color: "warning",
           title: "BTC",
-          investRate: "1.2601",
-          investPrice: "6225.74",
-          price: "7525.47",
-          loansRate: "0.1512",
-          loansPrice: "742.32",
-          totalRate: "4.2562",
-          totalPrice: "6425.42",
+          percentage: "162.50",
+          percentageOut: "16.42 ",
+          typeTitle: "Liquidity Providing",
+          typeDetails: "Uniswap UNI/ETH",
+          details: [
+            { title: "Yield Farming", percentage: "83.95" },
+            { title: "Trading Fee", percentage: "51.68 " },
+            { title: "Alpha APY", percentage: "25.96" },
+            { title: "Borrow APY", percentage: "-16.13" },
+          ]
         },
         {
           icon: "mdi mdi-ethereum",
           color: "primary",
           title: "ETH",
-          investRate: "0.0814",
-          investPrice: "3256.29",
-          price: "4235.78",
-          loansRate: "0.0253",
-          loansPrice: "675.04",
-          totalRate: "0.0921",
-          totalPrice: "4536.24",
+          percentage: "68.12",
+          percentageOut: "42.10",
+          typeTitle: "Liquidity Providing",
+          typeDetails: "Uniswap UNI/ETH",
+          details: [
+            { title: "Yield Farming", percentage: "83.95" },
+            { title: "Trading Fee", percentage: "51.68 " },
+            { title: "Alpha APY", percentage: "25.96" },
+            { title: "Borrow APY", percentage: "-16.13" },
+          ]
         },
       ],
       formFields: {
@@ -214,19 +228,19 @@ class Dashboard extends Component {
               <Col xl="12">
                 <Card>
                   <CardBody>
-                    <h4 className="card-title">Farm Pools</h4>
+                    <h4 className="card-title">
+                      <i className="mdi mdi-warehouse text-primary h1"/>
+                      Farm Pools
+                    </h4>
 
                     <div className="table-responsive">
                       <Table className="table table-nowrap align-middle mb-0">
                         <thead>
                           <tr>
-                            <th scope="col">Token</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Invest</th>
-                            <th scope="col">Loans</th>
-                            <th scope="col" colSpan="2">
-                              Total
-                            </th>
+                            <th scope="col">Pair</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Percentage</th>
+                            <th scope="col" colSpan="2">Details</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -234,7 +248,7 @@ class Dashboard extends Component {
                             <tr key={key}>
                               <th scope="row">
                                 <div className="d-flex align-items-center">
-                                  <div className="avatar-xs me-3">
+                                <div className="avatar-xs me-3">
                                     <span
                                       className={
                                         "avatar-title rounded-circle bg-soft bg-" +
@@ -252,32 +266,38 @@ class Dashboard extends Component {
                               </th>
                               <td>
                                 <div className="text-muted">
-                                  $ {asset.price}
+                                  {asset.typeTitle}
+                                </div>
+                                <h5 className="font-size-14 mb-1">
+                                  {asset.typeDetails}
+                                </h5>
+                              </td>
+                              <td>
+                                <h5 className="font-size-20 mb-1">
+                                  {asset.percentage} %
+                                </h5>
+                                <div className="text-muted">
+                                  <del>
+                                    {asset.percentageOut} %
+                                  </del>
                                 </div>
                               </td>
                               <td>
-                                <h5 className="font-size-14 mb-1">
-                                  {asset.investRate}
-                                </h5>
-                                <div className="text-muted">
-                                  ${asset.investPrice}
-                                </div>
-                              </td>
-                              <td>
-                                <h5 className="font-size-14 mb-1">
-                                  {asset.loansRate}
-                                </h5>
-                                <div className="text-muted">
-                                  ${asset.loansPrice}
-                                </div>
-                              </td>
-                              <td>
-                                <h5 className="font-size-14 mb-1">
-                                  {asset.totalRate}
-                                </h5>
-                                <div className="text-muted">
-                                  ${asset.totalPrice}
-                                </div>
+
+                                { 
+                                  asset.details.map( element => {
+                                    return(
+                                      <Row>
+                                        <Col sm="6">
+                                          {element.title}
+                                        </Col>
+                                        <Col sm="6" className="text-end">
+                                          {element.percentage} %
+                                        </Col>
+                                      </Row>
+                                    )
+                                  })
+                                }
                               </td>
                               <td style={{ width: "120px" }}>
                                 <Link

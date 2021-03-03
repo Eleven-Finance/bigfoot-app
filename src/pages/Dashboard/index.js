@@ -32,6 +32,8 @@ import "react-rangeslider/lib/index.css"
 import classnames from "classnames"
 import { Link } from "react-router-dom"
 
+import '../../pages/Dashboard/Dashboard.scss'
+
 class Dashboard extends Component {
   constructor(props) {
     super(props)
@@ -145,11 +147,103 @@ class Dashboard extends Component {
         <div className="page-content">
           <Container fluid>
             <Row>
-              
-              <Col xl="8">
-              <Card>
+              <Col md="4">
+                <Card>
                   <CardBody>
-                    <h4 className="card-title mb-4">Farm Pools</h4>
+                    <h4 className="card-title">
+                      <i className="mdi mdi-lock text-primary h1"/>
+                      Total Value Locked
+                    </h4>
+                    <Row>
+                      <Col sm="12">
+                        <p id="total-value">$ 0.00</p>
+                      </Col>
+                    </Row>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col md="4">
+              <Card>
+                <CardBody>
+                    <h4 className="card-title">
+                      <i className="mdi mdi-earth text-primary h1"/>
+                      Global
+                    </h4>
+                    <Row>
+                      <Col sm="6">
+                        <p className="text-muted mb-2">Total Collateral</p>
+                      </Col>
+                      <Col sm="6" className="text-end">
+                        <p>$ 0.00</p>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col sm="6">
+                        <p className="text-muted mb-2">Total Borrow</p>
+                      </Col>
+                      <Col sm="6" className="text-end">
+                        <p>$ 0.00</p>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col sm="6">
+                        <p className="text-muted mb-2">Active Positions</p>
+                      </Col>
+                      <Col sm="6" className="text-end">
+                        <p>100 Positions</p>
+                      </Col>
+                    </Row>
+                  </CardBody>
+                </Card>
+              </Col>
+                            
+              <Col md="4">
+                <Card>
+                  <CardBody>
+                    <Dropdown
+                      isOpen={this.state.isMenu}
+                      toggle={this.toggleMenu}
+                      className="float-end ms-2"
+                    >
+                      <DropdownToggle tag="a" className="text-muted">
+                        <i className="mdi mdi-dots-horizontal font-size-18"/>
+                      </DropdownToggle>
+                      <DropdownMenu right>
+                        <DropdownItem href="#">Action</DropdownItem>
+                        <DropdownItem href="#">Another action</DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+
+
+                    <h4 className="card-title">
+                      <i className="mdi mdi-account-circle text-primary h1"/>
+                      Your info
+                    </h4>
+
+                    <Row>
+                      <Col sm="12">
+                        <div>
+                          <p className="text-muted mb-2">Total Collateral</p>
+                          <h5>$ 0.00</h5>
+                        </div>
+                      </Col>
+                      <Col sm="12">
+                        <div>
+                          <p className="text-muted mb-2">Total Borrow</p>
+                          <h5>$ 0.00</h5>
+                        </div>
+                      </Col>
+                    </Row>
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col xl="12">
+                <Card>
+                  <CardBody>
+                    <h4 className="card-title">Farm Pools</h4>
 
                     <div className="table-responsive">
                       <Table className="table table-nowrap align-middle mb-0">
@@ -464,68 +558,8 @@ class Dashboard extends Component {
                       </ModalBody>
                     </div>
                   </Modal>
-
                 </Card>
-
               </Col>
-            
-              <Col xl="4">
-                <Card>
-                  <CardBody className="border-bottom">
-                    <Dropdown
-                      isOpen={this.state.isMenu}
-                      toggle={this.toggleMenu}
-                      className="float-end ms-2"
-                    >
-                      <DropdownToggle tag="a" className="text-muted">
-                        <i className="mdi mdi-dots-horizontal font-size-18"/>
-                      </DropdownToggle>
-                      <DropdownMenu right>
-                        <DropdownItem href="#">Action</DropdownItem>
-                        <DropdownItem href="#">Another action</DropdownItem>
-                        <DropdownItem href="#">Something else</DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
-
-                    <div>
-                      <div className="mb-4 me-3">
-                        <i className="mdi mdi-account-circle text-primary h1"/>
-                      </div>
-
-                      <div>
-                        <h5 className="">Henry Wells</h5>
-                        <p className="text-muted mb-1">henrywells@abc.com</p>
-                        <p className="text-muted mb-0">Id no: #SK0234</p>
-                      </div>
-                    </div>
-                  </CardBody>
-                  <CardBody className="border-bottom">
-                    <div>
-                      <Row>
-                        <Col sm="6">
-                          <div>
-                            <p className="text-muted mb-2">Available Balance</p>
-                            <h5>$ 9148.00</h5>
-                          </div>
-                        </Col>
-                        <Col sm="6">
-                          <div className="text-sm-end mt-4 mt-sm-0">
-                            <p className="text-muted mb-2">Since last month</p>
-                            <h5>
-                              + $ 215.53{" "}
-                              <span className="badge bg-success ms-1 align-bottom">
-                                + 1.3 %
-                              </span>
-                            </h5>
-                          </div>
-                        </Col>
-                      </Row>
-                    </div>
-                  </CardBody>
-                </Card>
-
-              </Col>
-
             </Row>
           </Container>
         </div>

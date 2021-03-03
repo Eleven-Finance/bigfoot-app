@@ -1,11 +1,24 @@
 
+// Cards
+.card {
+    .card-title {
+        display: flex;
+        align-items: center;
+    }
+    .card-title .mdi {
+        margin-right: 10px;
+        // vertical-align: middle;
+    }
+}
+
+
 // Header
 .navbar-header a {
     display: table-cell;
     vertical-align: middle;
-    outline: 1px solid orange;
 }
 .logo {
     font-size: 1.5rem;
     color: #fff;
 }
+

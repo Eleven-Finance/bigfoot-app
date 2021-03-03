@@ -316,14 +316,12 @@ class Dashboard extends Component {
                     </div>
                   </CardBody>
 
-                  {/* modal */}
                   <Modal
                     isOpen={this.state.modal}
                     role="dialog"
                     size="lg"
                     autoFocus={true}
                     centered={true}
-                    id="verificationModal"
                     tabIndex="-1"
                     toggle={this.togglemodal}
                   >
@@ -395,94 +393,80 @@ class Dashboard extends Component {
                             >
                               <TabPane tabId={1} id="farm-step-1">
                                 <Form>
-                                  <Row>
-                                    <Col lg="12">
-                                      <p>I'd like to supply...</p>
+                                  <p>I'd like to supply...</p>
                                       
-                                      <FormGroup>
-                                        <Row>
-                                          <Col sm="6" lg="8">
-                                            <InputGroup className="mb-3">
-                                              <Label className="input-group-text">
-                                                <i className="mdi mdi-bitcoin" />
-                                                BTC
-                                              </Label>
-                                              <Input type="number" className="form-control" value={"0"} />
-                                            </InputGroup>
-                                          </Col>
-                                          <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                            <span className="me-3">
-                                              Balance: 0.0000
-                                            </span>
-                                            <Button 
-                                              outline
-                                              onClick={()=>{
-                                                console.log("set max.")
-                                              }}
-                                            >
-                                              MAX
-                                            </Button>
-                                          </Col>
-                                        </Row>
-                                      </FormGroup>
-                                      
-                                      <FormGroup>
-                                        <Row>
-                                          <Col sm="6" lg="8">
-                                            <InputGroup className="mb-3">
-                                              <Label className="input-group-text">
-                                                <i className="mdi mdi-ethereum" />
-                                                ETH
-                                              </Label>
-                                              <Input type="number" className="form-control" value={"0"} />
-                                            </InputGroup>
-                                          </Col>
-                                          <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                            <span className="me-3">
-                                              Balance: 0.0000
-                                            </span>
-                                            <Button 
-                                              outline
-                                              onClick={()=>{
-                                                console.log("set max.")
-                                              }}
-                                            >
-                                              MAX
-                                            </Button>
-                                          </Col>
-                                        </Row>
-                                      </FormGroup>
-                                    
-                                    </Col>
-                                  </Row>
-                                  <Row>
-                                    <Col lg="12">
-                                      <p>
-                                        Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
-                                      </p>
-                                    </Col>
-                                  </Row>
+                                  <FormGroup>
+                                    <Row>
+                                      <Col sm="6" lg="8">
+                                        <InputGroup className="mb-3">
+                                          <Label className="input-group-text">
+                                            <i className="mdi mdi-bitcoin" />
+                                            BTC
+                                          </Label>
+                                          <Input type="number" className="form-control" value={"0"} />
+                                        </InputGroup>
+                                      </Col>
+                                      <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                                        <span className="me-3">
+                                          Balance: 0.0000
+                                        </span>
+                                        <Button 
+                                          outline
+                                          onClick={()=>{
+                                            console.log("set max.")
+                                          }}
+                                        >
+                                          MAX
+                                        </Button>
+                                      </Col>
+                                    </Row>
+                                  </FormGroup>
+                                  
+                                  <FormGroup>
+                                    <Row>
+                                      <Col sm="6" lg="8">
+                                        <InputGroup className="mb-3">
+                                          <Label className="input-group-text">
+                                            <i className="mdi mdi-ethereum" />
+                                            ETH
+                                          </Label>
+                                          <Input type="number" className="form-control" value={"0"} />
+                                        </InputGroup>
+                                      </Col>
+                                      <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                                        <span className="me-3">
+                                          Balance: 0.0000
+                                        </span>
+                                        <Button 
+                                          outline
+                                          onClick={()=>{
+                                            console.log("set max.")
+                                          }}
+                                        >
+                                          MAX
+                                        </Button>
+                                      </Col>
+                                    </Row>
+                                  </FormGroup>
+                                
+                                  <p>Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.</p>
                                 </Form>
                               </TabPane>
                               <TabPane tabId={2} id="farm-step-2">
                                 <div>
                                   <Form>
-                                    <Row>
-                                      <Col lg={12}>
-                                        <p>Choose how much you'd like to borrow...</p>
-                                        <Slider
-                                          value={this.state.formFields.min_max}
-                                          min={1.5}
-                                          max={3}
-                                          step={0.5}
-                                          labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
-                                          orientation="horizontal"
-                                          onChange={value => {
-                                            this.setMin_max(value)
-                                          }}
-                                        />
-                                      </Col>
-                                    </Row>
+                                    <p>Choose how much you'd like to borrow...</p>
+                                    <Slider
+                                      value={this.state.formFields.min_max}
+                                      min={1.5}
+                                      max={3}
+                                      step={0.5}
+                                      labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
+                                      orientation="horizontal"
+                                      onChange={value => {
+                                        this.setMin_max(value)
+                                      }}
+                                    />
                                   </Form>
                                 </div>
                               </TabPane>

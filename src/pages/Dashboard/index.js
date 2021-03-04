@@ -202,7 +202,7 @@ class Dashboard extends Component {
                 <Card>
                   <CardBody>
                     <h4 className="card-title">
-                      <i className="mdi mdi-account-circle text-primary h1"/>
+                      <i className="mdi mdi-information-variant text-primary h1" />
                       Your info
                     </h4>
 
@@ -230,7 +230,7 @@ class Dashboard extends Component {
                 <Card>
                   <CardBody>
                     <h4 className="card-title">
-                      <i className="mdi mdi-warehouse text-primary h1"/>
+                      <i className="mdi mdi-tractor-variant text-primary h1"/>
                       Farm Pools
                     </h4>
 
@@ -249,7 +249,7 @@ class Dashboard extends Component {
                             <tr key={key}>
                               <th scope="row">
                                 <div className="d-flex align-items-center">
-                                <div className="avatar-xs me-3">
+                                  <div className="avatar-xs me-3">
                                     <span
                                       className={
                                         "avatar-title rounded-circle bg-soft bg-" +

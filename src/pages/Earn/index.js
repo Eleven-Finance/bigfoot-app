@@ -118,7 +118,7 @@ const Earn = props => {
                           <tr key={key}>
                             <th scope="row">
                               <div className="d-flex align-items-center">
-                              <div className="avatar-xs me-3">
+                                <div className="avatar-xs me-3">
                                   <span
                                     className={
                                       "avatar-title rounded-circle bg-soft bg-" +

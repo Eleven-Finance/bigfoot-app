@@ -91,7 +91,7 @@ const Positions = props => {
               <Card>
                 <CardBody>
                   <h4 className="card-title">
-                    <i className="mdi mdi-order-bool-descending text-primary h1"/>
+                    <i className="mdi mdi-playlist-star text-primary h1"/>
                     All Positions
                   </h4>
 

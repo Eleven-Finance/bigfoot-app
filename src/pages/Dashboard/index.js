@@ -145,7 +145,7 @@ class Dashboard extends Component {
   render() {
     return (
       <React.Fragment>
-        <div className="page-content">
+        <div className="Dashboard page-content">
           <Container fluid>
             <Row>
               <Col md="4">
@@ -157,7 +157,7 @@ class Dashboard extends Component {
                     </h4>
                     <Row>
                       <Col sm="12">
-                        <p id="total-value">$ 0.00</p>
+                        <p class="amount-total-value">$ 0.00</p>
                       </Col>
                     </Row>
                   </CardBody>

@@ -5,6 +5,7 @@ import {
   Col,
   Card,
   CardBody,
+  Button,
   Table,
 } from "reactstrap"
 
@@ -55,6 +56,17 @@ const Positions = props => {
       collateralInDollars: "66,090.80",
       borrowCredit: "36.07",
       collateralCredit: "37.60",
+      debtRatio: "120.00",
+    },
+    {
+      id: "150",
+      icon: "mdi mdi-circle-multiple",
+      color: "",
+      title1: "Curve",
+      title2: "3pool",
+      collateralInDollars: "66,090.80",
+      borrowCredit: "36.07",
+      collateralCredit: "37.60",
       debtRatio: "32.90",
     },
     {
@@ -78,6 +90,17 @@ const Positions = props => {
       borrowCredit: "36.07",
       collateralCredit: "37.60",
       debtRatio: "86.00",
+    },
+    {
+      id: "150",
+      icon: "mdi mdi-circle-multiple",
+      color: "",
+      title1: "Curve",
+      title2: "3pool",
+      collateralInDollars: "66,090.80",
+      borrowCredit: "36.07",
+      collateralCredit: "37.60",
+      debtRatio: "120.00",
     },
   ]);
 
@@ -162,15 +185,16 @@ const Positions = props => {
                               </h5>
                             </td>
                             <td style={{ width: "120px" }}>
-                              <Link
-                                to="#"
-                                className="btn btn-primary btn-sm w-xs"
+                            <Button
+                                disabled={ position.debtRatio < 100 }
+                                outline={ position.debtRatio < 100 }
+                                color={ position.debtRatio < 100 ? "secondary" : "primary" } 
                                 onClick={()=>{
                                   console.log("Liquidate")
                                 }}
                               >
                                 Liquidate
-                              </Link>
+                              </Button>
                             </td>
                           </tr>
                         ))}

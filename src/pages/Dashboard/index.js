@@ -147,7 +147,7 @@ class Dashboard extends Component {
       <React.Fragment>
         <div className="Dashboard page-content">
           <Container fluid>
-            <Row>
+            <Row className="equal-height">
               <Col md="4">
                 <Card>
                   <CardBody>

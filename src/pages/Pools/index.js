@@ -68,7 +68,7 @@ const Pools = props => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Row>
+          <Row className="equal-height">
             <Col md="4">
               <Card>
                 <CardBody>

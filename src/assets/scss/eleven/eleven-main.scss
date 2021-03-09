@@ -1,9 +1,25 @@
-// Buttons
+/* Grid System */
+
+// equal height cards
+.row.equal-height {
+    [class^='col-'] {
+        padding-bottom: 24px;
+    }
+    .card {
+        height: 100%;
+        .card-body{
+            padding-bottom: 0;
+        }
+    }
+}
+
+
+/* Buttons */
 .btn-block{
     width: 100%;
 }
 
-// Cards
+/* Cards */
 .card {
     .card-title {
         display: flex;
@@ -17,7 +33,7 @@
     }
 }
 
-// Modals
+/* Modals */
 .modal {
     form {
         .input-group-text {
@@ -37,7 +53,7 @@
 
 
 
-// Header
+/* Header */
 .navbar-header a {
     display: table-cell;
     vertical-align: middle;
@@ -46,4 +62,3 @@
     font-size: 1.5rem;
     color: #fff;
 }
-

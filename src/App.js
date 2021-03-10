@@ -19,11 +19,11 @@ import NonAuthLayout from "./components/NonAuthLayout"
 import "./assets/scss/theme.scss"
 
 
-// Import for eleven finance scss 
+// Import for bigfoot scss 
 // Note:
-// - these file "eleven-main.scss" will override the css rules from the theme we use (skote)
+// - these file "bigfoot.scss" will override the css rules from the theme we use (skote)
 // - if you need to modify any css, add your rules on that file (to avoid changing the theme files) 
-import "./assets/scss/eleven/eleven-main.scss"
+import "./assets/scss/bigfoot/bigfoot.scss"
 
 
 

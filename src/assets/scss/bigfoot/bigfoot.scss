@@ -39,6 +39,7 @@
         .input-group-text {
             padding-top: 2px;
             padding-bottom: 2px;
+            min-width: 6rem;
             .mdi {
                 font-size: 200%;
                 margin-right: 5px;
@@ -51,6 +52,18 @@
     }
 }
 
+/* Avatar */
+.avatar-multi {
+    flex-grow: 1;
+    text-align: center;
+    .avatar-title {
+        display: inline-flex; 
+        width: 2rem;
+        &:not(:first-child) {
+            margin-left: -0.5rem;
+        }
+    }
+}
 
 
 /* Header */

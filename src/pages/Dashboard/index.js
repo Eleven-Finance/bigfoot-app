@@ -33,15 +33,23 @@ class Dashboard extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      assets: [
+      pools: [
         {
-          icon: "mdi mdi-bitcoin",
+          title: "Bitswap BTC/ETH",
           color: "warning",
-          title: "BTC",
+          type: "Liquidity Providing",
           percentage: "61.66",
           percentageOut: "25.53",
-          typeTitle: "Liquidity Providing",
-          typeDetails: "Uniswap UNI/ETH",
+          currencies: [
+            {
+              code: "BTC",
+              icon: "mdi mdi-bitcoin"
+            },
+            {
+              code: "ETH",
+              icon: "mdi mdi-ethereum"
+            },
+          ],
           details: [
             { title: "Trading Fee", percentage: "51.68 " },
             { title: "Alpha APY", percentage: "25.96" },
@@ -49,13 +57,21 @@ class Dashboard extends Component {
           ]
         },
         {
-          icon: "mdi mdi-ethereum",
+          title: "NoodleSwap NOO/ETH",
           color: "primary",
-          title: "ETH",
+          type: "Liquidity Providing",
           percentage: "114.82",
           percentageOut: "51.81",
-          typeTitle: "Liquidity Providing",
-          typeDetails: "Uniswap UNI/ETH",
+          currencies: [
+            {
+              code: "NOO",
+              icon: "mdi mdi-noodles"
+            },
+            {
+              code: "ETH",
+              icon: "mdi mdi-ethereum"
+            },
+          ],
           details: [
             { title: "Yield Farming", percentage: "83.95" },
             { title: "Trading Fee", percentage: "51.68 " },
@@ -64,13 +80,21 @@ class Dashboard extends Component {
           ]
         },
         {
-          icon: "mdi mdi-litecoin",
+          title: "Liteswap LIT/ETH",
           color: "info",
-          title: "LTC",
+          type: "Liquidity Providing",
           percentage: "244.42",
           percentageOut: "91.19",
-          typeTitle: "Liquidity Providing",
-          typeDetails: "Uniswap UNI/ETH",
+          currencies: [
+            {
+              code: "LIT",
+              icon: "mdi mdi-litecoin"
+            },
+            {
+              code: "ETH",
+              icon: "mdi mdi-ethereum"
+            },
+          ],
           details: [
             { title: "Yield Farming", percentage: "83.95" },
             { title: "Trading Fee", percentage: "51.68 " },
@@ -79,13 +103,26 @@ class Dashboard extends Component {
           ]
         },
         {
-          icon: "mdi mdi-bitcoin",
+          title: "Ethswap ETH/BTC/LIT",
+          customIcon: "mdi mdi-numeric-3-circle",
           color: "warning",
-          title: "BTC",
+          type: "Liquidity Providing",
           percentage: "162.50",
           percentageOut: "16.42 ",
-          typeTitle: "Liquidity Providing",
-          typeDetails: "Uniswap UNI/ETH",
+          currencies: [
+            {
+              code: "ETH",
+              icon: "mdi mdi-ethereum"
+            },
+            {
+              code: "BTC",
+              icon: "mdi mdi-bitcoin"
+            },
+            {
+              code: "LIT",
+              icon: "mdi mdi-litecoin"
+            },
+          ],
           details: [
             { title: "Yield Farming", percentage: "83.95" },
             { title: "Trading Fee", percentage: "51.68 " },
@@ -94,13 +131,26 @@ class Dashboard extends Component {
           ]
         },
         {
-          icon: "mdi mdi-ethereum",
-          color: "primary",
-          title: "ETH",
+          title: "Multiswap ETH/NOO/LIT",
+          customIcon: "mdi mdi-airballoon",
+          color: "warning",
+          type: "Liquidity Providing",
           percentage: "68.12",
           percentageOut: "42.10",
-          typeTitle: "Liquidity Providing",
-          typeDetails: "Uniswap UNI/ETH",
+          currencies: [
+            {
+              code: "ETH",
+              icon: "mdi mdi-ethereum"
+            },
+            {
+              code: "NOO",
+              icon: "mdi mdi-noodles"
+            },
+            {
+              code: "LIT",
+              icon: "mdi mdi-litecoin"
+            },
+          ],
           details: [
             { title: "Yield Farming", percentage: "83.95" },
             { title: "Trading Fee", percentage: "51.68 " },
@@ -109,8 +159,14 @@ class Dashboard extends Component {
           ]
         },
       ],
-      formFields: {
-        min_max: 2
+      formData: {
+        poolTitle: '',
+        currencySupply: {
+          // currencyCodeA: amountA,
+          // currencyCodeB: amountB,
+          // ...
+        },
+        borrowFactor: 2
       },
       modal: false,
       activeTab: 1,
@@ -119,17 +175,47 @@ class Dashboard extends Component {
     this.toggleTab.bind(this)
   }
 
-  setMin_max(value){
+  setBorrowFactor(value){
     this.setState(state => {
-      state.formFields.min_max = value;
+      state.formData.borrowFactor = value;
       return state;
     });
   }
 
-  togglemodal = () => {
-    this.setState(prevState => ({
-      modal: !prevState.modal,
-    }))
+  updateCurrencySupply(currencyCode, value) {
+    let newFormData = JSON.parse(JSON.stringify(this.state.formData));
+    newFormData.currencySupply[currencyCode] = value;
+    this.setState({
+      formData: newFormData
+    });
+  }
+
+  togglemodal = (poolTitle) => {
+
+    let newState = JSON.parse(JSON.stringify(this.state));
+    
+    if(this.state.modal) { //reset formData and close
+      newState.formData = {
+        poolTitle: '',
+        currencySupply: {},
+        borrowFactor: 2
+      };
+      newState.modal = false;
+    } else { //initialize formData and open
+      
+      newState.formData.poolTitle = poolTitle;
+
+      // initialize currencySupply as { currencyCodeA: 0, currencyCodeB: 0, ...}
+      const poolCurrencies = this.state.pools.find( pool => pool.title===poolTitle).currencies;
+      newState.formData.currencySupply = Object.fromEntries(
+        poolCurrencies.map(currency => [currency.code, 0])
+      );
+      
+      newState.activeTab = 1;
+      newState.modal = true;
+    }
+
+    this.setState(newState);
   }
 
   toggleTab(tab) {
@@ -140,6 +226,14 @@ class Dashboard extends Component {
         })
       }
     }
+  }
+
+  renderIcon(icon, color) {
+    return (
+      <span className={ "avatar-title rounded-circle bg-soft bg-"+color + " text-"+color + " font-size-18" } >
+        <i className={icon}/>
+      </span>
+    )
   }
 
   render() {
@@ -157,7 +251,7 @@ class Dashboard extends Component {
                     </h4>
                     <Row>
                       <Col sm="12">
-                        <p class="amount-total-value">$ 0.00</p>
+                        <p className="amount-total-value">$ 0.00</p>
                       </Col>
                     </Row>
                   </CardBody>
@@ -172,7 +266,7 @@ class Dashboard extends Component {
                     </h4>
                     <Row>
                       <Col sm="6">
-                        <p className="text-muted mb-2">Total Collateral</p>
+                        <p className="text-muted mb-0">Total Collateral</p>
                       </Col>
                       <Col sm="6" className="text-end">
                         <p>$ 0.00</p>
@@ -180,7 +274,7 @@ class Dashboard extends Component {
                     </Row>
                     <Row>
                       <Col sm="6">
-                        <p className="text-muted mb-2">Total Borrow</p>
+                        <p className="text-muted mb-0">Total Borrow</p>
                       </Col>
                       <Col sm="6" className="text-end">
                         <p>$ 0.00</p>
@@ -188,7 +282,7 @@ class Dashboard extends Component {
                     </Row>
                     <Row>
                       <Col sm="6">
-                        <p className="text-muted mb-2">Active Positions</p>
+                        <p className="text-muted mb-0">Active Positions</p>
                       </Col>
                       <Col sm="6" className="text-end">
                         <p>100 Positions</p>
@@ -213,7 +307,7 @@ class Dashboard extends Component {
                           <h5>$ 0.00</h5>
                         </div>
                       </Col>
-                      <Col sm="12">
+                      <Col sm="12" className="mb-0">
                         <div>
                           <p className="text-muted mb-2">Total Borrow</p>
                           <h5>$ 0.00</h5>
@@ -238,57 +332,56 @@ class Dashboard extends Component {
                       <Table className="table table-nowrap align-middle mb-0">
                         <thead>
                           <tr>
-                            <th scope="col">Pair</th>
+                            <th scope="col" className="text-center">Pair</th>
                             <th scope="col">Type</th>
                             <th scope="col">Percentage</th>
                             <th scope="col" colSpan="2">Details</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {this.state.assets.map((asset, key) => (
-                            <tr key={key}>
+                          {this.state.pools.map( (pool, index) => (
+                            <tr key={index}>
                               <th scope="row">
                                 <div className="d-flex align-items-center">
-                                  <div className="avatar-xs me-3">
-                                    <span
-                                      className={
-                                        "avatar-title rounded-circle bg-soft bg-" +
-                                        asset.color +
-                                        " text-" +
-                                        asset.color +
-                                        " font-size-18"
+                                  <div className="avatar-xs avatar-multi">
+                                      { 
+                                        pool.customIcon ? 
+                                        this.renderIcon(pool.customIcon, pool.color) : 
+                                        pool.currencies.map( (currency, index) => {
+                                          return (
+                                            <React.Fragment key={index}>
+                                              {this.renderIcon(currency.icon, pool.color)}
+                                            </React.Fragment>
+                                          )
+                                        })
                                       }
-                                    >
-                                      <i className={asset.icon}/>
-                                    </span>
                                   </div>
-                                  <span>{asset.title}</span>
                                 </div>
                               </th>
                               <td>
                                 <div className="text-muted">
-                                  {asset.typeTitle}
+                                  {pool.type}
                                 </div>
                                 <h5 className="font-size-14 mb-1">
-                                  {asset.typeDetails}
+                                  {pool.title}
                                 </h5>
                               </td>
                               <td>
                                 <h5 className="font-size-20 mb-1">
-                                  {asset.percentage} %
+                                  {pool.percentage} %
                                 </h5>
                                 <div className="text-muted">
                                   <del>
-                                    {asset.percentageOut} %
+                                    {pool.percentageOut} %
                                   </del>
                                 </div>
                               </td>
                               <td>
 
                                 { 
-                                  asset.details.map( element => {
+                                  pool.details.map( (element, index) => {
                                     return(
-                                      <Row>
+                                      <Row key={index}>
                                         <Col sm="6">
                                           {element.title}
                                         </Col>
@@ -304,7 +397,7 @@ class Dashboard extends Component {
                                 <Link
                                   to="#"
                                   className="btn btn-primary btn-sm w-xs"
-                                  onClick={this.togglemodal}
+                                  onClick={ () => this.togglemodal(pool.title)}
                                 >
                                   Farm
                                 </Link>
@@ -327,7 +420,7 @@ class Dashboard extends Component {
                   >
                     <div className="modal-content">
                       <ModalHeader toggle={this.togglemodal}>
-                        Farm
+                        Farm: {this.state.formData.poolTitle}
                       </ModalHeader>
                       <ModalBody>
                         <div
@@ -394,60 +487,47 @@ class Dashboard extends Component {
                               <TabPane tabId={1} id="farm-step-1">
                                 <Form>
                                   <p>I'd like to supply...</p>
-                                      
-                                  <FormGroup>
-                                    <Row>
-                                      <Col sm="6" lg="8">
-                                        <InputGroup className="mb-3">
-                                          <Label className="input-group-text">
-                                            <i className="mdi mdi-bitcoin" />
-                                            BTC
-                                          </Label>
-                                          <Input type="number" className="form-control" value={"0"} />
-                                        </InputGroup>
-                                      </Col>
-                                      <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                        <span className="me-3">
-                                          Balance: 0.0000
-                                        </span>
-                                        <Button 
-                                          outline
-                                          onClick={()=>{
-                                            console.log("set max.")
-                                          }}
-                                        >
-                                          MAX
-                                        </Button>
-                                      </Col>
-                                    </Row>
-                                  </FormGroup>
                                   
-                                  <FormGroup>
-                                    <Row>
-                                      <Col sm="6" lg="8">
-                                        <InputGroup className="mb-3">
-                                          <Label className="input-group-text">
-                                            <i className="mdi mdi-ethereum" />
-                                            ETH
-                                          </Label>
-                                          <Input type="number" className="form-control" value={"0"} />
-                                        </InputGroup>
-                                      </Col>
-                                      <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                        <span className="me-3">
-                                          Balance: 0.0000
-                                        </span>
-                                        <Button 
-                                          outline
-                                          onClick={()=>{
-                                            console.log("set max.")
-                                          }}
-                                        >
-                                          MAX
-                                        </Button>
-                                      </Col>
-                                    </Row>
-                                  </FormGroup>
+                                  {
+                                    this.state.formData.poolTitle &&
+                                    this.state.pools.find( pool => pool.title === this.state.formData.poolTitle ).currencies.map( currency => {
+                                      return (
+                                        <FormGroup key={currency.code}>
+                                          <Row>
+                                            <Col sm="6" lg="8">
+                                              <InputGroup className="mb-3">
+                                                <Label className="input-group-text">
+                                                  <i className={currency.icon} />
+                                                  {currency.code}
+                                                </Label>
+                                                <Input 
+                                                  type="number" 
+                                                  className="form-control" 
+                                                  min="0"
+                                                  step="0.1"
+                                                  value={this.state.formData.currencySupply?.[currency.code] ?? 0}
+                                                  onChange={ (e) => this.updateCurrencySupply(currency.code, e.target.value)}
+                                                />
+                                              </InputGroup>
+                                            </Col>
+                                            <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                                              <span className="me-3">
+                                                Balance: 0.0000
+                                              </span>
+                                              <Button 
+                                                outline
+                                                onClick={()=>{
+                                                  console.log("set max.")
+                                                }}
+                                              >
+                                                MAX
+                                              </Button>
+                                            </Col>
+                                          </Row>
+                                        </FormGroup>
+                                      )
+                                    })
+                                  }
                                 
                                   <p>Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.</p>
                                 </Form>
@@ -457,23 +537,33 @@ class Dashboard extends Component {
                                   <Form>
                                     <p>Choose how much you'd like to borrow...</p>
                                     <Slider
-                                      value={this.state.formFields.min_max}
+                                      value={this.state.formData.borrowFactor}
                                       min={1.5}
                                       max={3}
                                       step={0.5}
                                       labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
                                       orientation="horizontal"
                                       onChange={value => {
-                                        this.setMin_max(value)
+                                        this.setBorrowFactor(value)
                                       }}
                                     />
                                   </Form>
                                 </div>
                               </TabPane>
-                              <TabPane tabId={3} id="farm-step-3">
-                                <h5 className="font-size-14 mb-3">
-                                  Details for step 3
-                                </h5>
+                              <TabPane tabId={3} id="farm-step-3" className="font-size-16">
+                                <p className="mt-3">
+                                  You will supply: 
+                                </p>
+                                <ul>
+                                  {
+                                    Object.keys(this.state.formData.currencySupply).map(currency => {
+                                      return <li key={currency} className="mt-3">{currency}: {this.state.formData.currencySupply[currency]}</li>
+                                    })
+                                  }
+                                </ul>
+                                <p className="font-size-16 mt-3 mb-3">
+                                  Borrow factor: {this.state.formData.borrowFactor} 
+                                </p>
                               </TabPane>
                             </TabContent>
                           </div>

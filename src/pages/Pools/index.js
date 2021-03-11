@@ -1,4 +1,5 @@
 import React, {useState} from "react"
+import bigfootPools from '../../data/bigfootPools'
 import {
   Container,
   Row,
@@ -26,28 +27,7 @@ import { Link } from "react-router-dom"
 
 const Pools = props => {
 
-  const [assets, setassets] = useState([
-    {
-      icon: "mdi mdi-ethereum",
-      color: "",
-      title: "ibETHv2",
-      totalAdded: "0.00",
-      stakedBalance: "0.00",
-      currentBalance: "0.00",
-      netGain: "0.00",
-      netGainDiff: "2.10",
-    },
-    {
-      icon: "mdi mdi-ethereum",
-      color: "",
-      title: "ibETHv2",
-      totalAdded: "0.00",
-      stakedBalance: "0.00",
-      currentBalance: "0.00",
-      netGain: "0.00",
-      netGainDiff: "-2.20",
-    },
-  ]);
+  const [assets, setassets] = useState(bigfootPools);
 
   const [ isModalOpen, setisModalOpen] = useState(false);
   const [ activeTab, setactiveTab] = useState(1);
@@ -78,7 +58,7 @@ const Pools = props => {
                   </h4>
                   <Row>
                     <Col sm="12">
-                      <p class="amount-total-value">$ 0.00</p>
+                      <p className="amount-total-value">$ 0.00</p>
                     </Col>
                   </Row>
                 </CardBody>
@@ -222,8 +202,8 @@ const Pools = props => {
                   </div>
                   <Row>
                     <Col sm="12" className="d-flex justify-content-between align-items-end">
-                      <span class="text-muted mb-2">APY</span>
-                      <span class="pool-apy-value">0.00%</span>
+                      <span className="text-muted mb-2">APY</span>
+                      <span className="pool-apy-value">0.00%</span>
                     </Col>
                     <Col sm="12">
                     </Col>
@@ -271,8 +251,8 @@ const Pools = props => {
                   </div>
                   <Row>
                     <Col sm="12" className="d-flex justify-content-between align-items-end">
-                      <span class="text-muted mb-2">APY</span>
-                      <span class="pool-apy-value">0.00%</span>
+                      <span className="text-muted mb-2">APY</span>
+                      <span className="pool-apy-value">0.00%</span>
                     </Col>
                     <Col sm="12">
                     </Col>

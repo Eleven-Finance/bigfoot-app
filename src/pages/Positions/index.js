@@ -1,4 +1,5 @@
 import React, {useState} from "react"
+import allPositions from '../../data/allPositions'
 import {
   Container,
   Row,
@@ -13,96 +14,7 @@ import { Link } from "react-router-dom"
 
 const Positions = props => {
 
-  const [positions, setpositions] = useState([
-    {
-      id: "140",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "32.90",
-    },
-    {
-      id: "142",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "34.95",
-    },
-    {
-      id: "150",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "86.00",
-    },
-    {
-      id: "150",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "120.00",
-    },
-    {
-      id: "150",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "32.90",
-    },
-    {
-      id: "152",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "34.95",
-    },
-    {
-      id: "160",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "86.00",
-    },
-    {
-      id: "150",
-      icon: "mdi mdi-circle-multiple",
-      color: "",
-      title1: "Curve",
-      title2: "3pool",
-      collateralInDollars: "66,090.80",
-      borrowCredit: "36.07",
-      collateralCredit: "37.60",
-      debtRatio: "120.00",
-    },
-  ]);
+  const [positions, setpositions] = useState(allPositions);
 
   return (
     <React.Fragment>

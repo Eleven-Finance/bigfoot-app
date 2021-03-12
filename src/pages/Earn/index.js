@@ -35,6 +35,34 @@ const Earn = props => {
       <div className="page-content">
         <Container fluid>
 
+          <Row className="equal-height">
+            <Col xs="12">
+              <Card>
+                <CardBody>
+                  <h4 className="card-title">
+                    <i className="mdi mdi-information-variant text-primary h1" />
+                    Your info
+                  </h4>
+
+                  <Row className="text-center mt-3">
+                    <Col sm="6">
+                      <div>
+                        <p className="text-muted mb-2">Supply Balance</p>
+                        <p className="total-value">$ 0.00</p>
+                      </div>
+                    </Col>
+                    <Col sm="6" className="mb-0">
+                      <div>
+                        <p className="text-muted mb-2">Net APY</p>
+                        <p className="total-value">0.00 %</p>
+                      </div>
+                    </Col>
+                  </Row>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+
           <Row>
             <Col xl="12">
               <Card>

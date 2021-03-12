@@ -58,7 +58,7 @@ const Pools = props => {
                   </h4>
                   <Row>
                     <Col sm="12">
-                      <p className="amount-total-value">$ 0.00</p>
+                      <p className="total-value">$ 0.00</p>
                     </Col>
                   </Row>
                 </CardBody>

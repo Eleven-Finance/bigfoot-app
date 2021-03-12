@@ -1,9 +1,13 @@
+//
+// Note:
+//  -- "title" must be unique
+//
 const lendingOptions = [
   {
+    title: "ibETHv2",
+    currency: "ETH",
     icon: "mdi mdi-ethereum",
     color: "",
-    title: "ibETHv2",
-    assetSymbol: "ETH",
     apy: "1.58",
     supply: "17,224.89",
     supplyInDollars: "28,734,381.43",
@@ -14,10 +18,10 @@ const lendingOptions = [
     balanceDiff: "+0.00",
   },
   {
+    title: "ibBTCv2",
+    currency: "BTC",
     icon: "mdi mdi-currency-btc",
     color: "",
-    title: "ibETHv2",
-    assetSymbol: "BTC",
     apy: "1.58",
     supply: "17,224.89",
     supplyInDollars: "28,734,381.43",
@@ -28,10 +32,10 @@ const lendingOptions = [
     balanceDiff: "+0.00",
   },
   {
+    title: "ibETHv3",
+    currency: "ETH",
     icon: "mdi mdi-ethereum",
     color: "",
-    title: "ibETHv2",
-    assetSymbol: "ETH",
     apy: "1.58",
     supply: "17,224.89",
     supplyInDollars: "28,734,381.43",
@@ -42,10 +46,10 @@ const lendingOptions = [
     balanceDiff: "+0.00",
   },
   {
+    title: "ibPHPv2",
+    currency: "PHP",
     icon: "mdi mdi-currency-php",
     color: "",
-    title: "ibETHv2",
-    assetSymbol: "PHP",
     apy: "1.58",
     supply: "17,224.89",
     supplyInDollars: "28,734,381.43",

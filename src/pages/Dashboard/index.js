@@ -426,7 +426,7 @@ class Dashboard extends Component {
                                   </Form>
                                 </div>
                               </TabPane>
-                              <TabPane tabId={3} id="farm-step-3" className="font-size-16">
+                              <TabPane tabId={3} id="farm-step-3">
                                 <p className="mt-3">
                                   You will supply: 
                                 </p>
@@ -437,7 +437,7 @@ class Dashboard extends Component {
                                     })
                                   }
                                 </ul>
-                                <p className="font-size-16 mt-3 mb-3">
+                                <p className="mt-3 mb-3">
                                   Borrow factor: {this.state.formData.borrowFactor} 
                                 </p>
                               </TabPane>

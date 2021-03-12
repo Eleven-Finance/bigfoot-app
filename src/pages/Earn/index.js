@@ -22,12 +22,118 @@ import { Link } from "react-router-dom"
 
 const Earn = props => {
 
-  const [assets, setassets] = useState(lendingOptions);
+  const [options, setOptions] = useState(lendingOptions);
+  const [isModalOpen, setisModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    option: '', // lending option chosen by the user (defined by option.title)
+    action: '', // supply,withdraw
+    amount: 0,
+  });
 
-  const [ isModalOpen, setisModalOpen] = useState(false);
-
-  const togglemodal = () => {
+  const togglemodal = (option = '', action = '') => {
+    setFormData({
+      option: option,
+      action: action,
+      amount: 0
+    });
     setisModalOpen(!isModalOpen);
+  }
+
+  const updateAmount = (value) => {
+    let newFormData = {...formData};
+    newFormData.amount = value
+    setFormData(newFormData);
+  }
+
+  const renderFormContent = () => {
+
+    const selectedOption = options.find( option => option.title === formData.option);
+    const {title = '', currency = '', icon = ''} = selectedOption || {};
+    
+    if (formData.action === 'supply') {
+      return (
+        <React.Fragment>
+          <p>I'd like to supply...</p>
+          <FormGroup>
+            <Row>
+              <Col sm="6" lg="8">
+                <InputGroup className="mb-3">
+                  <Label className="input-group-text">
+                    <i className={icon} />
+                    {currency}
+                  </Label>
+                  <Input 
+                    type="number" 
+                    className="form-control" 
+                    min={0}
+                    step={0.01}
+                    value={formData.amount} 
+                    onChange={(e) => updateAmount(e.target.value)}/>
+                </InputGroup>
+              </Col>
+              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                <span className="me-3">
+                  Balance: 0.0000
+              </span>
+                <Button
+                  outline
+                  onClick={() => {
+                    console.log("set max.")
+                  }}
+                >
+                  MAX
+              </Button>
+              </Col>
+            </Row>
+          </FormGroup>
+        </React.Fragment>
+      );
+    } else if (formData.action === 'withdraw') {
+      return (
+        <React.Fragment>
+          <p>I'd like to withdraw...</p>
+          <FormGroup>
+            <Row>
+              <Col sm="6" lg="8">
+                <InputGroup className="mb-3">
+                  <Label className="input-group-text">
+                    <i className={icon} />
+                    {title}
+                  </Label>
+                  <Input 
+                    type="number" 
+                    className="form-control" 
+                    min={0}
+                    step={0.01}
+                    value={formData.amount}
+                    onChange={(e) => updateAmount(e.target.value)}/>
+                </InputGroup>
+              </Col>
+              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                <span className="me-3">
+                  Balance: 0.0000
+              </span>
+                <Button
+                  outline
+                  onClick={() => {
+                    console.log("set max.")
+                  }}
+                >
+                  MAX
+                </Button>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col xs="12">
+                <p>
+                  You will get {currency}: xxx
+                </p>
+              </Col>
+            </Row>
+          </FormGroup>
+        </React.Fragment>
+      );
+    }
   }
 
   return (
@@ -86,7 +192,7 @@ const Earn = props => {
                         </tr>
                       </thead>
                       <tbody>
-                        {assets.map((asset, key) => (
+                        {options.map((option, key) => (
                           <tr key={key}>
                             <th scope="row">
                               <div className="d-flex align-items-center">
@@ -94,50 +200,50 @@ const Earn = props => {
                                   <span
                                     className={
                                       "avatar-title rounded-circle bg-soft bg-" +
-                                      asset.color +
+                                      option.color +
                                       " text-" +
-                                      asset.color +
+                                      option.color +
                                       " font-size-18"
                                     }
                                   >
-                                    <i className={asset.icon}/>
+                                    <i className={option.icon}/>
                                   </span>
                                 </div>
-                                <span>{asset.title}</span>
+                                <span>{option.title}</span>
                               </div>
                             </th>
                             <td>
                               <div>
-                                {asset.apy} %
+                                {option.apy} %
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {asset.supply} {asset.assetSymbol}
+                                {option.supply} {option.currency}
                               </h5>
                               <div className="text-muted">
-                                  (${asset.supplyInDollars})
+                                  (${option.supplyInDollars})
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {asset.borrow} {asset.assetSymbol}
+                                {option.borrow} {option.currency}
                               </h5>
                               <div className="text-muted">
-                                  (${asset.borrowInDollars})
+                                  (${option.borrowInDollars})
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {asset.utilization} %
+                                {option.utilization} %
                               </h5>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {asset.balance} {asset.assetSymbol}
+                                {option.balance} {option.currency}
                               </h5>
                               <div className="text-muted">
-                                  ({asset.balanceDiff} {asset.assetSymbol})
+                                  ({option.balanceDiff} {option.currency})
                               </div>
                             </td>
                             <td style={{ width: "120px" }}>
@@ -145,7 +251,7 @@ const Earn = props => {
                                 <Link
                                   to="#"
                                   className="btn btn-primary btn-sm w-xs"
-                                  onClick={togglemodal}
+                                  onClick={() => togglemodal(option.title, 'supply')}
                                 >
                                   Supply
                                 </Link>
@@ -154,7 +260,7 @@ const Earn = props => {
                                 <Link
                                   to="#"
                                   className="btn btn-primary btn-sm w-xs"
-                                  onClick={togglemodal}
+                                  onClick={() => togglemodal(option.title, 'withdraw')}
                                 >
                                   Withdraw
                                 </Link>
@@ -175,8 +281,12 @@ const Earn = props => {
                   centered={true}
                 >
                   <div className="modal-content">
-                    <ModalHeader toggle={togglemodal}>
-                      Supply
+                    <ModalHeader toggle={() => togglemodal()}>
+                      <span className="text-capitalize">
+                        {formData.action}: 
+                      </span>
+                      &nbsp;
+                      {formData.option}
                     </ModalHeader>
                     <ModalBody>
                       <div
@@ -184,34 +294,7 @@ const Earn = props => {
                       >
                         <div className="content clearfix">
                           <Form>
-                            <p>I'd like to supply...</p>   
-                            <FormGroup>
-                              <Row>
-                                <Col sm="6" lg="8">
-                                  <InputGroup className="mb-3">
-                                    <Label className="input-group-text">
-                                      <i className="mdi mdi-bitcoin" />
-                                      BTC
-                                    </Label>
-                                    <Input type="number" className="form-control" value={"0"} />
-                                  </InputGroup>
-                                </Col>
-                                <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                  <span className="me-3">
-                                    Balance: 0.0000
-                                  </span>
-                                  <Button 
-                                    outline
-                                    onClick={()=>{
-                                      console.log("set max.")
-                                    }}
-                                  >
-                                    MAX
-                                  </Button>
-                                </Col>
-                              </Row>
-                            </FormGroup>
-                              
+                            {renderFormContent()}
                             <p>
                               Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
                             </p>

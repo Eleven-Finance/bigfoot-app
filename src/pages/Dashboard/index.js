@@ -107,7 +107,7 @@ class Dashboard extends Component {
   renderIcon(icon, color) {
     return (
       <span className={ "avatar-title rounded-circle bg-soft bg-"+color + " text-"+color + " font-size-18" } >
-        <i className={icon}/>
+        <img src={icon.default} />
       </span>
     )
   }
@@ -373,7 +373,9 @@ class Dashboard extends Component {
                                             <Col sm="6" lg="8">
                                               <InputGroup className="mb-3">
                                                 <Label className="input-group-text">
-                                                  <i className={currency.icon} />
+                                                  <span className="me-2">
+                                                    {this.renderIcon(currency.icon)}
+                                                  </span>
                                                   {currency.code}
                                                 </Label>
                                                 <Input 

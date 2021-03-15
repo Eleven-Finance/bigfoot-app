@@ -3,21 +3,27 @@
 //  -- the property "title" must be unique
 //  -- a specific icon can be defined through the property "customIcon" (if "customIcon" is not defined, then the icons are generated from the values in "currencies.icon")
 //
+
+
+// import demo icons
+import { Ethereum, Sushi, ThreeCrv, Uniswap, Usdc} from '../assets/images/bigfoot/icons-assets/demo/_index'
+
+
 const farmPools = [
   {
-    title: "Bitswap BTC/ETH",
+    title: "Sushiswap SHU/ETH",
     color: "warning",
     type: "Liquidity Providing",
     percentage: "61.66",
     percentageOut: "25.53",
     currencies: [
       {
-        code: "BTC",
-        icon: "mdi mdi-bitcoin"
+        code: "SHU",
+        icon: Sushi
       },
       {
         code: "ETH",
-        icon: "mdi mdi-ethereum"
+        icon: Ethereum
       },
     ],
     details: [
@@ -27,19 +33,19 @@ const farmPools = [
     ]
   },
   {
-    title: "NoodleSwap NOO/ETH",
+    title: "NoodleSwap UNI/ETH",
     color: "primary",
     type: "Liquidity Providing",
     percentage: "114.82",
     percentageOut: "51.81",
     currencies: [
       {
-        code: "NOO",
-        icon: "mdi mdi-noodles"
+        code: "Uni",
+        icon: Uniswap
       },
       {
         code: "ETH",
-        icon: "mdi mdi-ethereum"
+        icon: Ethereum
       },
     ],
     details: [
@@ -50,19 +56,19 @@ const farmPools = [
     ]
   },
   {
-    title: "Liteswap LIT/ETH",
+    title: "Liteswap SDC/ETH",
     color: "info",
     type: "Liquidity Providing",
     percentage: "244.42",
     percentageOut: "91.19",
     currencies: [
       {
-        code: "LIT",
-        icon: "mdi mdi-litecoin"
+        code: "SDC",
+        icon: Usdc
       },
       {
         code: "ETH",
-        icon: "mdi mdi-ethereum"
+        icon: Ethereum
       },
     ],
     details: [
@@ -73,8 +79,8 @@ const farmPools = [
     ]
   },
   {
-    title: "Ethswap ETH/BTC/LIT",
-    customIcon: "mdi mdi-numeric-3-circle",
+    title: "Ethswap ETH/SHU/SDC",
+    customIcon: ThreeCrv,
     color: "warning",
     type: "Liquidity Providing",
     percentage: "162.50",
@@ -82,15 +88,15 @@ const farmPools = [
     currencies: [
       {
         code: "ETH",
-        icon: "mdi mdi-ethereum"
+        icon: Ethereum
       },
       {
-        code: "BTC",
-        icon: "mdi mdi-bitcoin"
+        code: "SHU",
+        icon: Sushi
       },
       {
-        code: "LIT",
-        icon: "mdi mdi-litecoin"
+        code: "SDC",
+        icon: Usdc
       },
     ],
     details: [
@@ -101,8 +107,8 @@ const farmPools = [
     ]
   },
   {
-    title: "Multiswap ETH/NOO/LIT",
-    customIcon: "mdi mdi-airballoon",
+    title: "Multiswap ETH/UNI/LIT",
+    customIcon: ThreeCrv,
     color: "warning",
     type: "Liquidity Providing",
     percentage: "68.12",
@@ -110,15 +116,15 @@ const farmPools = [
     currencies: [
       {
         code: "ETH",
-        icon: "mdi mdi-ethereum"
+        icon: Ethereum
       },
       {
-        code: "NOO",
-        icon: "mdi mdi-noodles"
+        code: "UNI",
+        icon: Uniswap
       },
       {
-        code: "LIT",
-        icon: "mdi mdi-litecoin"
+        code: "SDC",
+        icon: Usdc
       },
     ],
     details: [

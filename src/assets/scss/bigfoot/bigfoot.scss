@@ -53,6 +53,13 @@
 }
 
 /* Avatar */
+.avatar-title{
+    width: auto;
+    img {
+        width: 2rem;
+        height: 2rem;
+    }
+}
 .avatar-multi {
     flex-grow: 1;
     text-align: center;

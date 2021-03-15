@@ -78,3 +78,17 @@
         color: #fff;
     }
 }
+
+/* Footer */
+.footer{
+    background-color: unset;
+    #social {
+        a {
+            margin: 0 5px;
+            font-size: 24px;
+            img {
+                height: 24px;
+            }
+        }
+    }
+}

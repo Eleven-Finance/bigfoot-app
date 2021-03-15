@@ -1,5 +1,6 @@
 import React from "react"
 import { Container, Row, Col } from "reactstrap"
+import iconMedium from '../../assets/images/bigfoot/icons-social/medium.svg'
 
 const Footer = () => {
   return (
@@ -7,8 +8,19 @@ const Footer = () => {
       <footer className="footer">
         <Container fluid={true}>
           <Row>
-            <Col md={12}>
-              <div className="text-sm-center d-none d-sm-block">
+            <Col xs={12} className="text-center mb-3">
+              <div id="social">
+                <a target="_blank" href="https://twitter.com/elevenfinance">
+                  <i className="mdi mdi-twitter" />
+                </a>
+                <a target="_blank" href="https://t.me/elevenfinance">
+                  <i className="mdi mdi-telegram" />
+                </a>
+                <a target="_blank" href="https://elevenfinance.medium.com/">
+                  <img src={iconMedium} alt="Medium" />
+                </a>
+              </div>
+              <div>
                 {new Date().getFullYear()}, BigFoot
               </div>
             </Col>

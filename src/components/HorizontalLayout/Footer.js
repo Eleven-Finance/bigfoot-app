@@ -1,6 +1,7 @@
 import React from "react"
 import { Container, Row, Col } from "reactstrap"
-import iconMedium from '../../assets/images/bigfoot/icons-social/medium.svg'
+
+import {ReactComponent as IconMedium} from '../../assets/images/bigfoot/icons-social/medium.svg'
 
 const Footer = () => {
   return (
@@ -17,7 +18,7 @@ const Footer = () => {
                   <i className="mdi mdi-telegram" />
                 </a>
                 <a target="_blank" href="https://elevenfinance.medium.com/">
-                  <img src={iconMedium} alt="Medium" />
+                  <IconMedium />
                 </a>
               </div>
               <div>

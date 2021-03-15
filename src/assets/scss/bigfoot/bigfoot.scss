@@ -86,8 +86,11 @@
         a {
             margin: 0 5px;
             font-size: 24px;
-            img {
-                height: 24px;
+            svg {
+              fill: #556ee6;
+              &:hover {
+                fill: #4458b8;
+              }
             }
         }
     }

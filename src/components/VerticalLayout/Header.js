@@ -17,7 +17,7 @@ import ProfileMenu from "../CommonForBoth/TopbarDropdown/ProfileMenu"
 import megamenuImg from "../../assets/images/megamenu-img.png"
 import logo from "../../assets/images/logo.svg"
 import logoLightPng from "../../assets/images/logo-light.png"
-import logoLightSvg from "../../assets/images/logo-light.svg"
+import bigfootLogoSvg from "../../assets/images/bigfoot/bigfoot-logo.svg"
 import logoDark from "../../assets/images/logo-dark.png"
 
 // import images
@@ -97,7 +97,7 @@ const Header = props => {
 
               <Link to="/" className="logo logo-light">
                 <span className="logo-sm">
-                  <img src={logoLightSvg} alt="" height="22" />
+                  <img src={bigfootLogoSvg} alt="" height="22" />
                 </span>
                 <span className="logo-lg">
                   <img src={logoLightPng} alt="" height="19" />

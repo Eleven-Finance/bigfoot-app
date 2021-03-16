@@ -4,12 +4,34 @@ import { Row, Col, Collapse } from "reactstrap"
 import { Link, withRouter } from "react-router-dom"
 import classname from "classnames"
 
+// Redux Store
+import { toggleLeftmenu } from "../../store/actions"
+
 //i18n
 import { withTranslation } from "react-i18next"
 
 import { connect } from "react-redux"
 
 const Navbar = props => {
+
+  const menuItems = [
+    {
+      destinationPath: '/dashboard',
+      anchorText: 'Dashboard'
+    },
+    {
+      destinationPath: '/positions',
+      anchorText: 'All positions'
+    },
+    {
+      destinationPath: '/earn',
+      anchorText: 'Earn'
+    },
+    {
+      destinationPath: '/pools',
+      anchorText: 'Pools'
+    },
+  ];
 
   useEffect(() => {
     var matchingMenuItem = null
@@ -66,38 +88,23 @@ const Navbar = props => {
               id="topnav-menu-content"
             >
               <ul className="navbar-nav">
-                <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="/dashboard"
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="/positions"
-                  >
-                    All positions
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="/earn"
-                  >
-                    Earn
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="/pools"
-                  >
-                    Pools
-                  </Link>
-                </li>              
+                {
+                  menuItems.map((item, index) => {
+                    return(
+                      <li key={index} className="nav-item">
+                        <Link
+                          className="nav-link"
+                          to={item.destinationPath}
+                          onClick={() => {
+                            props.toggleLeftmenu(false);
+                          }}
+                        >
+                          {item.anchorText}
+                        </Link>
+                      </li>
+                    );
+                  })
+                }              
               </ul>
             </Collapse>
           </nav>
@@ -120,5 +127,7 @@ const mapStatetoProps = state => {
 }
 
 export default withRouter(
-  connect(mapStatetoProps, {})(withTranslation()(Navbar))
+  connect(mapStatetoProps, {
+    toggleLeftmenu
+  })(withTranslation()(Navbar))
 )

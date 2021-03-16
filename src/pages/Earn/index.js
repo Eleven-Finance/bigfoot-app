@@ -279,6 +279,7 @@ const Earn = props => {
                   size="lg"
                   autoFocus={true}
                   centered={true}
+                  toggle={() => togglemodal()}
                 >
                   <div className="modal-content">
                     <ModalHeader toggle={() => togglemodal()}>

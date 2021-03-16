@@ -463,20 +463,18 @@ class Dashboard extends Component {
                                   Previous
                                 </Link>
                               </li>
-                              <li
-                                className={
-                                  this.state.activeTab === 3
-                                    ? "next disabled"
-                                    : "next"
-                                }
-                              >
+                              <li className="next">
                                 <Link
                                   to="#"
                                   onClick={() => {
-                                    this.toggleTab(this.state.activeTab + 1)
+                                    if(this.state.activeTab === 3){
+                                      console.log("confirm farm request")
+                                    } else {
+                                      this.toggleTab(this.state.activeTab + 1);
+                                    }
                                   }}
                                 >
-                                  Next
+                                  { this.state.activeTab === 3 ? "Confirm" : "Next"}
                                 </Link>
                               </li>
                             </ul>

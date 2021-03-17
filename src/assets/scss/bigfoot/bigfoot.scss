@@ -2,7 +2,7 @@
 
 // equal height cards
 .row.equal-height {
-    [class^='col-'] {
+    > [class^='col-'] {
         padding-bottom: 24px;
     }
     .card {

@@ -28,8 +28,6 @@ import "react-rangeslider/lib/index.css"
 import classnames from "classnames"
 import { Link } from "react-router-dom"
 
-import '../../pages/Dashboard/Dashboard.scss'
-
 class Dashboard extends Component {
   constructor(props) {
     super(props)

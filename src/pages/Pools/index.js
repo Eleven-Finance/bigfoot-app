@@ -25,32 +25,182 @@ import {
 
 import classnames from "classnames"
 import { Link } from "react-router-dom"
+import './Pools.scss'
 
 const Pools = props => {
-  const [ isModalOpen, setisModalOpen] = useState(false);
-  const [ activeTab, setactiveTab] = useState(1);
 
-  const togglemodal = () => {
+  const [pools, setPools] = useState(poolOptions);
+  const [isModalOpen, setisModalOpen] = useState(false);
+  const [activeTab, setactiveTab] = useState(1);
+  const [formData, setFormData] = useState({
+    option: '', // pool option chosen by the user (defined by pool.title)
+    action: '', // deposit,withdraw
+    amount: 0,
+  });
+
+  const togglemodal = (option = '', action = '') => {
+    setFormData({
+      option: option,
+      action: action,
+      amount: 0
+    });
     setisModalOpen(!isModalOpen);
   }
 
-  const toggleTab = (tab) => {
-    if (activeTab !== tab) {
-      if (tab >= 1 && tab <= 2) {
-        setactiveTab(tab)
-      }
+  const updateAmount = (value) => {
+    let newFormData = {...formData};
+    newFormData.amount = value
+    setFormData(newFormData);
+  }
+
+  const renderFormContent = () => {
+
+    const selectedOption = pools.find( pool => pool.title === formData.option);
+    const {title = ''} = selectedOption || {};
+    
+    if (formData.action === 'deposit') {
+      return (
+        <React.Fragment>
+          <p>I'd like to deposit...</p>
+          <FormGroup>
+            <Row>
+              <Col sm="6" lg="8">
+                <InputGroup className="mb-3">
+                  <Label className="input-group-text">
+                    {title}
+                  </Label>
+                  <Input 
+                    type="number" 
+                    className="form-control" 
+                    min={0}
+                    step={0.01}
+                    value={formData.amount} 
+                    onChange={(e) => updateAmount(e.target.value)}/>
+                </InputGroup>
+              </Col>
+              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                <span className="me-3">
+                  Balance: 0.0000
+              </span>
+                <Button
+                  outline
+                  onClick={() => {
+                    console.log("set max.")
+                  }}
+                >
+                  MAX
+              </Button>
+              </Col>
+            </Row>
+          </FormGroup>
+        </React.Fragment>
+      );
+    } else if (formData.action === 'withdraw') {
+      return (
+        <React.Fragment>
+          <p>I'd like to withdraw...</p>
+          <FormGroup>
+            <Row>
+              <Col sm="6" lg="8">
+                <InputGroup className="mb-3">
+                  <Label className="input-group-text">
+                    {title}
+                  </Label>
+                  <Input 
+                    type="number" 
+                    className="form-control" 
+                    min={0}
+                    step={0.01}
+                    value={formData.amount}
+                    onChange={(e) => updateAmount(e.target.value)}/>
+                </InputGroup>
+              </Col>
+              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                <span className="me-3">
+                  Balance: 0.0000
+              </span>
+                <Button
+                  outline
+                  onClick={() => {
+                    console.log("set max.")
+                  }}
+                >
+                  MAX
+                </Button>
+              </Col>
+            </Row>
+          </FormGroup>
+        </React.Fragment>
+      );
+    }
+  }
+
+  const renderButtons = (pool) => {
+    if (pool.isAuthorized) {
+      return (
+        <Row>
+          <Col sm="6" className="mb-2">
+            <Button
+              block
+              outline
+              onClick={ () => togglemodal(pool.title, 'deposit') }
+            >
+              Deposit
+            </Button>
+          </Col>
+          <Col sm="6" className="mb-2">
+            <Button
+              block
+              outline
+              onClick={ () => togglemodal(pool.title, 'withdraw') }
+            >
+              Withdraw
+            </Button>
+          </Col>
+          <Col sm="12">
+            <Button
+              block
+              color="primary"
+              disabled={ !pool.canHarvest }
+              onClick={() => {
+                console.log("Harvest")
+              }}
+            >
+              Harvest
+              </Button>
+          </Col>
+        </Row>
+      );
+    } else {
+      return(
+        <Row className="authorize-buttons">
+          <Col sm="12">
+            <Button
+              block
+              color="primary"
+              onClick={() => {
+                let newPools = JSON.parse(JSON.stringify(pools));
+                newPools.find( thatPool => thatPool.title===pool.title).isAuthorized = true;
+                setPools(newPools);
+              }}
+            >
+              Authorize
+            </Button>
+          </Col>
+        </Row>
+      );
     }
   }
 
   return (
     <React.Fragment>
-      <div className="page-content">
+      <div id="Pools" className="page-content">
         <Container fluid>
 
           {/* <PoolsUpperInfo /> */}
 
-          <Row>
-            { poolOptions.map( pool => {
+          <Row className="equal-height">
+            { pools.map( pool => {
               return (
                 <Col key={pool.title} md="4">
                   <Card>
@@ -83,7 +233,7 @@ const Pools = props => {
                           }
                         </div>
                       </div>
-                      
+
                       <Row>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="text-muted mb-2">APY</span>
@@ -95,37 +245,7 @@ const Pools = props => {
                         </Col>
                       </Row>
 
-                      <Row>
-                        <Col sm="6" className="mb-2">
-                          <Button
-                            block
-                            outline
-                            onClick={togglemodal}
-                          >
-                            Deposit
-                        </Button>
-                        </Col>
-                        <Col sm="6" className="mb-2">
-                          <Button
-                            block
-                            outline
-                            onClick={togglemodal}
-                          >
-                            Withdraw
-                        </Button>
-                        </Col>
-                        <Col sm="12">
-                          <Button
-                            block
-                            color="primary"
-                            onClick={() => {
-                              console.log("Stake")
-                            }}
-                          >
-                            Harvest
-                        </Button>
-                        </Col>
-                      </Row>
+                      { renderButtons(pool) }
 
                     </CardBody>
                   </Card>
@@ -140,160 +260,53 @@ const Pools = props => {
             size="lg"
             autoFocus={true}
             centered={true}
-            tabIndex="-1"
-            toggle={togglemodal}
+            toggle={() => togglemodal()}
           >
             <div className="modal-content">
-              <ModalHeader toggle={togglemodal}>
-                Farm
+              <ModalHeader toggle={() => togglemodal()}>
+                <span className="text-capitalize">
+                  {formData.action}:
+                </span>
+                &nbsp;
+                {formData.option}
               </ModalHeader>
               <ModalBody>
                 <div
-                  id="kyc-verify-wizard"
                   className="wizard clearfix"
                 >
-                  <div className="steps clearfix">
-                    <ul>
-                      <NavItem
-                        className={classnames({
-                          current: activeTab === 1,
-                        })}>
-                        <NavLink
-                          className={classnames({
-                            active: activeTab === 1,
-                          })}
-                          onClick={() => {
-                            toggleTab(1)
-                          }}
-                        >
-                          <span className="number">1.</span>
-                          Supply tokens
-                        </NavLink>
-                      </NavItem>
-                        <NavItem
-                          className={classnames({
-                            current: activeTab === 2,
-                          })}>
-                          <NavLink
-                            className={classnames({
-                              active: activeTab === 2,
-                            })}
-                            onClick={() => {
-                              toggleTab(2)
-                            }}
-                          >
-                            <span className="number">2.</span>
-                            Confirm strategy
-                        </NavLink>
-                      </NavItem>
-                    </ul>
-                  </div>
                   <div className="content clearfix">
-                    <TabContent
-                      activeTab={activeTab}
-                      className="twitter-bs-wizard-tab-content"
-                    >
-                      <TabPane tabId={1} id="step-1">
-                        <Form>
-                          <p>I'd like to supply...</p>
-                              
-                          <FormGroup>
-                            <Row>
-                              <Col sm="6" lg="8">
-                                <InputGroup className="mb-3">
-                                  <Label className="input-group-text">
-                                    <i className="mdi mdi-bitcoin" />
-                                    BTC
-                                  </Label>
-                                  <Input type="number" className="form-control" value={"0"} />
-                                </InputGroup>
-                              </Col>
-                              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                <span className="me-3">
-                                  Balance: 0.0000
-                                </span>
-                                <Button 
-                                  outline
-                                  onClick={()=>{
-                                    console.log("set max.")
-                                  }}
-                                >
-                                  MAX
-                                </Button>
-                              </Col>
-                            </Row>
-                          </FormGroup>
-                          
-                          <FormGroup>
-                            <Row>
-                              <Col sm="6" lg="8">
-                                <InputGroup className="mb-3">
-                                  <Label className="input-group-text">
-                                    <i className="mdi mdi-ethereum" />
-                                    ETH
-                                  </Label>
-                                  <Input type="number" className="form-control" value={"0"} />
-                                </InputGroup>
-                              </Col>
-                              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                <span className="me-3">
-                                  Balance: 0.0000
-                                </span>
-                                <Button 
-                                  outline
-                                  onClick={()=>{
-                                    console.log("set max.")
-                                  }}
-                                >
-                                  MAX
-                                </Button>
-                              </Col>
-                            </Row>
-                          </FormGroup>
-                        
-                          <p>Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.</p>
-                        </Form>
-                      </TabPane>
-                      <TabPane tabId={2} id="step-2">
-                        <h5 className="font-size-14 mb-3">
-                          Step2 Summary
-                        </h5>
-                      </TabPane>
-                    </TabContent>
+                    <Form>
+                      {renderFormContent()}
+                      <p>
+                        Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
+                            </p>
+                    </Form>
                   </div>
                   <div className="actions clearfix">
                     <ul role="menu" aria-label="Pagination">
                       <li
-                        className={
-                          activeTab === 1
-                            ? "previous disabled"
-                            : "previous"
-                        }
+                        className={"previous disabled"}
                       >
                         <Link
                           to="#"
                           onClick={() => {
-                            toggleTab(activeTab - 1)
+                            console.log("cancel...")
                           }}
                         >
-                          Previous
-                        </Link>
+                          Cancel
+                              </Link>
                       </li>
                       <li
-                        className={
-                          activeTab === 3
-                            ? "next disabled"
-                            : "next"
-                        }
+                        className={"next"}
                       >
                         <Link
                           to="#"
                           onClick={() => {
-                            toggleTab(activeTab + 1)
+                            console.log("confirm...")
                           }}
                         >
-                          Next
-                        </Link>
+                          Confirm
+                              </Link>
                       </li>
                     </ul>
                   </div>
@@ -301,7 +314,7 @@ const Pools = props => {
               </ModalBody>
             </div>
           </Modal>
-
+          
         </Container>
       </div>
     </React.Fragment>

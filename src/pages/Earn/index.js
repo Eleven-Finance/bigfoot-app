@@ -141,7 +141,7 @@ const Earn = props => {
       <div className="page-content">
         <Container fluid>
 
-          <Row className="equal-height">
+          <Row>
             <Col xs="12">
               <Card>
                 <CardBody>

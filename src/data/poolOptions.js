@@ -21,6 +21,9 @@ const poolOptions = [
       },
     ],
     apy: "26.30",
+
+    isAuthorized: false,
+    canHarvest: true,
   },
   {
     title: "SushiSwap SHU/ETH",
@@ -36,6 +39,9 @@ const poolOptions = [
       },
     ],
     apy: "26.30",
+
+    isAuthorized: false,
+    canHarvest: false,
   },
   {
     title: "EtherSwap USDC/ETH",
@@ -51,6 +57,27 @@ const poolOptions = [
       },
     ],
     apy: "36.30",
+
+    isAuthorized: false,
+    canHarvest: true,
+  },
+  {
+    title: "MultiSwap USDC/ETH",
+    poolIcon: Ethereum,
+    currencies: [
+      {
+        code: "USDC",
+        icon: Usdc
+      },
+      {
+        code: "ETH",
+        icon: Ethereum
+      },
+    ],
+    apy: "36.30",
+
+    isAuthorized: false,
+    canHarvest: true,
   },
 ];
 

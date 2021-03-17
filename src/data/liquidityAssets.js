@@ -1,4 +1,4 @@
-const bigfootPools = [
+const liquidityAssets = [
   {
     icon: "mdi mdi-ethereum",
     color: "",
@@ -21,4 +21,4 @@ const bigfootPools = [
   },
 ];
 
-export default bigfootPools;
+export default liquidityAssets;

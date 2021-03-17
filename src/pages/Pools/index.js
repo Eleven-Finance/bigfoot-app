@@ -1,5 +1,5 @@
 import React, {useState} from "react"
-import PoolsUpperInfo from './PoolsUpperInfo'
+// import PoolsUpperInfo from './PoolsUpperInfo'
 import {
   Container,
   Row,
@@ -46,13 +46,9 @@ const Pools = props => {
       <div className="page-content">
         <Container fluid>
                   
-          <PoolsUpperInfo />
+          {/* <PoolsUpperInfo /> */}
 
           <Row>
-
-            <Col sm="12">
-              <h2>BigFoot Pools</h2>
-            </Col>
 
             <Col md="4">
               <Card>

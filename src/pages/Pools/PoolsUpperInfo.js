@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import bigfootPools from '../../data/bigfootPools'
+import liquidityAssets from '../../data/liquidityAssets'
 import {
   Container,
   Row,
@@ -12,7 +12,7 @@ import {
 
 function PoolsUpperInfo() {
   
-  const [assets, setassets] = useState(bigfootPools);
+  const [assets, setassets] = useState(liquidityAssets);
 
   return (
     <Row className="equal-height">

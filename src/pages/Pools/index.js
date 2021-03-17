@@ -1,5 +1,6 @@
 import React, {useState} from "react"
 // import PoolsUpperInfo from './PoolsUpperInfo'
+import poolOptions from '../../data/poolOptions'
 import {
   Container,
   Row,
@@ -45,109 +46,92 @@ const Pools = props => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-                  
+
           {/* <PoolsUpperInfo /> */}
 
           <Row>
+            { poolOptions.map( pool => {
+              return (
+                <Col key={pool.title} md="4">
+                  <Card>
+                    <CardBody>
 
-            <Col md="4">
-              <Card>
-                <CardBody>
-                  <h4 className="card-title">
-                    <i className="mdi mdi-noodles text-primary h1"/>
-                    Noodleswap ibETHv2/BIG
-                  </h4>
-                  <p className="text-muted">Accepting ibETHv2, BIGFOOT</p>
+                      <h4 className="card-title">
+                        <span className={"avatar-title rounded-circle bg-transparent font-size-18 me-2"} >
+                          <img src={pool.poolIcon.default} />
+                        </span>
+                        {pool.title}
+                      </h4>
 
-                  <div className="text-center mt-4 mb-3">
-                    <i className="mdi mdi-ethereum text-primary h1"/>
-                    <i className="mdi mdi-foot-print text-primary h1"/>
-                  </div>
-                  <Row>
-                    <Col sm="12" className="d-flex justify-content-between align-items-end">
-                      <span className="text-muted mb-2">APY</span>
-                      <span className="pool-apy-value">0.00%</span>
-                    </Col>
-                    <Col sm="12">
-                    </Col>
-                  </Row>
+                      <p className="text-muted">
+                        Accepting 
+                        {pool.currencies.map( (currency, index) => {
+                            return index===0? ` ${currency.code}` : `, ${currency.code}` 
+                          })
+                        }
+                      </p>
 
-                  <Row>
-                    <Col sm="12" className="mb-2">
-                      <Button
-                        block 
-                        color="primary" 
-                        onClick={togglemodal}
-                      >
-                        Supply 1x & Stake
-                      </Button>
-                    </Col>
-                    <Col sm="12">
-                      <Button
-                        block 
-                        outline
-                        onClick={()=>{
-                          console.log("Stake")
-                        }}
-                      >
-                        Stake
-                      </Button>
-                    </Col>
-                  </Row>
+                      <div className="d-flex align-items-center mt-4 mb-3">
+                        <div className="avatar-xs avatar-multi">
+                          {pool.currencies.map((currency) => {
+                            return (
+                              <span key={currency.code} className={"avatar-title rounded-circle bg-transparent"} >
+                                <img src={currency.icon.default} />
+                              </span>
+                            );
+                          })
+                          }
+                        </div>
+                      </div>
+                      
+                      <Row>
+                        <Col sm="12" className="d-flex justify-content-between align-items-end">
+                          <span className="text-muted mb-2">APY</span>
+                          <span className="pool-apy-value">
+                            {pool.apy}%
+                          </span>
+                        </Col>
+                        <Col sm="12">
+                        </Col>
+                      </Row>
 
-                </CardBody>
-              </Card>
-            </Col>
+                      <Row>
+                        <Col sm="6" className="mb-2">
+                          <Button
+                            block
+                            outline
+                            onClick={togglemodal}
+                          >
+                            Deposit
+                        </Button>
+                        </Col>
+                        <Col sm="6" className="mb-2">
+                          <Button
+                            block
+                            outline
+                            onClick={togglemodal}
+                          >
+                            Withdraw
+                        </Button>
+                        </Col>
+                        <Col sm="12">
+                          <Button
+                            block
+                            color="primary"
+                            onClick={() => {
+                              console.log("Stake")
+                            }}
+                          >
+                            Harvest
+                        </Button>
+                        </Col>
+                      </Row>
 
-            <Col md="4">
-              <Card>
-                <CardBody>
-                  <h4 className="card-title">
-                    <i className="mdi mdi-food-apple text-primary h1"/>
-                    Appleswap ibETHv2/BIG
-                  </h4>
-                  <p className="text-muted">Accepting ibETHv2, BIGFOOT</p>
-
-                  <div className="text-center mt-4 mb-3">
-                    <i className="mdi mdi-ethereum text-primary h1"/>
-                    <i className="mdi mdi-foot-print text-primary h1"/>
-                  </div>
-                  <Row>
-                    <Col sm="12" className="d-flex justify-content-between align-items-end">
-                      <span className="text-muted mb-2">APY</span>
-                      <span className="pool-apy-value">0.00%</span>
-                    </Col>
-                    <Col sm="12">
-                    </Col>
-                  </Row>
-
-                  <Row>
-                    <Col sm="12" className="mb-2">
-                      <Button
-                        block 
-                        color="primary" 
-                        onClick={togglemodal}
-                      >
-                        Supply 1x & Stake
-                      </Button>
-                    </Col>
-                    <Col sm="12">
-                      <Button
-                        block 
-                        outline
-                        onClick={()=>{
-                          console.log("Stake")
-                        }}
-                      >
-                        Stake
-                      </Button>
-                    </Col>
-                  </Row>
-
-                </CardBody>
-              </Card>
-            </Col>
-
+                    </CardBody>
+                  </Card>
+                </Col>
+              );
+            })}
           </Row>
 
           <Modal

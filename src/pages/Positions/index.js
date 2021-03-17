@@ -14,7 +14,10 @@ import { Link } from "react-router-dom"
 
 const Positions = props => {
 
-  const [positions, setpositions] = useState(allPositions);
+  const [positions, setpositions] = useState(()=>{
+    allPositions.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) ); // sort positions by debt in descending order
+    return allPositions;
+  });
 
   return (
     <React.Fragment>
@@ -44,8 +47,8 @@ const Positions = props => {
                         </tr>
                       </thead>
                       <tbody>
-                        {positions.map((position, key) => (
-                          <tr key={key}>
+                        {positions.map( position => (
+                          <tr key={position.id}>
                             <th scope="row">
                               <h5 className="font-size-14 mb-1">
                                 #{position.id}

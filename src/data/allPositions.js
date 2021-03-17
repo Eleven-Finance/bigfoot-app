@@ -1,3 +1,7 @@
+//
+// Note:
+//  -- "id" must be unique
+//
 const allPositions = [
   {
     id: "140",
@@ -11,6 +15,17 @@ const allPositions = [
     debtRatio: "32.90",
   },
   {
+    id: "141",
+    icon: "mdi mdi-circle-multiple",
+    color: "",
+    title1: "Curve",
+    title2: "3pool",
+    collateralInDollars: "66,090.80",
+    borrowCredit: "36.07",
+    collateralCredit: "37.60",
+    debtRatio: "34.95",
+  },
+  {
     id: "142",
     icon: "mdi mdi-circle-multiple",
     color: "",
@@ -19,21 +34,10 @@ const allPositions = [
     collateralInDollars: "66,090.80",
     borrowCredit: "36.07",
     collateralCredit: "37.60",
-    debtRatio: "34.95",
-  },
-  {
-    id: "150",
-    icon: "mdi mdi-circle-multiple",
-    color: "",
-    title1: "Curve",
-    title2: "3pool",
-    collateralInDollars: "66,090.80",
-    borrowCredit: "36.07",
-    collateralCredit: "37.60",
     debtRatio: "86.00",
   },
   {
-    id: "150",
+    id: "143",
     icon: "mdi mdi-circle-multiple",
     color: "",
     title1: "Curve",
@@ -44,7 +48,7 @@ const allPositions = [
     debtRatio: "120.00",
   },
   {
-    id: "150",
+    id: "144",
     icon: "mdi mdi-circle-multiple",
     color: "",
     title1: "Curve",
@@ -52,10 +56,32 @@ const allPositions = [
     collateralInDollars: "66,090.80",
     borrowCredit: "36.07",
     collateralCredit: "37.60",
-    debtRatio: "32.90",
+    debtRatio: "120.01",
   },
   {
-    id: "152",
+    id: "145",
+    icon: "mdi mdi-circle-multiple",
+    color: "",
+    title1: "Curve",
+    title2: "3pool",
+    collateralInDollars: "66,090.80",
+    borrowCredit: "36.07",
+    collateralCredit: "37.60",
+    debtRatio: "120.10",
+  },
+  {
+    id: "146",
+    icon: "mdi mdi-circle-multiple",
+    color: "",
+    title1: "Curve",
+    title2: "3pool",
+    collateralInDollars: "66,090.80",
+    borrowCredit: "36.07",
+    collateralCredit: "37.60",
+    debtRatio: "0.00",
+  },
+  {
+    id: "147",
     icon: "mdi mdi-circle-multiple",
     color: "",
     title1: "Curve",
@@ -66,7 +92,7 @@ const allPositions = [
     debtRatio: "34.95",
   },
   {
-    id: "160",
+    id: "148",
     icon: "mdi mdi-circle-multiple",
     color: "",
     title1: "Curve",
@@ -77,6 +103,17 @@ const allPositions = [
     debtRatio: "86.00",
   },
   {
+    id: "149",
+    icon: "mdi mdi-circle-multiple",
+    color: "",
+    title1: "Curve",
+    title2: "3pool",
+    collateralInDollars: "66,090.80",
+    borrowCredit: "36.07",
+    collateralCredit: "37.60",
+    debtRatio: "100.00",
+  },
+  {
     id: "150",
     icon: "mdi mdi-circle-multiple",
     color: "",
@@ -85,7 +122,7 @@ const allPositions = [
     collateralInDollars: "66,090.80",
     borrowCredit: "36.07",
     collateralCredit: "37.60",
-    debtRatio: "120.00",
+    debtRatio: "121.00",
   },
 ];
 

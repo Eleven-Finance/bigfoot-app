@@ -11,14 +11,14 @@ import { Ethereum, Sushi, ThreeCrv, Uniswap, Usdc} from '../assets/images/bigfoo
 
 const farmPools = [
   {
-    title: "Sushiswap SHU/ETH",
+    title: "Sushiswap BNB/ETH",
     color: "warning",
     type: "Liquidity Providing",
     percentage: "61.66",
     percentageOut: "25.53",
     currencies: [
       {
-        code: "SHU",
+        code: "BNB",
         icon: Sushi
       },
       {

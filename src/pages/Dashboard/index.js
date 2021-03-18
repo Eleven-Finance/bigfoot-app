@@ -104,7 +104,7 @@ class Dashboard extends Component {
 
   renderIcon(icon, color) {
     return (
-      <span className={ "avatar-title rounded-circle bg-soft bg-"+color + " text-"+color + " font-size-18" } >
+      <span className={ "avatar-title rounded-circle bg-transparent font-size-18" } >
         <img src={icon.default} />
       </span>
     )

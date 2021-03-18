@@ -59,7 +59,11 @@ const Earn = props => {
               <Col sm="6" lg="8">
                 <InputGroup className="mb-3">
                   <Label className="input-group-text">
-                    <i className={icon} />
+                    <div className="avatar-xs me-3">
+                      <span className={"avatar-title rounded-circle bg-transparent"} >
+                        <img src={icon.default} />
+                      </span>
+                    </div>
                     {currency}
                   </Label>
                   <Input 
@@ -97,7 +101,11 @@ const Earn = props => {
               <Col sm="6" lg="8">
                 <InputGroup className="mb-3">
                   <Label className="input-group-text">
-                    <i className={icon} />
+                    <div className="avatar-xs me-3">
+                      <span className={"avatar-title rounded-circle bg-transparent"} >
+                        <img src={icon.default} />
+                      </span>
+                    </div>
                     {title}
                   </Label>
                   <Input 
@@ -197,16 +205,8 @@ const Earn = props => {
                             <th scope="row">
                               <div className="d-flex align-items-center">
                                 <div className="avatar-xs me-3">
-                                  <span
-                                    className={
-                                      "avatar-title rounded-circle bg-soft bg-" +
-                                      option.color +
-                                      " text-" +
-                                      option.color +
-                                      " font-size-18"
-                                    }
-                                  >
-                                    <i className={option.icon}/>
+                                  <span className={"avatar-title rounded-circle bg-transparent"} >
+                                    <img src={option.icon.default} />
                                   </span>
                                 </div>
                                 <span>{option.title}</span>

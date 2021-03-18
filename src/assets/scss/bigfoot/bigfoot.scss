@@ -58,6 +58,10 @@
     img {
         width: 2rem;
         height: 2rem;
+        label & { // imgs inside a label
+            width: 1.5rem;
+            height: 1.5rem;
+        }
     }
 }
 .avatar-multi {

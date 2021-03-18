@@ -1,0 +1,1 @@
+export const Bnb = require('./bnb.png');

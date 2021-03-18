@@ -364,7 +364,8 @@ class Dashboard extends Component {
                                   
                                   {
                                     this.state.formData.poolTitle &&
-                                    this.state.pools.find( pool => pool.title === this.state.formData.poolTitle ).currencies.map( currency => {
+                                    this.state.pools.find( pool => pool.title === this.state.formData.poolTitle ).currencies.map( (currency, index) => {
+                                      if(index>0) return ''; // note: currenly rendering an input only for the first currency (comment this line to render an input for each currency)
                                       return (
                                         <FormGroup key={currency.code}>
                                           <Row>

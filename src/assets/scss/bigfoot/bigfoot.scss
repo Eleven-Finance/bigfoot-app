@@ -6,6 +6,14 @@
 @import "./node_modules/bootstrap/scss/mixins.scss";
 
 
+
+/* Colors */
+$lightSea: #32647a;
+$midSea: #203A43;
+$darkSea: #0F2027;
+
+
+
 /* Grid System */
 
 // equal height cards
@@ -33,6 +41,7 @@
 
 /* Cards */
 .card {
+    background-color: #2a3042bf;
     .card-title {
         display: flex;
         align-items: center;
@@ -44,6 +53,7 @@
         font-size: 240%;
     }
 }
+
 
 /* Modals */
 .modal {
@@ -89,6 +99,15 @@
 }
 
 
+
+/* Body */
+body {
+    background: $darkSea;
+    background: -webkit-linear-gradient(to bottom, $lightSea, $midSea, $darkSea);
+    background: linear-gradient(to bottom, $lightSea, $midSea, $darkSea);    
+}
+
+
 /* Header */
 .navbar-header {
     .navbar-brand-box {
@@ -107,7 +126,6 @@
         color: #fff;
     }
 }
-
 #powered-by {
     display: none;
     @include media-breakpoint-up(lg) {
@@ -123,10 +141,19 @@
         }
     }
 }
+.topnav {
+    background-color: rgba(42, 48, 65, 0.90) !important;
+}
+
+/* Main Content */
+.main-content {
+    padding-bottom: 25px;
+}
 
 /* Footer */
 .footer{
     background-color: unset;
+    height: 105px;
     #social {
         a {
             margin: 0 5px;

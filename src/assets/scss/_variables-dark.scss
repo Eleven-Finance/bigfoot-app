@@ -105,16 +105,17 @@ $grays: (
 
 // fusv-enable
 
-$blue:    #556ee6;
-$indigo:  #564ab1;
-$purple:  #6f42c1;
-$pink:    #e83e8c;
-$red:     #f46a6a;
-$orange:  #f1734f;
-$yellow:  #f1b44c;
-$green:   #34c38f;
-$teal:    #050505;
-$cyan:    #50a5f1;
+$blue:      #556ee6;
+$blueWhale: #213c46;
+$indigo:    #564ab1;
+$purple:    #6f42c1;
+$pink:      #e83e8c;
+$red:       #f46a6a;
+$orange:    #f1734f;
+$yellow:    #f0b90b;
+$green:     #34c38f;
+$teal:      #050505;
+$cyan:      #50a5f1;
 
 // scss-docs-start colors-map
 $colors: (
@@ -134,7 +135,7 @@ $colors: (
 );
 // scss-docs-end colors-map
 
-$primary:       $blue;
+$primary:       $yellow;
 $secondary:     $gray-600;
 $success:       $green;
 $info:          $cyan;

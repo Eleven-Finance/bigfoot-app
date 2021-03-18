@@ -26,6 +26,10 @@
 .btn-block{
     width: 100%;
 }
+.btn-primary, .btn-primary:hover {
+    color: #213c46;
+    font-weight: bold;
+}
 
 /* Cards */
 .card {
@@ -92,9 +96,9 @@
         padding-right: 0;
     }
     a {
-    display: table-cell;
-    vertical-align: middle;
-}
+        display: table-cell;
+        vertical-align: middle;
+    }
 }
 .logo {
     font-size: 1.5rem;
@@ -128,9 +132,9 @@
             margin: 0 5px;
             font-size: 24px;
             svg {
-              fill: #556ee6;
+              fill: #f0b90b;
               &:hover {
-                fill: #4458b8;
+                fill: #c09409;
               }
             }
         }

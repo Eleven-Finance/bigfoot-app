@@ -115,14 +115,16 @@
         background-color: $primary;
         border-radius: 4px;
         padding: 8px 15px;
-        color: $white;
+        color: $blueWhale;
+        font-weight: bold;
       }
 
       .disabled {
         a, a:active, a:hover {
           opacity: .65;
           background-color: $primary;
-          color: $white;
+          color: $blueWhale;
+          font-weight: bold;
           cursor: not-allowed;
         }
       }

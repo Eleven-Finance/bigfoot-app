@@ -1,3 +1,11 @@
+
+
+
+@import "./node_modules/bootstrap/scss/functions";
+@import "./node_modules/bootstrap/scss/variables";
+@import "./node_modules/bootstrap/scss/mixins.scss";
+
+
 /* Grid System */
 
 // equal height cards
@@ -78,15 +86,37 @@
 
 
 /* Header */
-.navbar-header a {
+.navbar-header {
+    .navbar-brand-box {
+        display: flex;
+        padding-right: 0;
+    }
+    a {
     display: table-cell;
     vertical-align: middle;
+}
 }
 .logo {
     font-size: 1.5rem;
     color: #fff;
     &:hover {
         color: #fff;
+    }
+}
+
+#powered-by {
+    display: none;
+    @include media-breakpoint-up(lg) {
+        display: inline !important;
+        margin-left: 0.8rem;
+        font-size: 1rem;
+        color: #fff;
+        font-style: italic;
+        line-height: 74px;
+        &:hover {
+            text-decoration: underline !important;
+            text-underline-position: under;
+        }
     }
 }
 

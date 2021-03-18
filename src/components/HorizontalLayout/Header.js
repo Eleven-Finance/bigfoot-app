@@ -26,9 +26,12 @@ const Header = props => {
                   <img src={bigfootLogoSvg} alt="BigFoot" height="44" />
                 </span>
                 <span className="logo-lg">
-                  <img src={bigfootLogoSvg} alt="BigFoot" height="44" /> BigFoot
+                  <img src={bigfootLogoSvg} alt="BigFoot" height="44" /> BigFoot 
                 </span>
               </Link>
+              <a id="powered-by" href="https://eleven.finance/" target="_blank">
+                eleven.finance
+              </a>
             </div>
 
             <button

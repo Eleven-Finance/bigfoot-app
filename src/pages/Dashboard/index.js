@@ -393,6 +393,7 @@ class Dashboard extends Component {
                                               </span>
                                               <Button 
                                                 outline
+                                                color="primary"
                                                 onClick={()=>{
                                                   console.log("set max.")
                                                 }}

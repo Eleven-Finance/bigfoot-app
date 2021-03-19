@@ -81,6 +81,7 @@ const Earn = props => {
               </span>
                 <Button
                   outline
+                  color="primary"
                   onClick={() => {
                     console.log("set max.")
                   }}
@@ -123,6 +124,7 @@ const Earn = props => {
               </span>
                 <Button
                   outline
+                  color="primary"
                   onClick={() => {
                     console.log("set max.")
                   }}

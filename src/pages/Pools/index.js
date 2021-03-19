@@ -84,6 +84,7 @@ const Pools = props => {
               </span>
                 <Button
                   outline
+                  color="primary"
                   onClick={() => {
                     console.log("set max.")
                   }}
@@ -121,6 +122,7 @@ const Pools = props => {
               </span>
                 <Button
                   outline
+                  color="primary"
                   onClick={() => {
                     console.log("set max.")
                   }}
@@ -177,6 +179,7 @@ const Pools = props => {
           <Col sm="12">
             <Button
               block
+              outline
               color="primary"
               onClick={() => {
                 let newPools = JSON.parse(JSON.stringify(pools));

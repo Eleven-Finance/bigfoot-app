@@ -249,7 +249,9 @@
         
                 .nav-link {
                     color: rgba($white, 1);
-                    
+                    &.active{
+                        color: $yellow;
+                    }
                     &:focus, &:hover{
                         color: rgba($white, 0.8);
                     }

@@ -161,13 +161,13 @@ const Earn = props => {
                   <Row className="text-center mt-3">
                     <Col sm="6">
                       <div>
-                        <p className="text-muted mb-2">Supply Balance</p>
+                        <p className="mb-2">Supply Balance</p>
                         <p className="total-value">$ 0.00</p>
                       </div>
                     </Col>
                     <Col sm="6" className="mb-0">
                       <div>
-                        <p className="text-muted mb-2">Net APY</p>
+                        <p className="mb-2">Net APY</p>
                         <p className="total-value">0.00 %</p>
                       </div>
                     </Col>

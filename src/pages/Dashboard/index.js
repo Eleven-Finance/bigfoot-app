@@ -140,7 +140,7 @@ class Dashboard extends Component {
                     </h4>
                     <Row>
                       <Col sm="6">
-                        <p className="text-muted mb-0">Total Collateral</p>
+                        <p className="mb-0">Total Collateral</p>
                       </Col>
                       <Col sm="6" className="text-end">
                         <p>$ 0.00</p>
@@ -148,7 +148,7 @@ class Dashboard extends Component {
                     </Row>
                     <Row>
                       <Col sm="6">
-                        <p className="text-muted mb-0">Total Borrow</p>
+                        <p className="mb-0">Total Borrow</p>
                       </Col>
                       <Col sm="6" className="text-end">
                         <p>$ 0.00</p>
@@ -156,7 +156,7 @@ class Dashboard extends Component {
                     </Row>
                     <Row>
                       <Col sm="6">
-                        <p className="text-muted mb-0">Active Positions</p>
+                        <p className="mb-0">Active Positions</p>
                       </Col>
                       <Col sm="6" className="text-end">
                         <p>100 Positions</p>
@@ -177,13 +177,13 @@ class Dashboard extends Component {
                     <Row>
                       <Col sm="12">
                         <div>
-                          <p className="text-muted mb-2">Total Collateral</p>
+                          <p className="mb-2">Total Collateral</p>
                           <h5>$ 0.00</h5>
                         </div>
                       </Col>
                       <Col sm="12" className="mb-0">
                         <div>
-                          <p className="text-muted mb-2">Total Borrow</p>
+                          <p className="mb-2">Total Borrow</p>
                           <h5>$ 0.00</h5>
                         </div>
                       </Col>

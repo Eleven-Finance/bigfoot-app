@@ -236,7 +236,7 @@ const Pools = props => {
 
                       <Row>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
-                          <span className="text-muted mb-2">APY</span>
+                          <span className="mb-2">APY</span>
                           <span className="pool-apy-value">
                             {pool.apy}%
                           </span>

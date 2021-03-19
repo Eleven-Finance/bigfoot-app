@@ -42,7 +42,7 @@ function PoolsUpperInfo() {
                 </h4>
               </Col>
               <Col md="6">
-                <p className="text-end text-muted mt-3">
+                <p className="text-end mt-3">
                   <i className="mdi mdi-noodles text-primary me-1" />
                   Accumulated NOODLE: 0.000
                 </p>
@@ -103,7 +103,7 @@ function PoolsUpperInfo() {
                             <br />
                           </h5>
 
-                          <h5 className="font-size-14 mb-1 text-muted">
+                          <h5 className="font-size-14 mb-1">
                             {
                               parseFloat(asset.netGainDiff) < 0 ?
                                 <i className="mdi mdi-arrow-down" /> :

@@ -248,10 +248,10 @@
             .navbar-nav {
         
                 .nav-link {
-                    color: rgba($white, 0.6);
+                    color: rgba($white, 1);
                     
                     &:focus, &:hover{
-                        color: rgba($white, 0.9);
+                        color: rgba($white, 0.8);
                     }
                 }
         

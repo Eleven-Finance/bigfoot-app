@@ -11,6 +11,7 @@
 $lightSea: #2d5b6e;
 $midSea: #203A43;
 $darkSea: #0F2027;
+$yellowBigFoot: #f0b90b;
 
 
 
@@ -124,6 +125,11 @@ body {
     color: #fff;
     &:hover {
         color: #fff;
+    }
+    svg {
+        width: 27px;
+        height: 44px;
+        fill: $yellowBigFoot;
     }
 }
 #powered-by {

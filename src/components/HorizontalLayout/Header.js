@@ -8,7 +8,7 @@ import { Link } from "react-router-dom"
 // Redux Store
 import { showRightSidebarAction, toggleLeftmenu } from "../../store/actions"
 
-import bigfootLogoSvg from "../../assets/images/bigfoot/bigfoot-logo.svg"
+import { ReactComponent as BigfootLogoSvg } from "../../assets/images/bigfoot/bigfoot-logo.svg"
 
 //i18n
 import { withTranslation } from "react-i18next"
@@ -23,10 +23,10 @@ const Header = props => {
             <div className="navbar-brand-box">
               <Link to="/" className="logo logo-light">
                 <span className="logo-sm">
-                  <img src={bigfootLogoSvg} alt="BigFoot" height="44" />
+                  <BigfootLogoSvg />
                 </span>
                 <span className="logo-lg">
-                  <img src={bigfootLogoSvg} alt="BigFoot" height="44" /> BigFoot 
+                  <BigfootLogoSvg /> BigFoot 
                 </span>
               </Link>
               <a id="powered-by" href="https://eleven.finance/" target="_blank">

@@ -11,10 +11,6 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  TabContent,
-  TabPane,
-  NavItem,
-  NavLink,
   Label,
   Input,
   Form,
@@ -25,8 +21,9 @@ import {
 import Slider from "react-rangeslider"
 import "react-rangeslider/lib/index.css"
 
-import classnames from "classnames"
 import { Link } from "react-router-dom"
+
+import "./Dashboard.scss"
 
 class Dashboard extends Component {
   constructor(props) {
@@ -43,10 +40,8 @@ class Dashboard extends Component {
         borrowFactor: 2
       },
       modal: false,
-      activeTab: 1,
     }
     this.togglemodal.bind(this)
-    this.toggleTab.bind(this)
   }
 
   setBorrowFactor(value){
@@ -85,21 +80,10 @@ class Dashboard extends Component {
         poolCurrencies.map(currency => [currency.code, 0])
       );
       
-      newState.activeTab = 1;
       newState.modal = true;
     }
 
     this.setState(newState);
-  }
-
-  toggleTab(tab) {
-    if (this.state.activeTab !== tab) {
-      if (tab >= 1 && tab <= 3) {
-        this.setState({
-          activeTab: tab,
-        })
-      }
-    }
   }
 
   renderIcon(icon, color) {
@@ -113,7 +97,7 @@ class Dashboard extends Component {
   render() {
     return (
       <React.Fragment>
-        <div className="Dashboard page-content">
+        <div id="Dashboard" className="page-content">
           <Container fluid>
             <Row className="equal-height">
               <Col md="4">
@@ -284,12 +268,12 @@ class Dashboard extends Component {
                   </CardBody>
 
                   <Modal
+                    id="dashboardModal"
                     isOpen={this.state.modal}
                     role="dialog"
                     size="lg"
                     autoFocus={true}
                     centered={true}
-                    tabIndex="-1"
                     toggle={this.togglemodal}
                   >
                     <div className="modal-content">
@@ -298,183 +282,90 @@ class Dashboard extends Component {
                       </ModalHeader>
                       <ModalBody>
                         <div
-                          id="kyc-verify-wizard"
                           className="wizard clearfix"
                         >
-                          <div className="steps clearfix">
-                            <ul>
-                              <NavItem
-                                className={classnames({
-                                  current: this.state.activeTab === 1,
-                                })}>
-                                <NavLink
-                                  className={classnames({
-                                    active: this.state.activeTab === 1,
-                                  })}
-                                  onClick={() => {
-                                    this.toggleTab(1)
-                                  }}
-                                >
-                                  <span className="number">1.</span>
-                                Supply tokens
-                              </NavLink>
-                              </NavItem>
-                              <NavItem
-                                className={classnames({
-                                  current: this.state.activeTab === 2,
-                                })}>
-                                <NavLink
-                                  className={classnames({
-                                    active: this.state.activeTab === 2,
-                                  })}
-                                  onClick={() => {
-                                    this.toggleTab(2)
-                                  }}
-                                >
-                                  <span className="number">2.</span>
-                                Borrow tokens
-                              </NavLink>
-                              </NavItem>
-                              <NavItem
-                                className={classnames({
-                                  current: this.state.activeTab === 3,
-                                })}>
-                                <NavLink
-                                  className={classnames({
-                                    active: this.state.activeTab === 3,
-                                  })}
-                                  onClick={() => {
-                                    this.toggleTab(3)
-                                  }}
-                                >
-                                  <span className="number">3.</span>
-                                Confirm strategy
-                              </NavLink>
-                              </NavItem>
-                            </ul>
-                          </div>
                           <div className="content clearfix">
-                            <TabContent
-                              activeTab={this.state.activeTab}
-                              className="twitter-bs-wizard-tab-content"
-                            >
-                              <TabPane tabId={1} id="farm-step-1">
-                                <Form>
-                                  <p>I'd like to supply...</p>
-                                  
-                                  {
-                                    this.state.formData.poolTitle &&
-                                    this.state.pools.find( pool => pool.title === this.state.formData.poolTitle ).currencies.map( (currency, index) => {
-                                      if(index>0) return ''; // note: currenly rendering an input only for the first currency (comment this line to render an input for each currency)
-                                      return (
-                                        <FormGroup key={currency.code}>
-                                          <Row>
-                                            <Col sm="6" lg="8">
-                                              <InputGroup className="mb-3">
-                                                <Label className="input-group-text">
-                                                  <span className="me-2">
-                                                    {this.renderIcon(currency.icon)}
-                                                  </span>
-                                                  {currency.code}
-                                                </Label>
-                                                <Input 
-                                                  type="number" 
-                                                  className="form-control" 
-                                                  min="0"
-                                                  step="0.1"
-                                                  value={this.state.formData.currencySupply?.[currency.code] ?? 0}
-                                                  onChange={ (e) => this.updateCurrencySupply(currency.code, e.target.value)}
-                                                />
-                                              </InputGroup>
-                                            </Col>
-                                            <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                              <span className="me-3">
-                                                Balance: 0.0000
-                                              </span>
-                                              <Button 
-                                                outline
-                                                color="primary"
-                                                onClick={()=>{
-                                                  console.log("set max.")
-                                                }}
-                                              >
-                                                MAX
-                                              </Button>
-                                            </Col>
-                                          </Row>
-                                        </FormGroup>
-                                      )
-                                    })
-                                  }
+
+                            <Form>
+
+                              <div className="mb-3">
+                                <p>Choose how much you want to supply:</p>
                                 
-                                  <p>Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.</p>
-                                </Form>
-                              </TabPane>
-                              <TabPane tabId={2} id="farm-step-2">
-                                <div>
-                                  <Form>
-                                    <p>Choose how much you'd like to borrow...</p>
-                                    <Slider
-                                      value={this.state.formData.borrowFactor}
-                                      min={1.5}
-                                      max={3}
-                                      step={0.5}
-                                      labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
-                                      orientation="horizontal"
-                                      onChange={value => {
-                                        this.setBorrowFactor(value)
-                                      }}
-                                    />
-                                  </Form>
-                                </div>
-                              </TabPane>
-                              <TabPane tabId={3} id="farm-step-3">
-                                <p className="mt-3">
-                                  You will supply: 
-                                </p>
-                                <ul>
-                                  {
-                                    Object.keys(this.state.formData.currencySupply).map(currency => {
-                                      return <li key={currency} className="mt-3">{currency}: {this.state.formData.currencySupply[currency]}</li>
-                                    })
-                                  }
-                                </ul>
-                                <p className="mt-3 mb-3">
-                                  Borrow factor: {this.state.formData.borrowFactor} 
-                                </p>
-                              </TabPane>
-                            </TabContent>
+                                {
+                                  this.state.formData.poolTitle &&
+                                  this.state.pools.find( pool => pool.title === this.state.formData.poolTitle ).currencies.map( (currency, index) => {
+                                    if(index>0) return ''; // note: currenly rendering an input only for the first currency (comment this line to render an input for each currency)
+                                    return (
+                                      <FormGroup key={currency.code}>
+                                        <Row>
+                                          <Col sm="6" lg="8">
+                                            <InputGroup className="mb-3">
+                                              <Label className="input-group-text">
+                                                <span className="me-2">
+                                                  {this.renderIcon(currency.icon)}
+                                                </span>
+                                                {currency.code}
+                                              </Label>
+                                              <Input 
+                                                type="number" 
+                                                className="form-control" 
+                                                min="0"
+                                                step="0.1"
+                                                value={this.state.formData.currencySupply?.[currency.code] ?? 0}
+                                                onChange={ (e) => this.updateCurrencySupply(currency.code, e.target.value)}
+                                              />
+                                            </InputGroup>
+                                          </Col>
+                                          <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+                                            <span className="me-3">
+                                              Balance: 0.0000
+                                            </span>
+                                            <Button 
+                                              outline
+                                              color="primary"
+                                              onClick={()=>{
+                                                console.log("set max.")
+                                              }}
+                                            >
+                                              MAX
+                                            </Button>
+                                          </Col>
+                                        </Row>
+                                      </FormGroup>
+                                    )
+                                  })
+                                }
+                              </div>
+                              <div className="mb-3">
+                                <p>Choose how much you 'd like to borrow:</p>
+                                <Slider
+                                  value={this.state.formData.borrowFactor}
+                                  min={1.5}
+                                  max={3}
+                                  step={0.5}
+                                  labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
+                                  orientation="horizontal"
+                                  onChange={value => {
+                                    this.setBorrowFactor(value)
+                                  }}
+                                />
+                              </div>
+                              <p>
+                                Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
+                              </p>
+
+                            </Form>
                           </div>
                           <div className="actions clearfix">
                             <ul role="menu" aria-label="Pagination">
-                              <li
-                                className={
-                                  this.state.activeTab === 1
-                                    ? "previous disabled"
-                                    : "previous"
-                                }
-                              >
+                              <li className={"next"} >
                                 <Link
                                   to="#"
                                   onClick={() => {
-                                    this.toggleTab(this.state.activeTab - 1)
+                                    console.log("confirm...")
                                   }}
                                 >
-                                  Previous
-                                </Link>
-                              </li>
-                              <li className="next">
-                                <Link
-                                  to="#"
-                                  onClick={() => {
-                                    if(this.state.activeTab === 3){
-                                      console.log("confirm farm request")
-                                    } else {
-                                      this.toggleTab(this.state.activeTab + 1);
-                                    }
-                                  }}
-                                >
-                                  { this.state.activeTab === 3 ? "Confirm" : "Next"}
+                                  Confirm
                                 </Link>
                               </li>
                             </ul>

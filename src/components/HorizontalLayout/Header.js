@@ -30,7 +30,7 @@ const Header = props => {
                 </span>
               </Link>
               <a id="powered-by" href="https://eleven.finance/" target="_blank">
-                eleven.finance
+                powered by eleven.finance
               </a>
             </div>
 

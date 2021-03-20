@@ -137,13 +137,12 @@ body {
     @include media-breakpoint-up(lg) {
         display: inline !important;
         margin-left: 0.8rem;
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #fff;
         font-style: italic;
         line-height: 74px;
         &:hover {
-            text-decoration: underline !important;
-            text-underline-position: under;
+            color: $yellowBigFoot;
         }
     }
 }

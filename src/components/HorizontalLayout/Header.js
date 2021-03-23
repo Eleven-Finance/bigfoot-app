@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import PropTypes from 'prop-types'
-
 import { connect } from "react-redux"
 
 import { Link } from "react-router-dom"
@@ -8,10 +7,13 @@ import { Link } from "react-router-dom"
 // Redux Store
 import { showRightSidebarAction, toggleLeftmenu } from "../../store/actions"
 
-import { ReactComponent as BigfootLogoSvg } from "../../assets/images/bigfoot/bigfoot-logo.svg"
 
 //i18n
 import { withTranslation } from "react-i18next"
+
+import WalletConnect from "components/BigFoot/WalletConnect";
+
+import { ReactComponent as BigfootLogoSvg } from "../../assets/images/bigfoot/bigfoot-logo.svg"
 
 const Header = props => {
 
@@ -48,15 +50,9 @@ const Header = props => {
           </div>
 
           <div className="d-flex">
-            <button
-              onClick={() => {
-                console.log("connect wallet...")
-              }}
-              type="button"
-              className="btn header-item noti-icon waves-effect btn-connect-wallet"
-            >
-              Connect wallet
-            </button>
+            
+            <WalletConnect />
+
             <div className="d-inline-block">
               <button
                 onClick={() => {

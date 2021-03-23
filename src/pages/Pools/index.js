@@ -1,4 +1,6 @@
 import React, {useState} from "react"
+import { connect } from "react-redux"
+
 // import PoolsUpperInfo from './PoolsUpperInfo'
 import poolOptions from '../../data/poolOptions'
 import {
@@ -202,6 +204,13 @@ const Pools = props => {
 
           {/* <PoolsUpperInfo /> */}
 
+          <div>
+            <strong>
+              Web3 Address: {props.walletData.accounts?.[0]}
+            </strong>
+            <br /><br />
+          </div>
+
           <Row className="equal-height">
             { pools.map( pool => {
               return (
@@ -323,4 +332,13 @@ const Pools = props => {
     </React.Fragment>
   )
 }
-export default Pools;
+
+
+
+const mapStateToProps = state => {
+  return {
+    walletData: state.wallet.walletData,
+  }
+}
+
+export default connect(mapStateToProps, {} )(Pools);

@@ -1,8 +1,11 @@
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import { connect } from "react-redux"
 
 // import PoolsUpperInfo from './PoolsUpperInfo'
 import poolOptions from '../../data/poolOptions'
+import { abiMasterChef, abiERC20 } from '../../data/abis/abis';
+import { addressBank, addressMasterChef } from '../../data/addresses/addresses';
+
 import {
   Container,
   Row,
@@ -25,11 +28,14 @@ import {
   InputGroup,
 } from "reactstrap"
 
-import classnames from "classnames"
 import { Link } from "react-router-dom"
 import './Pools.scss'
 
 const Pools = props => {
+
+  // initialize wallet variables
+  const web3 = props.walletData.web3;
+  const userAddress = props.walletData.accounts[0];
 
   const [pools, setPools] = useState(poolOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
@@ -39,6 +45,49 @@ const Pools = props => {
     action: '', // deposit,withdraw
     amount: 0,
   });
+
+
+  useEffect( ()=>{
+    checkApproval(bankAddress, masterChefAddress);
+  }, []);
+
+
+
+
+  const checkApproval = async (addressOne, addressTwo) => {
+    const erc20 = new web3.eth.Contract(abiERC20, addressOne);
+    const spendAllowance = await erc20.methods.allowance(userAddress, addressTwo).call();
+
+    return spendAllowance;
+  }
+
+  const userBalance = async (tokenAddress) => {
+    const erc20 = new web3.eth.Contract(abiERC20, tokenAddress);
+    const userBalance = await erc20.methods.balanceOf(userAddress).call();
+    return userBalance;
+  }
+
+  const deposit = async (amount, pid) => {
+    const masterchefContract = new web3.eth.Contract(abiMasterChef, addressMasterChef);
+    masterchefContract.methods.deposit(pid, amount).send();
+  }
+
+  const withdraw = async (amount, pid) => {
+    const masterchefContract = new web3.eth.Contract(abiMasterChef, addressMasterChef);
+    masterchefContract.methods.withdraw(pid, amount).send();
+  }
+
+  const pendingRewards = async (pid) => {
+    const masterchefContract = new web3.eth.Contract(abiMasterChef, addressMasterChef);
+    pendRe = await masterchefContract.methods.pendingEleven(_pid, userAddress).call();
+    return pendRe;
+  }
+
+  // todo:
+  // -- authorize token
+
+  
+
 
   const togglemodal = (option = '', action = '') => {
     setFormData({
@@ -147,7 +196,7 @@ const Pools = props => {
             <Button
               block
               outline
-              disabled="true"
+              disabled={true}
             >
               Coming soon
             </Button>
@@ -218,13 +267,6 @@ const Pools = props => {
         <Container fluid>
 
           {/* <PoolsUpperInfo /> */}
-
-          <div>
-            <strong>
-              Web3 Address: {props.walletData.accounts?.[0]}
-            </strong>
-            <br /><br />
-          </div>
 
           <Row className="equal-height">
             { pools.map( pool => {

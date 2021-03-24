@@ -1,5 +1,11 @@
 #Pools {
-    .authorize-buttons {
+    .pool-card {
+        .avatar-multi img {
+            width: 5rem;
+            height: 5rem;
+        }
+    }
+    .coming-soon-buttons, .authorize-buttons {
         margin-top: 44px;
     }
 }

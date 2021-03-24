@@ -1,83 +1,58 @@
 //
 // Note:
 //  -- "title" must be unique
+//  -- "currencies" is an array (can accept multiple items) 
 //
 
 // import demo icons
 import { Ethereum, Sushi, ThreeCrv, Uniswap, Usdc} from '../assets/images/bigfoot/icons-assets/demo/_index'
+import { eleELE, bfBNB, bfUST, bfETH } from '../assets/images/bigfoot/icons-bigfoot-coins/_index'
 
 const poolOptions = [
   {
-    title: "UniSwap UNI/ETH",
-    poolIcon: Uniswap,
+    title: "Eleven bfBNB",
+    poolIcon: eleELE,
     currencies: [
       {
-        code: "UNI",
-        icon: Uniswap
-      },
-      {
-        code: "ETH",
-        icon: Ethereum
+        code: "bfBNB",
+        icon: bfBNB
       },
     ],
     apy: "26.30",
 
+    isComingSoon: false,
     isAuthorized: false,
     canHarvest: true,
   },
   {
-    title: "SushiSwap SHU/ETH",
-    poolIcon: Sushi,
+    title: "Eleven bfETH",
+    poolIcon: eleELE,
     currencies: [
       {
-        code: "SHU",
-        icon: Sushi
+        code: "bfETH",
+        icon: bfETH
       },
+    ],
+    apy: "36.30",
+
+    isComingSoon: true,
+    isAuthorized: false,
+    canHarvest: true,
+  },
+  {
+    title: "Eleven bfUST",
+    poolIcon: eleELE,
+    currencies: [
       {
-        code: "ETH",
-        icon: Ethereum
+        code: "bfUST",
+        icon: bfUST
       },
     ],
     apy: "26.30",
 
+    isComingSoon: true,
     isAuthorized: false,
     canHarvest: false,
-  },
-  {
-    title: "EtherSwap USDC/ETH",
-    poolIcon: Ethereum,
-    currencies: [
-      {
-        code: "USDC",
-        icon: Usdc
-      },
-      {
-        code: "ETH",
-        icon: Ethereum
-      },
-    ],
-    apy: "36.30",
-
-    isAuthorized: false,
-    canHarvest: true,
-  },
-  {
-    title: "MultiSwap USDC/ETH",
-    poolIcon: Ethereum,
-    currencies: [
-      {
-        code: "USDC",
-        icon: Usdc
-      },
-      {
-        code: "ETH",
-        icon: Ethereum
-      },
-    ],
-    apy: "36.30",
-
-    isAuthorized: false,
-    canHarvest: true,
   },
 ];
 

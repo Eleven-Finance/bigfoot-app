@@ -140,7 +140,22 @@ const Pools = props => {
   }
 
   const renderButtons = (pool) => {
-    if (pool.isAuthorized) {
+    if (pool.isComingSoon){
+      return(
+        <Row className="coming-soon-buttons">
+          <Col sm="12">
+            <Button
+              block
+              outline
+              disabled="true"
+            >
+              Coming soon
+            </Button>
+          </Col>
+        </Row>
+      );
+    }
+    else if (pool.isAuthorized) {
       return (
         <Row>
           <Col sm="6" className="mb-2">
@@ -215,7 +230,7 @@ const Pools = props => {
             { pools.map( pool => {
               return (
                 <Col key={pool.title} md="4">
-                  <Card>
+                  <Card className="pool-card">
                     <CardBody>
 
                       <h4 className="card-title">

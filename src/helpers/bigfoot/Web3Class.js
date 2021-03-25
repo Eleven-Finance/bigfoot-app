@@ -4,11 +4,12 @@ class Web3Class {
   constructor(web3, userAddress) {
     this.web3 = web3;
     this.userAddress = userAddress;
+    this.maxUint = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
   }
 
-  async approveM(amount, tokenAddress, spender) {
+  async approveM(tokenAddress, spender, amount = this.maxUint) {
     const erc20 = new this.web3.eth.Contract(abiERC20, tokenAddress);
-    erc20.methods.approve(spender, amount).send();
+    erc20.methods.approve(spender, amount).send({ from: this.userAddress });
   }
   async checkApproval(tokenAddress, spender) {
     const erc20 = new this.web3.eth.Contract(abiERC20, tokenAddress);

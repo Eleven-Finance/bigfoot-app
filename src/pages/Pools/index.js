@@ -75,12 +75,8 @@ const Pools = props => {
     }
   }
 
-  const requestPoolApproval = () => {
-    // @TODO
-
-    // let newPools = JSON.parse(JSON.stringify(pools));
-    // newPools.find(thatPool => thatPool.title === pool.title).isAuthorized = true;
-    // setPools(newPools);
+  const requestPoolApproval = (poolAddress) => {
+    web3Instance.approveM(poolAddress, addressMasterChef);
   }
 
   const togglemodal = (option = '', action = '') => {
@@ -241,7 +237,7 @@ const Pools = props => {
               block
               outline
               color="primary"
-              onClick={ requestPoolApproval }
+              onClick={ () => requestPoolApproval(pool.address) }
             >
               Authorize
             </Button>

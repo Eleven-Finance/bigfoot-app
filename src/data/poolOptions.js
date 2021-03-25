@@ -4,12 +4,16 @@
 //  -- "currencies" is an array (can accept multiple items) 
 //
 
+// import addresses
+import { addressBfBNB } from '../data/addresses/addresses';
+
 // import demo icons
 import { Ethereum, Sushi, ThreeCrv, Uniswap, Usdc} from '../assets/images/bigfoot/icons-assets/demo/_index'
 import { eleELE, bfBNB, bfUST, bfETH } from '../assets/images/bigfoot/icons-bigfoot-coins/_index'
 
 const poolOptions = [
   {
+    address: addressBfBNB,
     title: "Eleven bfBNB",
     poolIcon: eleELE,
     currencies: [
@@ -22,9 +26,10 @@ const poolOptions = [
 
     isComingSoon: false,
     isAuthorized: false,
-    canHarvest: true,
+    canHarvest: false,
   },
   {
+    address: '',
     title: "Eleven bfETH",
     poolIcon: eleELE,
     currencies: [
@@ -37,9 +42,10 @@ const poolOptions = [
 
     isComingSoon: true,
     isAuthorized: false,
-    canHarvest: true,
+    canHarvest: false,
   },
   {
+    address: '',
     title: "Eleven bfUST",
     poolIcon: eleELE,
     currencies: [

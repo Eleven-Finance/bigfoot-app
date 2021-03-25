@@ -3,8 +3,8 @@ import { connect } from "react-redux"
 
 // import PoolsUpperInfo from './PoolsUpperInfo'
 import poolOptions from '../../data/poolOptions'
-import { abiMasterChef, abiERC20 } from '../../data/abis/abis';
-import { addressBank, addressMasterChef } from '../../data/addresses/addresses';
+import { addressMasterChef } from '../../data/addresses/addresses';
+import Web3Class from '../../helpers/bigfoot/Web3Class'
 
 import {
   Container,
@@ -35,7 +35,10 @@ const Pools = props => {
 
   // initialize wallet variables
   const web3 = props.walletData.web3;
-  const userAddress = props.walletData.accounts[0];
+  const userAddress = props.walletData.accounts?.[0];
+
+  const web3Instance = new Web3Class(web3, userAddress);
+
 
   const [pools, setPools] = useState(poolOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
@@ -47,47 +50,38 @@ const Pools = props => {
   });
 
 
-  useEffect( ()=>{
-    checkApproval(bankAddress, masterChefAddress);
-  }, []);
+  useEffect( () => {
+    if(web3) {
+      updateAllPools();
+    }
+  }, [web3]);
 
 
 
-
-  const checkApproval = async (addressOne, addressTwo) => {
-    const erc20 = new web3.eth.Contract(abiERC20, addressOne);
-    const spendAllowance = await erc20.methods.allowance(userAddress, addressTwo).call();
-
-    return spendAllowance;
+  const updateAllPools = () => {
+    pools.forEach( pool => {
+      if(pool.address) {
+        updatePoolApproval(pool) 
+      }
+    });
   }
 
-  const userBalance = async (tokenAddress) => {
-    const erc20 = new web3.eth.Contract(abiERC20, tokenAddress);
-    const userBalance = await erc20.methods.balanceOf(userAddress).call();
-    return userBalance;
+  const updatePoolApproval = async (pool) => {
+    const allowance = await web3Instance.checkApproval(pool.address, addressMasterChef);
+    if(allowance){
+      let newPools = JSON.parse(JSON.stringify(pools));
+      newPools.find(thatPool => thatPool.title === pool.title).isAuthorized = true;
+      setPools(newPools);
+    }
   }
 
-  const deposit = async (amount, pid) => {
-    const masterchefContract = new web3.eth.Contract(abiMasterChef, addressMasterChef);
-    masterchefContract.methods.deposit(pid, amount).send();
+  const requestPoolApproval = () => {
+    // @TODO
+
+    // let newPools = JSON.parse(JSON.stringify(pools));
+    // newPools.find(thatPool => thatPool.title === pool.title).isAuthorized = true;
+    // setPools(newPools);
   }
-
-  const withdraw = async (amount, pid) => {
-    const masterchefContract = new web3.eth.Contract(abiMasterChef, addressMasterChef);
-    masterchefContract.methods.withdraw(pid, amount).send();
-  }
-
-  const pendingRewards = async (pid) => {
-    const masterchefContract = new web3.eth.Contract(abiMasterChef, addressMasterChef);
-    pendRe = await masterchefContract.methods.pendingEleven(_pid, userAddress).call();
-    return pendRe;
-  }
-
-  // todo:
-  // -- authorize token
-
-  
-
 
   const togglemodal = (option = '', action = '') => {
     setFormData({
@@ -247,11 +241,7 @@ const Pools = props => {
               block
               outline
               color="primary"
-              onClick={() => {
-                let newPools = JSON.parse(JSON.stringify(pools));
-                newPools.find( thatPool => thatPool.title===pool.title).isAuthorized = true;
-                setPools(newPools);
-              }}
+              onClick={ requestPoolApproval }
             >
               Authorize
             </Button>

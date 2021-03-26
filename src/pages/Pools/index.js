@@ -28,6 +28,9 @@ import {
   InputGroup,
 } from "reactstrap"
 
+import toastr from "toastr"
+import "toastr/build/toastr.min.css"
+
 import { Link } from "react-router-dom"
 import './Pools.scss'
 
@@ -81,13 +84,16 @@ const Pools = props => {
     erc20.methods.approve(addressMasterChef, maxUint).send({ from: userAddress })
       .on('transactionHash', function (hash) {
         console.log("farm approval requested with hash: ", hash)
+        toastr.info("Pool authorization in process...")
       })
       .on('receipt', function (receipt) {
         console.log("farm approval success with receipt: ", receipt);
+        toastr.success("Pool authorization accepted!")
         updateAllPools();
       })
       .on('error', function (error) {
         console.log("farm approval error: ", error)
+        toastr.warning("Pool authorization failed")
       })
       .catch((error) => {
         console.log("error: ", error)

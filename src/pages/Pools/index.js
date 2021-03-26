@@ -76,7 +76,22 @@ const Pools = props => {
   }
 
   const requestPoolApproval = (poolAddress) => {
-    web3Instance.approveM(poolAddress, addressMasterChef);
+    const erc20 = web3Instance.getErc20Contract(poolAddress);
+    const maxUint = web3Instance.maxUint;
+    erc20.methods.approve(addressMasterChef, maxUint).send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        console.log("farm approval requested with hash: ", hash)
+      })
+      .on('receipt', function (receipt) {
+        console.log("farm approval success with receipt: ", receipt);
+        updateAllPools();
+      })
+      .on('error', function (error) {
+        console.log("farm approval error: ", error)
+      })
+      .catch((error) => {
+        console.log("error: ", error)
+      });
   }
 
   const togglemodal = (option = '', action = '') => {

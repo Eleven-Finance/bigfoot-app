@@ -83,20 +83,17 @@ const Pools = props => {
     const maxUint = web3Instance.maxUint;
     erc20.methods.approve(addressMasterChef, maxUint).send({ from: userAddress })
       .on('transactionHash', function (hash) {
-        console.log("farm approval requested with hash: ", hash)
-        toastr.info("Pool authorization in process...")
+        toastr.info(hash, "Pool authorization in process: ")
       })
       .on('receipt', function (receipt) {
-        console.log("farm approval success with receipt: ", receipt);
-        toastr.success("Pool authorization accepted!")
         updateAllPools();
+        toastr.success(receipt, "Pool authorization accepted: ")
       })
       .on('error', function (error) {
-        console.log("farm approval error: ", error)
-        toastr.warning("Pool authorization failed")
+        toastr.warning(error, "Pool authorization failed: ")
       })
       .catch((error) => {
-        console.log("error: ", error)
+        console.log(error, "Pool authorization error: ")
       });
   }
 

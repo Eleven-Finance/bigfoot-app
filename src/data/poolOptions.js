@@ -13,6 +13,7 @@ import { eleELE, bfBNB, bfUST, bfETH } from '../assets/images/bigfoot/icons-bigf
 
 const poolOptions = [
   {
+    pid: 79,
     address: addressBfBNB,
     title: "Eleven bfBNB",
     poolIcon: eleELE,
@@ -26,9 +27,10 @@ const poolOptions = [
 
     isComingSoon: false,
     isAuthorized: false,
-    canHarvest: false,
+    pendingRewards: "0",
   },
   {
+    pid: null,
     address: '',
     title: "Eleven bfETH",
     poolIcon: eleELE,
@@ -42,9 +44,10 @@ const poolOptions = [
 
     isComingSoon: true,
     isAuthorized: false,
-    canHarvest: false,
+    pendingRewards: "0",
   },
   {
+    pid: null,
     address: '',
     title: "Eleven bfUST",
     poolIcon: eleELE,
@@ -58,7 +61,7 @@ const poolOptions = [
 
     isComingSoon: true,
     isAuthorized: false,
-    canHarvest: false,
+    pendingRewards: "0",
   },
 ];
 

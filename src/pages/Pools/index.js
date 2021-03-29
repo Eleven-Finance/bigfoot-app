@@ -61,22 +61,29 @@ const Pools = props => {
   }, [web3]);
 
 
-
   const updateAllPools = () => {
-    pools.forEach( pool => {
+    pools.forEach( async (pool) => {
+      let newPools = JSON.parse(JSON.stringify(pools))
+      
+      //update pool approval
       if(pool.address) {
-        updatePoolApproval(pool) 
+        const approval = await web3Instance.checkApproval(pool.address, addressMasterChef);
+        if(approval){
+          newPools.find(thatPool => thatPool.title === pool.title).isAuthorized = true;
       }
-    });
   }
 
-  const updatePoolApproval = async (pool) => {
-    const allowance = await web3Instance.checkApproval(pool.address, addressMasterChef);
-    if(allowance){
-      let newPools = JSON.parse(JSON.stringify(pools));
-      newPools.find(thatPool => thatPool.title === pool.title).isAuthorized = true;
+      //update pending rewards
+      if(pool.pid) { 
+        const rewards = await web3Instance.getPendingRewards(pool.pid);
+        if( parseFloat(rewards) > 0 ){
+          newPools.find(thatPool => thatPool.title === pool.title).pendingRewards = rewards;
+        }
+      }
+
+      // update state
       setPools(newPools);
-    }
+    });
   }
 
   const requestPoolApproval = (poolAddress) => {
@@ -304,13 +311,13 @@ const Pools = props => {
           <Col sm="12">
             <Button
               block
-              color="primary"
-              disabled={ !pool.canHarvest }
+              color={ parseFloat(pool.pendingRewards) > 0 ? "primary" : "secondary" }
+              disabled={ ! (parseFloat(pool.pendingRewards) > 0) }
               onClick={() => {
                 console.log("Harvest")
               }}
             >
-              Harvest
+              Harvest { Math.floor(web3Instance.getAmoutFromWeis(pool.pendingRewards) * 100) / 100 } ELE
               </Button>
           </Col>
         </Row>

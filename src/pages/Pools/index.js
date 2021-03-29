@@ -47,9 +47,10 @@ const Pools = props => {
   const [isModalOpen, setisModalOpen] = useState(false);
   const [activeTab, setactiveTab] = useState(1);
   const [formData, setFormData] = useState({
-    option: '', // pool option chosen by the user (defined by pool.title)
+    chosenPool: null, // pool option chosen by the user (defined by pool.title)
     action: '', // deposit,withdraw
     amount: 0,
+    userBalance: 0,
   });
 
 
@@ -97,13 +98,30 @@ const Pools = props => {
       });
   }
 
-  const togglemodal = (option = '', action = '') => {
+  const togglemodal = async (chosenPool = null, action = '') => {
+    if(isModalOpen){ //close...
     setFormData({
-      option: option,
+        chosenPool: chosenPool,
       action: action,
-      amount: 0
+        amount: 0,
+        userBalance: 0
     });
-    setisModalOpen(!isModalOpen);
+      setisModalOpen(false);
+    } else { //open...
+      let balance = 0;
+      if(action === 'deposit'){
+        balance = await web3Instance.getUserBalance(chosenPool.address);
+      } else if(action === 'withdraw'){
+        balance = await web3Instance.getStakedCoins(chosenPool.pid);
+      }
+      setFormData({
+        chosenPool: chosenPool,
+        action: action,
+        amount: 0,
+        userBalance: balance
+      });
+      setisModalOpen(true);
+    }
   }
 
   const updateAmount = (value) => {
@@ -114,7 +132,7 @@ const Pools = props => {
 
   const renderFormContent = () => {
 
-    const selectedOption = pools.find( pool => pool.title === formData.option);
+    const selectedOption = pools.find( pool => pool.title === formData.chosenPool?.title);
     const {title = ''} = selectedOption || {};
     
     if (formData.action === 'deposit') {
@@ -139,7 +157,7 @@ const Pools = props => {
               </Col>
               <Col sm="6" lg="4" className="max-balance-wrapper text-end">
                 <span className="me-3">
-                  Balance: 0.0000
+                  Balance: {formData.userBalance}
               </span>
                 <Button
                   outline
@@ -177,7 +195,7 @@ const Pools = props => {
               </Col>
               <Col sm="6" lg="4" className="max-balance-wrapper text-end">
                 <span className="me-3">
-                  Balance: 0.0000
+                  Balance: {formData.userBalance}
               </span>
                 <Button
                   outline
@@ -219,7 +237,7 @@ const Pools = props => {
             <Button
               block
               outline
-              onClick={ () => togglemodal(pool.title, 'deposit') }
+              onClick={ () => togglemodal(pool, 'deposit') }
             >
               Deposit
             </Button>
@@ -228,7 +246,7 @@ const Pools = props => {
             <Button
               block
               outline
-              onClick={ () => togglemodal(pool.title, 'withdraw') }
+              onClick={ () => togglemodal(pool, 'withdraw') }
             >
               Withdraw
             </Button>
@@ -341,7 +359,7 @@ const Pools = props => {
                   {formData.action}:
                 </span>
                 &nbsp;
-                {formData.option}
+                {formData.chosenPool?.title}
               </ModalHeader>
               <ModalBody>
                 <div
@@ -357,18 +375,6 @@ const Pools = props => {
                   </div>
                   <div className="actions clearfix">
                     <ul role="menu" aria-label="Pagination">
-                      <li
-                        className={"previous disabled"}
-                      >
-                        <Link
-                          to="#"
-                          onClick={() => {
-                            console.log("cancel...")
-                          }}
-                        >
-                          Cancel
-                              </Link>
-                      </li>
                       <li
                         className={"next"}
                       >

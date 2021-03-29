@@ -54,21 +54,29 @@ class Web3Class {
     return userBalance;
   }
 
-  async deposit(amount, pid) {
+  async getStakedCoins(pid) {
+    const masterchefContract = this.getMasterchefContractContract();
+    const userInfo = await masterchefContract.methods.userInfo(pid, this.userAddress).call();
+    const stakedCoins = this.getAmoutFromWeis(userInfo["amount"]);
+    return stakedCoins;
+  }
+
+  async getPendingRewards(pid) {
+    const masterchefContract = this.getMasterchefContractContract();
+    const pendingRewards = await masterchefContract.methods.pendingEleven(pid, this.userAddress).call();
+    return pendingRewards;
+  }
+
+  async deposit(pid, amount) {
     const masterchefContract = this.getMasterchefContractContract();
     masterchefContract.methods.deposit(pid, amount).send();
   }
 
-  async withdraw(amount, pid) {
+  async withdraw(pid, amount) {
     const masterchefContract = this.getMasterchefContractContract();
     masterchefContract.methods.withdraw(pid, amount).send();
   }
 
-  async pendingRewards(pid) {
-    const masterchefContract = this.getMasterchefContractContract();
-    pendRe = await masterchefContract.methods.pendingEleven(_pid, this.userAddress).call();
-    return pendRe;
-  }
 }
 
 export default Web3Class;

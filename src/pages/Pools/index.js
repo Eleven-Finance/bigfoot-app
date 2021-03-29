@@ -130,6 +130,60 @@ const Pools = props => {
     setFormData(newFormData);
   }
 
+  const setMax = () => {
+    updateAmount(formData.userBalance);
+  }
+
+  const sendTransaction = () => {
+
+    // VALIDATION
+    if( parseFloat(formData.amount) <= 0) {
+      toastr.warning("Please enter a valid amount")
+      return;
+    }
+
+    const pid = formData.chosenPool.pid;
+    const amount = web3Instance.getWeiStrFromAmount(formData.amount);
+    const masterchefContract = web3Instance.getMasterchefContractContract();
+
+    if(formData.action === 'deposit'){
+      // DEPOSIT
+      masterchefContract.methods.deposit(pid, amount).send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        togglemodal()
+        toastr.info(hash, "Pool deposit in process: ")
+      })
+      .on('receipt', function (receipt) {
+        updateAllPools();
+        toastr.success(receipt, "Pool deposit completed: ")
+      })
+      .on('error', function (error) {
+        toastr.warning(error?.message, "Pool deposit failed: ")
+      })
+      .catch( error => {
+        console.log(error?.message, "Pool deposit error: ")
+      });
+    } else if (formData.action === 'withdraw') {
+      // WITHDRAW
+      masterchefContract.methods.withdraw(pid, amount).send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        togglemodal()
+        toastr.info(hash, "Pool withdraw in process: ")
+      })
+      .on('receipt', function (receipt) {
+        updateAllPools();
+        toastr.success(receipt, "Pool withdraw completed: ")
+      })
+      .on('error', function (error) {
+        toastr.warning(error?.message, "Pool withdraw failed: ")
+      })
+      .catch( error => {
+        console.log(error?.message, "Pool withdraw error: ")
+      });
+    }
+  }
+
+
   const renderFormContent = () => {
 
     const selectedOption = pools.find( pool => pool.title === formData.chosenPool?.title);
@@ -150,7 +204,7 @@ const Pools = props => {
                     type="number" 
                     className="form-control" 
                     min={0}
-                    step={0.01}
+                    step={0.0001}
                     value={formData.amount} 
                     onChange={(e) => updateAmount(e.target.value)}/>
                 </InputGroup>
@@ -162,9 +216,7 @@ const Pools = props => {
                 <Button
                   outline
                   color="primary"
-                  onClick={() => {
-                    console.log("set max.")
-                  }}
+                  onClick={ setMax }
                 >
                   MAX
               </Button>
@@ -200,9 +252,7 @@ const Pools = props => {
                 <Button
                   outline
                   color="primary"
-                  onClick={() => {
-                    console.log("set max.")
-                  }}
+                  onClick={ setMax }
                 >
                   MAX
                 </Button>
@@ -380,9 +430,7 @@ const Pools = props => {
                       >
                         <Link
                           to="#"
-                          onClick={() => {
-                            console.log("confirm...")
-                          }}
+                          onClick={ sendTransaction }
                         >
                           Confirm
                               </Link>

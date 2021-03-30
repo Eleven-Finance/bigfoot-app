@@ -1,12 +1,17 @@
 import PropTypes from 'prop-types'
 import React, { useState } from 'react'
-import wallet_model from './wallet_model';
-
 import { connect } from "react-redux"
+
+import toastr from "toastr"
+import "toastr/build/toastr.min.css"
+
+import wallet_model from './wallet_model';
 import { getWalletSuccess } from "../../store/actions"
 
 
 function WalletConnect(props) {
+
+  const supportedNetworkIds = [56];
 
   const { web3Loading, getweb3 } = wallet_model();
 
@@ -14,6 +19,17 @@ function WalletConnect(props) {
     const web3 = await getweb3();
     const accounts = await web3.eth.getAccounts();
     const networkId = await web3.eth.net.getId();
+    
+    if( !supportedNetworkIds.includes(networkId) ){
+      toastr.warning(
+        `Your current network id: ${networkId}`, 
+        "Make sure you're connected to BSC network (ChainID 56)!"
+      );
+      
+      console.log("Current network id: ", networkId);
+      console.log("Supported networks: ", supportedNetworkIds);
+    }
+    
     props.getWalletSuccess(web3, accounts, networkId);
   };
 

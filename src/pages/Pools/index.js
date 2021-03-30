@@ -336,6 +336,7 @@ const Pools = props => {
             <Button
               block
               outline
+              color={ parseFloat(pool.pendingRewards) === 0 ? "primary" : "secondary" }
               onClick={ () => togglemodal(pool, 'deposit') }
             >
               Deposit
@@ -409,7 +410,7 @@ const Pools = props => {
                         }
                       </p>
 
-                      <div className="d-flex align-items-center mt-4 mb-3">
+                      <div className="pool-icon d-flex align-items-center">
                         <div className="avatar-xs avatar-multi mt-2">
                           {pool.currencies.map((currency) => {
                             return (
@@ -422,8 +423,8 @@ const Pools = props => {
                         </div>
                       </div>
 
-                      <Row>
-                        <Col sm="12" className="mt-3 d-flex justify-content-between align-items-end">
+                      <Row className="pool-stats">
+                        <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="mb-2">APY</span>
                           <span className="pool-stats-value">
                             {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.apy)}%

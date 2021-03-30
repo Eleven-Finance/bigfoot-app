@@ -1,8 +1,19 @@
 #Pools {
     .pool-card {
-        .avatar-multi img {
-            width: 5rem;
-            height: 5rem;
+        .pool-icon {
+            padding-top: 1rem;
+            padding-bottom: 0.5rem;
+            .avatar-multi img {
+                width: 5rem;
+                height: 5rem;
+            }
+        }
+        .pool-stats {
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+            .pool-stats-value {
+                font-size: 160%;
+            }
         }
     }
     .coming-soon-buttons, .authorize-buttons {

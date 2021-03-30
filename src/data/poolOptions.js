@@ -9,7 +9,7 @@ import { addressBfBNB } from '../data/addresses/addresses';
 
 // import demo icons
 import { Ethereum, Sushi, ThreeCrv, Uniswap, Usdc} from '../assets/images/bigfoot/icons-assets/demo/_index'
-import { eleELE, bfBNB, bfUST, bfETH } from '../assets/images/bigfoot/icons-bigfoot-coins/_index'
+import { eleELE, bfBNB, bfBUSD, bfETH } from '../assets/images/bigfoot/icons-bigfoot-coins/_index'
 
 const poolOptions = [
   {
@@ -53,8 +53,8 @@ const poolOptions = [
     poolIcon: eleELE,
     currencies: [
       {
-        code: "bfUST",
-        icon: bfUST
+        code: "bfBUSD",
+        icon: bfBUSD
       },
     ],
     apy: "26.30",

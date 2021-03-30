@@ -87,6 +87,12 @@ const Pools = props => {
   }
 
   const requestPoolApproval = (poolAddress) => {
+
+    if( !web3){
+      toastr.warning("Connect your wallet");
+      return;
+    }
+
     const erc20 = web3Instance.getErc20Contract(poolAddress);
     const maxUint = web3Instance.maxUint;
     erc20.methods.approve(addressMasterChef, maxUint).send({ from: userAddress })
@@ -98,10 +104,10 @@ const Pools = props => {
         toastr.success(receipt, "Pool authorization accepted: ")
       })
       .on('error', function (error) {
-        toastr.warning(error, "Pool authorization failed: ")
+        toastr.warning(error?.message, "Pool authorization failed: ")
       })
       .catch((error) => {
-        console.log(error, "Pool authorization error: ")
+        console.log(error?.message, "Pool authorization error: ")
       });
   }
 

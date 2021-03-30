@@ -23,7 +23,7 @@ const poolOptions = [
         icon: bfBNB
       },
     ],
-    apy: "26.30",
+    statsKey: "ICE", //temp value
 
     isComingSoon: false,
     isAuthorized: false,
@@ -40,7 +40,7 @@ const poolOptions = [
         icon: bfETH
       },
     ],
-    apy: "36.30",
+    statsKey: "YUMCHA-BUSD LP", //temp value
 
     isComingSoon: true,
     isAuthorized: false,
@@ -49,7 +49,7 @@ const poolOptions = [
   {
     pid: null,
     address: '',
-    title: "Eleven bfUST",
+    title: "Eleven bfBUSD",
     poolIcon: eleELE,
     currencies: [
       {
@@ -57,7 +57,7 @@ const poolOptions = [
         icon: bfBUSD
       },
     ],
-    apy: "26.30",
+    statsKey: "LIEN-BNB LP", //temp value
 
     isComingSoon: true,
     isAuthorized: false,

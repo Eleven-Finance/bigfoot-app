@@ -1,10 +1,13 @@
 import React, {useEffect, useState} from "react"
 import { connect } from "react-redux"
 
+import millify from 'millify'
+
 // import PoolsUpperInfo from './PoolsUpperInfo'
 import poolOptions from '../../data/poolOptions'
 import { addressMasterChef } from '../../data/addresses/addresses';
 import Web3Class from '../../helpers/bigfoot/Web3Class'
+import Formatter from '../../helpers/bigfoot/Formatter'
 
 import {
   Container,
@@ -52,7 +55,18 @@ const Pools = props => {
     amount: 0,
     userBalance: 0,
   });
+  const [poolStats, setPoolStats] = useState();
 
+  useEffect( () => {
+    //@todo: move to .env, implement as a service
+    const apiBaseUrl = 'https://eleven.finance';
+    fetch( apiBaseUrl + '/api.json' )
+      .then(response => response.json())
+      .then(json => {
+        setPoolStats(json)
+      })
+      .catch( error => console.log('Error fetching data from api. ', error) )
+  }, []);
 
   useEffect( () => {
     if(web3) {
@@ -396,7 +410,7 @@ const Pools = props => {
                       </p>
 
                       <div className="d-flex align-items-center mt-4 mb-3">
-                        <div className="avatar-xs avatar-multi">
+                        <div className="avatar-xs avatar-multi mt-2">
                           {pool.currencies.map((currency) => {
                             return (
                               <span key={currency.code} className={"avatar-title rounded-circle bg-transparent"} >
@@ -409,10 +423,22 @@ const Pools = props => {
                       </div>
 
                       <Row>
-                        <Col sm="12" className="d-flex justify-content-between align-items-end">
+                        <Col sm="12" className="mt-3 d-flex justify-content-between align-items-end">
                           <span className="mb-2">APY</span>
-                          <span className="pool-apy-value">
-                            {pool.apy}%
+                          <span className="pool-stats-value">
+                            {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.apy)}%
+                          </span>
+                        </Col>
+                        <Col sm="12" className="d-flex justify-content-between align-items-end">
+                          <span className="mb-2">APRD</span>
+                          <span className="pool-stats-value">
+                            {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.aprd)}%
+                          </span>
+                        </Col>
+                        <Col sm="12" className="d-flex justify-content-between align-items-end">
+                          <span className="mb-2">APRL</span>
+                          <span className="pool-stats-value">
+                            {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.aprl)}%
                           </span>
                         </Col>
                         <Col sm="12">

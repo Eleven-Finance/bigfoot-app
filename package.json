@@ -40,6 +40,7 @@
     "lodash.clonedeep": "^4.5.0",
     "mdbreact": "^5.0.1",
     "metismenujs": "^1.2.1",
+    "millify": "^3.5.0",
     "mkdirp": "^1.0.4",
     "moment": "2.29.1",
     "moment-timezone": "^0.5.32",

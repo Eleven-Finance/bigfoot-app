@@ -196,6 +196,28 @@ const Pools = props => {
     }
   }
 
+  const requestHarvest = (pool) => {
+
+    const pid = pool.pid;
+    const amount = 0; // deposit with 0 will harvest pending rewards
+    const masterchefContract = web3Instance.getMasterchefContractContract();
+
+    // HARVEST
+    masterchefContract.methods.deposit(pid, amount).send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        toastr.info(hash, "Harvest in process: ")
+      })
+      .on('receipt', function (receipt) {
+        updateAllPools();
+        toastr.success(receipt, "Harvest completed: ")
+      })
+      .on('error', function (error) {
+        toastr.warning(error?.message, "Harvest failed: ")
+      })
+      .catch(error => {
+        console.log(error?.message, "Harvest error: ")
+      });
+  }
 
   const renderFormContent = () => {
 
@@ -319,11 +341,9 @@ const Pools = props => {
               block
               color={ parseFloat(pool.pendingRewards) > 0 ? "primary" : "secondary" }
               disabled={ ! (parseFloat(pool.pendingRewards) > 0) }
-              onClick={() => {
-                console.log("Harvest")
-              }}
+              onClick={ () => requestHarvest(pool) }
             >
-              Harvest { Math.floor(web3Instance.getAmoutFromWeis(pool.pendingRewards) * 100) / 100 } ELE
+              Harvest { Math.floor(web3Instance.getAmoutFromWeis(pool.pendingRewards) * 10000) / 10000 } ELE
               </Button>
           </Col>
         </Row>

@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from "react"
 import { connect } from "react-redux"
 
-import millify from 'millify'
-
 // import PoolsUpperInfo from './PoolsUpperInfo'
 import poolOptions from '../../data/poolOptions'
 import { addressMasterChef } from '../../data/addresses/addresses';
@@ -76,21 +74,21 @@ const Pools = props => {
 
 
   const updateAllPools = () => {
-    pools.forEach( async (pool) => {
+    pools.forEach(async (pool) => {
       let newPools = JSON.parse(JSON.stringify(pools))
-      
+
       //update pool approval
-      if(pool.address) {
+      if (pool.address) {
         const approval = await web3Instance.checkApproval(pool.address, addressMasterChef);
-        if(approval){
+        if (approval) {
           newPools.find(thatPool => thatPool.title === pool.title).isAuthorized = true;
+        }
       }
-  }
 
       //update pending rewards
-      if(pool.pid) { 
+      if (pool.pid) {
         const rewards = await web3Instance.getPendingRewards(pool.pid);
-        if( parseFloat(rewards) > 0 ){
+        if (parseFloat(rewards) > 0) {
           newPools.find(thatPool => thatPool.title === pool.title).pendingRewards = rewards;
         }
       }
@@ -431,13 +429,13 @@ const Pools = props => {
                           </span>
                         </Col>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
-                          <span className="mb-2">APRD</span>
+                          <span className="mb-2">Lend APY</span>
                           <span className="pool-stats-value">
                             {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.aprd)}%
                           </span>
                         </Col>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
-                          <span className="mb-2">APRL</span>
+                          <span className="mb-2">ELE APR</span>
                           <span className="pool-stats-value">
                             {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.aprl)}%
                           </span>

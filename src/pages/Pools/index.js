@@ -253,7 +253,7 @@ const Pools = props => {
                     type="number" 
                     className="form-control" 
                     min={0}
-                    step={0.0001}
+                    step={0.000001}
                     value={formData.amount} 
                     onChange={(e) => updateAmount(e.target.value)}/>
                 </InputGroup>
@@ -289,7 +289,7 @@ const Pools = props => {
                     type="number" 
                     className="form-control" 
                     min={0}
-                    step={0.01}
+                    step={0.000001}
                     value={formData.amount}
                     onChange={(e) => updateAmount(e.target.value)}/>
                 </InputGroup>

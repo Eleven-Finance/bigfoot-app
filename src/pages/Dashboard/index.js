@@ -310,7 +310,7 @@ class Dashboard extends Component {
                                                 type="number" 
                                                 className="form-control" 
                                                 min="0"
-                                                step="0.1"
+                                                step="0.000001"
                                                 value={this.state.formData.currencySupply?.[currency.code] ?? 0}
                                                 onChange={ (e) => this.updateCurrencySupply(currency.code, e.target.value)}
                                               />

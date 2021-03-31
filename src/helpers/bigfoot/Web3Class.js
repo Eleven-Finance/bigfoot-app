@@ -27,7 +27,7 @@ class Web3Class {
     return new BigNumber(weiAmount).dividedBy(new BigNumber(10).exponentiatedBy(18)).toString(10);
   }
 
-  getMasterchefContractContract() {
+  getMasterchefContract() {
     return new this.web3.eth.Contract(abiMasterChef, addressMasterChef);
   }
 
@@ -55,25 +55,25 @@ class Web3Class {
   }
 
   async getStakedCoins(pid) {
-    const masterchefContract = this.getMasterchefContractContract();
+    const masterchefContract = this.getMasterchefContract();
     const userInfo = await masterchefContract.methods.userInfo(pid, this.userAddress).call();
     const stakedCoins = this.getAmoutFromWeis(userInfo["amount"]);
     return stakedCoins;
   }
 
   async getPendingRewards(pid) {
-    const masterchefContract = this.getMasterchefContractContract();
+    const masterchefContract = this.getMasterchefContract();
     const pendingRewards = await masterchefContract.methods.pendingEleven(pid, this.userAddress).call();
     return pendingRewards;
   }
 
   async deposit(pid, amount) {
-    const masterchefContract = this.getMasterchefContractContract();
+    const masterchefContract = this.getMasterchefContract();
     masterchefContract.methods.deposit(pid, amount).send();
   }
 
   async withdraw(pid, amount) {
-    const masterchefContract = this.getMasterchefContractContract();
+    const masterchefContract = this.getMasterchefContract();
     masterchefContract.methods.withdraw(pid, amount).send();
   }
 

@@ -171,7 +171,7 @@ const Pools = props => {
 
     const pid = formData.chosenPool.pid;
     const amount = web3Instance.getWeiStrFromAmount(formData.amount);
-    const masterchefContract = web3Instance.getMasterchefContractContract();
+    const masterchefContract = web3Instance.getMasterchefContract();
 
     if(formData.action === 'deposit'){
       // DEPOSIT
@@ -214,7 +214,7 @@ const Pools = props => {
 
     const pid = pool.pid;
     const amount = 0; // deposit with 0 will harvest pending rewards
-    const masterchefContract = web3Instance.getMasterchefContractContract();
+    const masterchefContract = web3Instance.getMasterchefContract();
 
     // HARVEST
     masterchefContract.methods.deposit(pid, amount).send({ from: userAddress })

@@ -1,6 +1,14 @@
 import React, {useEffect, useState} from "react"
 import { connect } from "react-redux"
-import { Link } from "react-router-dom"
+
+import millify from 'millify'
+
+// import PoolsUpperInfo from './PoolsUpperInfo'
+import poolOptions from '../../data/poolOptions'
+import { addressMasterChef } from '../../data/addresses/addresses';
+import Web3Class from '../../helpers/bigfoot/Web3Class'
+import Formatter from '../../helpers/bigfoot/Formatter'
+
 import {
   Container,
   Row,
@@ -26,13 +34,7 @@ import {
 import toastr from "toastr"
 import "toastr/build/toastr.min.css"
 
-
-// import PoolsUpperInfo from './PoolsUpperInfo'
-import poolOptions from '../../data/poolOptions'
-import { addressMasterChef } from '../../data/addresses/addresses';
-import Web3Class from '../../helpers/bigfoot/Web3Class'
-import Formatter from '../../helpers/bigfoot/Formatter'
-import InputWei from "components/BigFoot/InputWei";
+import { Link } from "react-router-dom"
 import './Pools.scss'
 
 const Pools = props => {
@@ -247,11 +249,13 @@ const Pools = props => {
                   <Label className="input-group-text">
                     {title}
                   </Label>
-                  <InputWei
-                    className="form-control"
-                    value={formData.amount}
-                    onChange={(e) => updateAmount(e.target.value)}
-                  />
+                  <Input 
+                    type="number" 
+                    className="form-control" 
+                    min={0}
+                    step={0.0001}
+                    value={formData.amount} 
+                    onChange={(e) => updateAmount(e.target.value)}/>
                 </InputGroup>
               </Col>
               <Col sm="6" lg="4" className="max-balance-wrapper text-end">

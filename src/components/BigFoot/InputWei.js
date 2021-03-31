@@ -1,17 +1,14 @@
 import React from 'react'
-import {
-  Input,
-} from "reactstrap"
+import CurrencyInput from 'react-currency-input-field';
 
 function InputWei(props) {
   return (
-    <Input
-      type="number"
-      min={0}
-      step={0.0000000000000001} //note: using (1/ 1**16) <-- (1/ 1**18) seems not to work on FireFox 
-      onInput={(e) => e.target.value = Number(e.target.value).toFixed(18)} 
+    <CurrencyInput
+      allowNegativeValue={false}
+      defaultValue={0}
+      decimalsLimit={18}
       {...props}
-      />
+    />
   )
 }
 

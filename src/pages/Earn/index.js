@@ -1,5 +1,6 @@
-import React, {useState} from "react"
-import lendingOptions from '../../data/lendingOptions'
+import React, {useState, useEffect} from "react"
+import { connect } from "react-redux"
+import { Link } from "react-router-dom"
 import {
   Container,
   Row,
@@ -18,9 +19,17 @@ import {
   InputGroup,
 } from "reactstrap"
 
-import { Link } from "react-router-dom"
+import lendingOptions from '../../data/lendingOptions'
+import Web3Class from '../../helpers/bigfoot/Web3Class'
+import { addressBfBNB } from '../../data/addresses/addresses'
 
 const Earn = props => {
+
+  // initialize wallet variables
+  const web3 = props.walletData.web3;
+  const userAddress = props.walletData.accounts?.[0];
+
+  const web3Instance = new Web3Class(web3, userAddress);
 
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
@@ -29,7 +38,22 @@ const Earn = props => {
     action: '', // supply,withdraw
     amount: 0,
   });
+  const [supplyBalance, setSupplyBalance] = useState(0);
 
+  useEffect( async () => {
+    if(web3) {
+      updateSupplyBalance();
+    }
+  }, [web3]);
+
+  const updateSupplyBalance = async () => {
+    const bnbPrice = await web3Instance.getBnbPrice();
+    const userBalanceBfbnb = await web3Instance.getUserBalance(addressBfBNB);
+    const bfbnbStaked = await web3Instance.getStakedCoins(79); // bfbnb pool id: 79
+    const totalUserBalanceUsd = ( parseFloat(userBalanceBfbnb) + parseFloat(bfbnbStaked) ) * bnbPrice;
+    setSupplyBalance( totalUserBalanceUsd.toFixed(2) );
+  }
+  
   const togglemodal = (option = '', action = '') => {
     setFormData({
       option: option,
@@ -164,7 +188,7 @@ const Earn = props => {
                     <Col sm="12">
                       <div>
                         <p className="mb-2">Supply Balance</p>
-                        <p className="total-value">$ 0.00</p>
+                        <p className="total-value">$ {supplyBalance}</p>
                       </div>
                     </Col>
                   </Row>
@@ -238,9 +262,6 @@ const Earn = props => {
                               <h5 className="font-size-14 mb-1">
                                 {option.balance} {option.currency}
                               </h5>
-                              <div className="text-muted">
-                                  ({option.balanceDiff} {option.currency})
-                              </div>
                             </td>
                             <td style={{ width: "120px" }}>
                               <div className="mb-2">
@@ -338,4 +359,11 @@ const Earn = props => {
     </React.Fragment>
   )
 }
-export default Earn;
+
+const mapStateToProps = state => {
+  return {
+    walletData: state.wallet.walletData,
+  }
+}
+
+export default connect(mapStateToProps, {} )(Earn);

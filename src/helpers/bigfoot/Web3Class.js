@@ -1,7 +1,6 @@
 import BigNumber from "bignumber.js";
 
-import { abiMasterChef, abiERC20 } from '../../data/abis/abis';
-import { addressMasterChef } from '../../data/addresses/addresses';
+import { addressMasterChef, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(web3, userAddress) {
@@ -77,6 +76,14 @@ class Web3Class {
     masterchefContract.methods.withdraw(pid, amount).send();
   }
 
+  async getBnbPrice(){
+    const wbnbContract = this.getErc20Contract(addressWbnb);
+    const busdContract = this.getErc20Contract(addressBusd);
+    const wbnbInR = await wbnbContract.methods.balanceOf(addressPancakeWbnbBusdLp).call();
+    const busdInR = await busdContract.methods.balanceOf(addressPancakeWbnbBusdLp).call();
+    const bnbPrice = busdInR / wbnbInR;
+    return bnbPrice;
+  }
 }
 
 export default Web3Class;

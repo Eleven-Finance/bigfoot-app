@@ -19,6 +19,9 @@ import {
   InputGroup,
 } from "reactstrap"
 
+import toastr from "toastr"
+import "toastr/build/toastr.min.css"
+
 import lendingOptions from '../../data/lendingOptions'
 import Web3Class from '../../helpers/bigfoot/Web3Class'
 import { addressBfBNB } from '../../data/addresses/addresses'
@@ -34,9 +37,10 @@ const Earn = props => {
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    option: '', // lending option chosen by the user (defined by option.title)
+    chosenOption: '', // lending option chosen by the user
     action: '', // supply,withdraw
     amount: 0,
+    userBalance: 0,
   });
   const [supplyBalance, setSupplyBalance] = useState(0);
 
@@ -54,13 +58,38 @@ const Earn = props => {
     setSupplyBalance( totalUserBalanceUsd.toFixed(2) );
   }
   
-  const togglemodal = (option = '', action = '') => {
-    setFormData({
-      option: option,
-      action: action,
-      amount: 0
-    });
-    setisModalOpen(!isModalOpen);
+
+  const togglemodal = async (chosenOption = null, action = '') => {
+
+    //if wallet not connected
+    if( !isModalOpen && !web3){
+      toastr.warning("Connect your wallet");
+      return;
+    }
+
+    if (isModalOpen) { //close...
+      setFormData({
+        chosenOption: chosenOption,
+        action: action,
+        amount: 0,
+        userBalance: 0
+      });
+      setisModalOpen(false);
+    } else { //open...
+      let balance = 0;
+      if (action === 'supply') {
+        balance = await web3Instance.getUserBalance(); //balance in native token
+      } else if (action === 'withdraw') {
+        balance = await web3Instance.getUserBalance(chosenOption.address);
+      }
+      setFormData({
+        chosenOption: chosenOption,
+        action: action,
+        amount: 0,
+        userBalance: balance
+      });
+      setisModalOpen(true);
+    }
   }
 
   const updateAmount = (value) => {
@@ -69,9 +98,78 @@ const Earn = props => {
     setFormData(newFormData);
   }
 
+  const setMax = (isNativeToken) => {
+    let newAmount = 0;
+    let gasReserve = 0.02;
+
+    if (isNativeToken === true) {
+      if( formData.userBalance > gasReserve ){
+        newAmount = formData.userBalance - gasReserve; //leave a small amount for gas
+        toastr.info(`Gas reserve: ${gasReserve}`, "Leaving a small amount for gas :)");
+      } else {
+        newAmount = formData.userBalance;
+        toastr.warning("Hey, we recommend you leave some spare balance for gas!");
+      } 
+    } else {
+      newAmount = formData.userBalance;  
+    }
+
+    updateAmount(newAmount);
+  }
+
+  const sendTransaction = () => {
+
+    // VALIDATION
+    if( parseFloat(formData.amount) <= 0) {
+      toastr.warning("Please enter a valid amount")
+      return;
+    }
+
+    const amount = web3Instance.getWeiStrFromAmount(formData.amount);
+    const bfbnbContract = web3Instance.getBfbnbBankContract();
+
+    if(formData.action === 'supply'){
+      // SUPPLY
+      bfbnbContract.methods.deposit().send({from: userAddress, value: amount})
+      .on('transactionHash', function (hash) {
+        togglemodal()
+        toastr.info(hash, "Supply in process: ")
+      })
+      .on('receipt', function (receipt) {
+        updateSupplyBalance();
+        //updateAllOptions();
+        toastr.success(receipt, "Supply completed: ")
+      })
+      .on('error', function (error) {
+        toastr.warning(error?.message, "Supply failed: ")
+      })
+      .catch( error => {
+        console.log(error?.message, "Supply error: ")
+      });
+    } else if (formData.action === 'withdraw') {
+      // WITHDRAW
+      bfbnbContract.methods.withdraw(amount).send({from: userAddress})
+      .on('transactionHash', function (hash) {
+        togglemodal()
+        toastr.info(hash, "Withdraw in process: ")
+      })
+      .on('receipt', function (receipt) {
+        updateSupplyBalance();
+        //updateAllOptions();
+        toastr.success(receipt, "Withdraw completed: ")
+      })
+      .on('error', function (error) {
+        toastr.warning(error?.message, "Withdraw failed: ")
+      })
+      .catch( error => {
+        console.log(error?.message, "Withdraw error: ")
+      });
+    }
+  }
+
   const renderFormContent = () => {
 
-    const selectedOption = options.find( option => option.title === formData.option);
+    const selectedOption = options.find( option => option.title === formData.chosenOption.title);
     const {title = '', currency = '', icon = ''} = selectedOption || {};
     
     if (formData.action === 'supply') {
@@ -101,14 +199,12 @@ const Earn = props => {
               </Col>
               <Col sm="6" lg="4" className="max-balance-wrapper text-end">
                 <span className="me-3">
-                  Balance: 0.0000
+                  Balance: {formData.userBalance}
               </span>
                 <Button
                   outline
                   color="primary"
-                  onClick={() => {
-                    console.log("set max.")
-                  }}
+                  onClick={() => setMax(true) }
                 >
                   MAX
               </Button>
@@ -144,14 +240,12 @@ const Earn = props => {
               </Col>
               <Col sm="6" lg="4" className="max-balance-wrapper text-end">
                 <span className="me-3">
-                  Balance: 0.0000
+                  Balance: {formData.userBalance}
               </span>
                 <Button
                   outline
                   color="primary"
-                  onClick={() => {
-                    console.log("set max.")
-                  }}
+                  onClick={ setMax }
                 >
                   MAX
                 </Button>
@@ -177,7 +271,7 @@ const Earn = props => {
           <Link
             to="#"
             className="btn btn-primary btn-sm w-xs"
-            onClick={() => togglemodal(option.title, 'supply')}
+            onClick={() => togglemodal(option, 'supply')}
           >
             Supply
           </Link>
@@ -186,7 +280,7 @@ const Earn = props => {
           <Link
             to="#"
             className="btn btn-primary btn-sm w-xs"
-            onClick={() => togglemodal(option.title, 'withdraw')}
+            onClick={() => togglemodal(option, 'withdraw')}
           >
             Withdraw
           </Link>
@@ -312,7 +406,7 @@ const Earn = props => {
                         {formData.action}: 
                       </span>
                       &nbsp;
-                      {formData.option}
+                      {formData.chosenOption?.title}
                     </ModalHeader>
                     <ModalBody>
                       <div
@@ -320,7 +414,9 @@ const Earn = props => {
                       >
                         <div className="content clearfix">
                           <Form>
-                            {renderFormContent()}
+                            { formData.chosenOption &&
+                              renderFormContent()
+                            }
                             <p>
                               Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
                             </p>
@@ -328,26 +424,10 @@ const Earn = props => {
                         </div>
                         <div className="actions clearfix">
                           <ul role="menu" aria-label="Pagination">
-                            <li
-                              className={"previous disabled"}
-                            >
+                            <li className={"next"} >
                               <Link
                                 to="#"
-                                onClick={() => {
-                                  console.log("cancel...")
-                                }}
-                              >
-                                Cancel
-                              </Link>
-                            </li>
-                            <li
-                              className={"next"}
-                            >
-                              <Link
-                                to="#"
-                                onClick={() => {
-                                  console.log("confirm...")
-                                }}
+                                onClick={ sendTransaction }
                               >
                                 Confirm
                               </Link>

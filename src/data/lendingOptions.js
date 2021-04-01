@@ -4,12 +4,13 @@
 //
 
 
-// import demo icons
+import { addressBfBNB } from '../data/addresses/addresses';
 import { Bnb, Eth, Busd } from '../assets/images/bigfoot/icons-coins/_index'
 
 
 const lendingOptions = [
   {
+    address: addressBfBNB,
     title: "bfBNB",
     currency: "BNB",
     icon: Bnb,
@@ -22,6 +23,7 @@ const lendingOptions = [
     balance: "0.00",
   },
   {
+    address: '',
     title: "bfETH",
     currency: "ETH",
     icon: Eth,
@@ -36,6 +38,7 @@ const lendingOptions = [
     isComingSoon: true,
   },
   {
+    address: '',
     title: "bfBUSD",
     currency: "BUSD",
     icon: Busd,

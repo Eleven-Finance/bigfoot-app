@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 
+import { abiMasterChef, abiERC20, abiBank } from '../../data/abis/abis';
 import { addressMasterChef, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB } from '../../data/addresses/addresses';
 
 class Web3Class {
@@ -30,6 +31,10 @@ class Web3Class {
     return new this.web3.eth.Contract(abiMasterChef, addressMasterChef);
   }
 
+  getBfbnbBankContract() {
+    return new this.web3.eth.Contract(abiBank, addressBfBNB);
+  }
+
   getErc20Contract(tokenAddress) {
     return new this.web3.eth.Contract(abiERC20, tokenAddress);
   }
@@ -47,10 +52,16 @@ class Web3Class {
   }
 
   async getUserBalance(tokenAddress) {
-    const erc20 = this.getErc20Contract(tokenAddress);
-    const weis = await erc20.methods.balanceOf(this.userAddress).call();
-    const userBalance = this.getAmoutFromWeis(weis);
-    return userBalance;
+    let weis;
+
+    if (!tokenAddress) { //get balance in the native token
+      weis = await this.web3.eth.getBalance(this.userAddress);
+    } else {
+      const erc20 = this.getErc20Contract(tokenAddress);
+      weis = await erc20.methods.balanceOf(this.userAddress).call();
+    }
+
+    return this.getAmoutFromWeis(weis);
   }
 
   async getStakedCoins(pid) {

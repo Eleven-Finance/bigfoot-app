@@ -50,20 +50,7 @@ const Header = props => {
           </div>
 
           <div className="d-flex">
-            
             <WalletConnect />
-
-            <div className="d-inline-block">
-              <button
-                onClick={() => {
-                  console.log("settings...")
-                }}
-                type="button"
-                className="btn header-item noti-icon waves-effect"
-              >
-                <i className="bx bx-cog"/>
-              </button>
-            </div>
           </div>
         </div>
       </header>

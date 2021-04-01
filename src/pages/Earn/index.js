@@ -170,6 +170,31 @@ const Earn = props => {
     }
   }
 
+  const renderButtons = (option) => {
+    return (
+      <>
+        <div className="mb-2">
+          <Link
+            to="#"
+            className="btn btn-primary btn-sm w-xs"
+            onClick={() => togglemodal(option.title, 'supply')}
+          >
+            Supply
+          </Link>
+        </div>
+        <div>
+          <Link
+            to="#"
+            className="btn btn-primary btn-sm w-xs"
+            onClick={() => togglemodal(option.title, 'withdraw')}
+          >
+            Withdraw
+          </Link>
+        </div>
+      </>
+    );
+  }
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -234,54 +259,37 @@ const Earn = props => {
                             </th>
                             <td>
                               <div>
-                                {option.apy} %
+                                {option.isComingSoon ? "" : `${option.apy} %` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.supply} {option.currency}
+                                {option.isComingSoon ? "" : `${option.supply} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                  (${option.supplyInDollars})
+                                {option.isComingSoon ? "" : `($${option.supplyInDollars})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.borrow} {option.currency}
+                                {option.isComingSoon ? "" : `${option.borrow} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                  (${option.borrowInDollars})
+                                {option.isComingSoon ? "" : `($${option.borrowInDollars})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.utilization} %
+                                {option.isComingSoon ? "" : `${option.utilization} %` }
                               </h5>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.balance} {option.currency}
+                                {option.isComingSoon ? "" : `${option.balance} ${option.currency}` }
                               </h5>
                             </td>
                             <td style={{ width: "120px" }}>
-                              <div className="mb-2">
-                                <Link
-                                  to="#"
-                                  className="btn btn-primary btn-sm w-xs"
-                                  onClick={() => togglemodal(option.title, 'supply')}
-                                >
-                                  Supply
-                                </Link>
-                              </div>
-                              <div>
-                                <Link
-                                  to="#"
-                                  className="btn btn-primary btn-sm w-xs"
-                                  onClick={() => togglemodal(option.title, 'withdraw')}
-                                >
-                                  Withdraw
-                                </Link>
-                              </div>
+                              {option.isComingSoon ? "Coming Soon" : renderButtons(option) }
                             </td>
                           </tr>
                         ))}

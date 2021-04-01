@@ -4,19 +4,19 @@
 //  -- "currencies" is an array (can accept multiple items) 
 //
 
-// import addresses
-import { addressBfBNB } from '../data/addresses/addresses';
+// addresses
+import { addressBfBNB } from './addresses/addresses';
 
-// import demo icons
+// icons
 import { Ethereum, Sushi, ThreeCrv, Uniswap, Usdc} from '../assets/images/bigfoot/icons-assets/demo/_index'
 import { eleELE, bfBNB, bfBUSD, bfETH } from '../assets/images/bigfoot/icons-bigfoot-coins/_index'
 
-const poolOptions = [
+const farmOptions = [
   {
     pid: 79,
     address: addressBfBNB,
     title: "Eleven bfBNB",
-    poolIcon: eleELE,
+    farmIcon: eleELE,
     currencies: [
       {
         code: "bfBNB",
@@ -33,7 +33,7 @@ const poolOptions = [
     pid: null,
     address: '',
     title: "Eleven bfETH",
-    poolIcon: eleELE,
+    farmIcon: eleELE,
     currencies: [
       {
         code: "bfETH",
@@ -50,7 +50,7 @@ const poolOptions = [
     pid: null,
     address: '',
     title: "Eleven bfBUSD",
-    poolIcon: eleELE,
+    farmIcon: eleELE,
     currencies: [
       {
         code: "bfBUSD",
@@ -65,4 +65,4 @@ const poolOptions = [
   },
 ];
 
-export default poolOptions;
+export default farmOptions;

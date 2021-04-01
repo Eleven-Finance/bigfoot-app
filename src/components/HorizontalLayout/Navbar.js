@@ -28,8 +28,8 @@ const Navbar = props => {
       anchorText: 'Earn'
     },
     {
-      destinationPath: '/pools',
-      anchorText: 'Pools'
+      destinationPath: '/farms',
+      anchorText: 'Farms'
     },
   ];
 

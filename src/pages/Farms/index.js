@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react"
 import { connect } from "react-redux"
 
-// import PoolsUpperInfo from './PoolsUpperInfo'
-import poolOptions from '../../data/poolOptions'
+// import FarmsUpperInfo from './FarmsUpperInfo'
+import farmOptions from '../../data/farmOptions'
 import { addressMasterChef } from '../../data/addresses/addresses';
 import Web3Class from '../../helpers/bigfoot/Web3Class'
 import Formatter from '../../helpers/bigfoot/Formatter'
@@ -33,9 +33,9 @@ import toastr from "toastr"
 import "toastr/build/toastr.min.css"
 
 import { Link } from "react-router-dom"
-import './Pools.scss'
+import './Farms.scss'
 
-const Pools = props => {
+const Farms = props => {
 
   // initialize wallet variables
   const web3 = props.walletData.web3;
@@ -44,16 +44,16 @@ const Pools = props => {
   const web3Instance = new Web3Class(web3, userAddress);
 
 
-  const [pools, setPools] = useState(poolOptions);
+  const [farms, setFarms] = useState(farmOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
   const [activeTab, setactiveTab] = useState(1);
   const [formData, setFormData] = useState({
-    chosenPool: null, // pool option chosen by the user (defined by pool.title)
+    chosenFarm: null, // farm option chosen by the user
     action: '', // deposit,withdraw
     amount: 0,
     userBalance: 0,
   });
-  const [poolStats, setPoolStats] = useState();
+  const [farmStats, setFarmStats] = useState();
 
   useEffect( () => {
     //@todo: move to .env, implement as a service
@@ -61,86 +61,86 @@ const Pools = props => {
     fetch( apiBaseUrl + '/api.json' )
       .then(response => response.json())
       .then(json => {
-        setPoolStats(json)
+        setFarmStats(json)
       })
       .catch( error => console.log('Error fetching data from api. ', error) )
   }, []);
 
   useEffect( () => {
     if(web3) {
-      updateAllPools();
+      updateAllFarms();
     }
   }, [web3]);
 
 
-  const updateAllPools = () => {
-    pools.forEach(async (pool) => {
-      let newPools = JSON.parse(JSON.stringify(pools))
+  const updateAllFarms = () => {
+    farms.forEach(async (farm) => {
+      let newFarms = JSON.parse(JSON.stringify(farms))
 
-      //update pool approval
-      if (pool.address) {
-        const approval = await web3Instance.checkApproval(pool.address, addressMasterChef);
+      //update farm approval
+      if (farm.address) {
+        const approval = await web3Instance.checkApproval(farm.address, addressMasterChef);
         if (approval) {
-          newPools.find(thatPool => thatPool.title === pool.title).isAuthorized = true;
+          newFarms.find(thatFarm => thatFarm.title === farm.title).isAuthorized = true;
         }
       }
 
       //update pending rewards
-      if (pool.pid) {
-        const rewards = await web3Instance.getPendingRewards(pool.pid);
+      if (farm.pid) {
+        const rewards = await web3Instance.getPendingRewards(farm.pid);
         if (parseFloat(rewards) > 0) {
-          newPools.find(thatPool => thatPool.title === pool.title).pendingRewards = rewards;
+          newFarms.find(thatFarm => thatFarm.title === farm.title).pendingRewards = rewards;
         }
       }
 
       // update state
-      setPools(newPools);
+      setFarms(newFarms);
     });
   }
 
-  const requestPoolApproval = (poolAddress) => {
+  const requestFarmApproval = (farmAddress) => {
 
     if( !web3){
       toastr.warning("Connect your wallet");
       return;
     }
 
-    const erc20 = web3Instance.getErc20Contract(poolAddress);
+    const erc20 = web3Instance.getErc20Contract(farmAddress);
     const maxUint = web3Instance.maxUint;
     erc20.methods.approve(addressMasterChef, maxUint).send({ from: userAddress })
       .on('transactionHash', function (hash) {
-        toastr.info(hash, "Pool authorization in process: ")
+        toastr.info(hash, "Farm authorization in process: ")
       })
       .on('receipt', function (receipt) {
-        updateAllPools();
-        toastr.success(receipt, "Pool authorization accepted: ")
+        updateAllFarms();
+        toastr.success(receipt, "Farm authorization accepted: ")
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Pool authorization failed: ")
+        toastr.warning(error?.message, "Farm authorization failed: ")
       })
       .catch((error) => {
-        console.log(error?.message, "Pool authorization error: ")
+        console.log(error?.message, "Farm authorization error: ")
       });
   }
 
-  const togglemodal = async (chosenPool = null, action = '') => {
-    if(isModalOpen){ //close...
-    setFormData({
-        chosenPool: chosenPool,
-      action: action,
+  const togglemodal = async (chosenFarm = null, action = '') => {
+    if (isModalOpen) { //close...
+      setFormData({
+        chosenFarm: chosenFarm,
+        action: action,
         amount: 0,
         userBalance: 0
-    });
+      });
       setisModalOpen(false);
     } else { //open...
       let balance = 0;
-      if(action === 'deposit'){
-        balance = await web3Instance.getUserBalance(chosenPool.address);
-      } else if(action === 'withdraw'){
-        balance = await web3Instance.getStakedCoins(chosenPool.pid);
+      if (action === 'deposit') {
+        balance = await web3Instance.getUserBalance(chosenFarm.address);
+      } else if (action === 'withdraw') {
+        balance = await web3Instance.getStakedCoins(chosenFarm.pid);
       }
       setFormData({
-        chosenPool: chosenPool,
+        chosenFarm: chosenFarm,
         action: action,
         amount: 0,
         userBalance: balance
@@ -167,7 +167,7 @@ const Pools = props => {
       return;
     }
 
-    const pid = formData.chosenPool.pid;
+    const pid = formData.chosenFarm.pid;
     const amount = web3Instance.getWeiStrFromAmount(formData.amount);
     const masterchefContract = web3Instance.getMasterchefContract();
 
@@ -176,41 +176,41 @@ const Pools = props => {
       masterchefContract.methods.deposit(pid, amount).send({ from: userAddress })
       .on('transactionHash', function (hash) {
         togglemodal()
-        toastr.info(hash, "Pool deposit in process: ")
+        toastr.info(hash, "Farm deposit in process: ")
       })
       .on('receipt', function (receipt) {
-        updateAllPools();
-        toastr.success(receipt, "Pool deposit completed: ")
+        updateAllFarms();
+        toastr.success(receipt, "Farm deposit completed: ")
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Pool deposit failed: ")
+        toastr.warning(error?.message, "Farm deposit failed: ")
       })
       .catch( error => {
-        console.log(error?.message, "Pool deposit error: ")
+        console.log(error?.message, "Farm deposit error: ")
       });
     } else if (formData.action === 'withdraw') {
       // WITHDRAW
       masterchefContract.methods.withdraw(pid, amount).send({ from: userAddress })
       .on('transactionHash', function (hash) {
         togglemodal()
-        toastr.info(hash, "Pool withdraw in process: ")
+        toastr.info(hash, "Farm withdraw in process: ")
       })
       .on('receipt', function (receipt) {
-        updateAllPools();
-        toastr.success(receipt, "Pool withdraw completed: ")
+        updateAllFarms();
+        toastr.success(receipt, "Farm withdraw completed: ")
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Pool withdraw failed: ")
+        toastr.warning(error?.message, "Farm withdraw failed: ")
       })
       .catch( error => {
-        console.log(error?.message, "Pool withdraw error: ")
+        console.log(error?.message, "Farm withdraw error: ")
       });
     }
   }
 
-  const requestHarvest = (pool) => {
+  const requestHarvest = (farm) => {
 
-    const pid = pool.pid;
+    const pid = farm.pid;
     const amount = 0; // deposit with 0 will harvest pending rewards
     const masterchefContract = web3Instance.getMasterchefContract();
 
@@ -220,7 +220,7 @@ const Pools = props => {
         toastr.info(hash, "Harvest in process: ")
       })
       .on('receipt', function (receipt) {
-        updateAllPools();
+        updateAllFarms();
         toastr.success(receipt, "Harvest completed: ")
       })
       .on('error', function (error) {
@@ -233,7 +233,7 @@ const Pools = props => {
 
   const renderFormContent = () => {
 
-    const selectedOption = pools.find( pool => pool.title === formData.chosenPool?.title);
+    const selectedOption = farms.find( farm => farm.title === formData.chosenFarm?.title);
     const {title = ''} = selectedOption || {};
     
     if (formData.action === 'deposit') {
@@ -311,8 +311,8 @@ const Pools = props => {
     }
   }
 
-  const renderButtons = (pool) => {
-    if (pool.isComingSoon){
+  const renderButtons = (farm) => {
+    if (farm.isComingSoon){
       return(
         <Row className="coming-soon-buttons">
           <Col sm="12">
@@ -327,15 +327,15 @@ const Pools = props => {
         </Row>
       );
     }
-    else if (pool.isAuthorized) {
+    else if (farm.isAuthorized) {
       return (
         <Row>
           <Col sm="6" className="mb-2">
             <Button
               block
               outline
-              color={ parseFloat(pool.pendingRewards) === 0 ? "primary" : "secondary" }
-              onClick={ () => togglemodal(pool, 'deposit') }
+              color={ parseFloat(farm.pendingRewards) === 0 ? "primary" : "secondary" }
+              onClick={ () => togglemodal(farm, 'deposit') }
             >
               Deposit
             </Button>
@@ -344,7 +344,7 @@ const Pools = props => {
             <Button
               block
               outline
-              onClick={ () => togglemodal(pool, 'withdraw') }
+              onClick={ () => togglemodal(farm, 'withdraw') }
             >
               Withdraw
             </Button>
@@ -352,11 +352,11 @@ const Pools = props => {
           <Col sm="12">
             <Button
               block
-              color={ parseFloat(pool.pendingRewards) > 0 ? "primary" : "secondary" }
-              disabled={ ! (parseFloat(pool.pendingRewards) > 0) }
-              onClick={ () => requestHarvest(pool) }
+              color={ parseFloat(farm.pendingRewards) > 0 ? "primary" : "secondary" }
+              disabled={ ! (parseFloat(farm.pendingRewards) > 0) }
+              onClick={ () => requestHarvest(farm) }
             >
-              Harvest { Math.floor(web3Instance.getAmoutFromWeis(pool.pendingRewards) * 10000) / 10000 } ELE
+              Harvest { Math.floor(web3Instance.getAmoutFromWeis(farm.pendingRewards) * 10000) / 10000 } ELE
               </Button>
           </Col>
         </Row>
@@ -369,7 +369,7 @@ const Pools = props => {
               block
               outline
               color="primary"
-              onClick={ () => requestPoolApproval(pool.address) }
+              onClick={ () => requestFarmApproval(farm.address) }
             >
               Authorize
             </Button>
@@ -381,36 +381,36 @@ const Pools = props => {
 
   return (
     <React.Fragment>
-      <div id="Pools" className="page-content">
+      <div id="Farms" className="page-content">
         <Container fluid>
 
-          {/* <PoolsUpperInfo /> */}
+          {/* <FarmsUpperInfo /> */}
 
           <Row className="equal-height">
-            { pools.map( pool => {
+            { farms.map( farm => {
               return (
-                <Col key={pool.title} md="4">
-                  <Card className="pool-card">
+                <Col key={farm.title} md="4">
+                  <Card className="farm-card">
                     <CardBody>
 
                       <h4 className="card-title">
                         <span className={"avatar-title rounded-circle bg-transparent font-size-18 me-2"} >
-                          <img src={pool.poolIcon.default} />
+                          <img src={farm.farmIcon.default} />
                         </span>
-                        {pool.title}
+                        {farm.title}
                       </h4>
 
                       <p className="text-muted">
                         Accepting 
-                        {pool.currencies.map( (currency, index) => {
+                        {farm.currencies.map( (currency, index) => {
                             return index===0? ` ${currency.code}` : `, ${currency.code}` 
                           })
                         }
                       </p>
 
-                      <div className="pool-icon d-flex align-items-center">
+                      <div className="farm-icon d-flex align-items-center">
                         <div className="avatar-xs avatar-multi mt-2">
-                          {pool.currencies.map((currency) => {
+                          {farm.currencies.map((currency) => {
                             return (
                               <span key={currency.code} className={"avatar-title rounded-circle bg-transparent"} >
                                 <img src={currency.icon.default} />
@@ -421,30 +421,30 @@ const Pools = props => {
                         </div>
                       </div>
 
-                      <Row className="pool-stats">
+                      <Row className="farm-stats">
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="mb-2">APY</span>
-                          <span className="pool-stats-value">
-                            {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.apy)}%
+                          <span className="farm-stats-value">
+                            {Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.apy)}%
                           </span>
                         </Col>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="mb-2">Lend APY</span>
-                          <span className="pool-stats-value">
-                            {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.aprd)}%
+                          <span className="farm-stats-value">
+                            {Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprd)}%
                           </span>
                         </Col>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="mb-2">ELE APR</span>
-                          <span className="pool-stats-value">
-                            {Formatter.getFormattedYield(poolStats?.[pool.statsKey]?.farm?.aprl)}%
+                          <span className="farm-stats-value">
+                            {Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprl)}%
                           </span>
                         </Col>
                         <Col sm="12">
                         </Col>
                       </Row>
 
-                      { renderButtons(pool) }
+                      { renderButtons(farm) }
 
                     </CardBody>
                   </Card>
@@ -467,7 +467,7 @@ const Pools = props => {
                   {formData.action}:
                 </span>
                 &nbsp;
-                {formData.chosenPool?.title}
+                {formData.chosenFarm?.title}
               </ModalHeader>
               <ModalBody>
                 <div
@@ -514,4 +514,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, {} )(Pools);
+export default connect(mapStateToProps, {} )(Farms);

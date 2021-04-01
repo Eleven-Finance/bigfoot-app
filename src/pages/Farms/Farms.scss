@@ -1,6 +1,6 @@
-#Pools {
-    .pool-card {
-        .pool-icon {
+#Farms {
+    .farm-card {
+        .farm-icon {
             padding-top: 1rem;
             padding-bottom: 0.5rem;
             .avatar-multi img {
@@ -8,10 +8,10 @@
                 height: 5rem;
             }
         }
-        .pool-stats {
+        .farm-stats {
             margin-top: 2rem;
             margin-bottom: 0.5rem;
-            .pool-stats-value {
+            .farm-stats-value {
                 font-size: 160%;
             }
         }

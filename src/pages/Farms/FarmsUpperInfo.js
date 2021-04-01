@@ -10,7 +10,7 @@ import {
   Table,
 } from "reactstrap"
 
-function PoolsUpperInfo() {
+function FarmsUpperInfo() {
   
   const [assets, setassets] = useState(liquidityAssets);
 
@@ -21,7 +21,7 @@ function PoolsUpperInfo() {
           <CardBody>
             <h4 className="card-title">
               <i className="mdi mdi-lock text-primary h1" />
-              Total Value Locked in WWW Pool on ZZZ
+              Total Value Locked in WWW Farm on ZZZ
             </h4>
             <Row>
               <Col sm="12">
@@ -150,4 +150,4 @@ function PoolsUpperInfo() {
   );
 }
 
-export default PoolsUpperInfo;
+export default FarmsUpperInfo;

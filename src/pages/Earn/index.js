@@ -53,7 +53,7 @@ const Earn = props => {
   const updateSupplyBalance = async () => {
     const bnbPrice = await web3Instance.getBnbPrice();
     const userBalanceBfbnb = await web3Instance.getUserBalance(addressBfBNB);
-    const bfbnbStaked = await web3Instance.getStakedCoins(79); // bfbnb pool id: 79
+    const bfbnbStaked = await web3Instance.getStakedCoins(79); // bfbnb farm id: 79
     const totalUserBalanceUsd = ( parseFloat(userBalanceBfbnb) + parseFloat(bfbnbStaked) ) * bnbPrice;
     setSupplyBalance( totalUserBalanceUsd.toFixed(2) );
   }

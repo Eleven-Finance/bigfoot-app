@@ -38,7 +38,7 @@ const Positions = props => {
                       <thead>
                         <tr>
                           <th scope="col">#</th>
-                          <th scope="col">Pool</th>
+                          <th scope="col">Farm Pool</th>
                           <th scope="col">Collateral Value</th>
                           <th scope="col">Borrow Credit</th>
                           <th scope="col">Collateral Credit</th>

@@ -1,8 +1,5 @@
 import { combineReducers } from "redux"
 
-// bigfoot reducers
-import wallet from './bigfoot_wallet/reducer'
-
 
 /*** Theme boilerplate reducers (needs cleanup) ***/
 
@@ -26,9 +23,6 @@ import contacts from "./contacts/reducer"
 
 
 const rootReducer = combineReducers({
-  // bigfoot
-  wallet,
-
   // theme boilerplate
   Layout, 
   Login,
@@ -38,7 +32,7 @@ const rootReducer = combineReducers({
   ecommerce,
   calendar,
   chat,
-  crypto,
+  // crypto,
   invoices,
   projects,
   tasks,

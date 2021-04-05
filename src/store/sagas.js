@@ -1,11 +1,5 @@
 import { all, fork } from "redux-saga/effects"
 
-// bigfoot sagas
-// 
-// 
-
-
-
 
 /*** Theme boilerplate sagas (needs cleanup) ***/
 import AccountSaga from "./auth/register/saga"

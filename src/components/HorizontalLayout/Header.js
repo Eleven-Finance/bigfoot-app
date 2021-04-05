@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import PropTypes from 'prop-types'
 import { connect } from "react-redux"
-
 import { Link } from "react-router-dom"
 
 // Redux Store
@@ -11,12 +10,11 @@ import { showRightSidebarAction, toggleLeftmenu } from "../../store/actions"
 //i18n
 import { withTranslation } from "react-i18next"
 
-import WalletConnect from "components/BigFoot/WalletConnect";
+import WalletButton from "components/BigFoot/WalletButton"
 
 import { ReactComponent as BigfootLogoSvg } from "../../assets/images/bigfoot/bigfoot-logo.svg"
 
 const Header = props => {
-
   return (
     <React.Fragment>
       <header id="page-topbar">
@@ -50,7 +48,7 @@ const Header = props => {
           </div>
 
           <div className="d-flex">
-            <WalletConnect />
+            <WalletButton />
           </div>
         </div>
       </header>

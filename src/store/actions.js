@@ -1,10 +1,3 @@
-
-
-// bigfoot actions
-export * from "./bigfoot_wallet/actions"
-
-
-
 /*** Theme boilerplate (needs cleanup) ***/
 
 // Front

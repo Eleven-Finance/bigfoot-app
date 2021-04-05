@@ -99,6 +99,7 @@
     "simplebar-react": "^2.3.0",
     "styled-components": "^5.2.1",
     "toastr": "^2.1.4",
+    "use-wallet": "^0.8.1",
     "web3": "^1.3.4",
     "web3modal": "^1.9.3"
   },

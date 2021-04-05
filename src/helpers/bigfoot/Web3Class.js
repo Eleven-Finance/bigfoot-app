@@ -1,12 +1,13 @@
+import Web3 from "web3";
 import BigNumber from "bignumber.js";
 
 import { abiMasterChef, abiERC20, abiBank } from '../../data/abis/abis';
 import { addressMasterChef, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB } from '../../data/addresses/addresses';
 
 class Web3Class {
-  constructor(web3, userAddress) {
-    this.web3 = web3;
-    this.userAddress = userAddress;
+  constructor(wallet) {
+    this.web3 = new Web3(wallet.ethereum)
+    this.userAddress = wallet.account;
     this.maxUint = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
   }
 

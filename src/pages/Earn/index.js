@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react"
-import { connect } from "react-redux"
 import { Link } from "react-router-dom"
+import { useWallet } from 'use-wallet'
 import {
   Container,
   Row,
@@ -26,13 +26,12 @@ import lendingOptions from '../../data/lendingOptions'
 import Web3Class from '../../helpers/bigfoot/Web3Class'
 import { addressBfBNB } from '../../data/addresses/addresses'
 
-const Earn = props => {
+const Earn = () => {
 
-  // initialize wallet variables
-  const web3 = props.walletData.web3;
-  const userAddress = props.walletData.accounts?.[0];
-
-  const web3Instance = new Web3Class(web3, userAddress);
+  //wallet & web3
+  const wallet = useWallet()
+  const web3Instance = new Web3Class(wallet);
+  const userAddress = wallet.account;
 
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
@@ -45,10 +44,12 @@ const Earn = props => {
   const [supplyBalance, setSupplyBalance] = useState(0);
 
   useEffect( async () => {
-    if(web3) {
+    if(wallet.account) {
       updateSupplyBalance();
+    } else {
+      setSupplyBalance(0);
     }
-  }, [web3]);
+  }, [wallet]);
 
   const updateSupplyBalance = async () => {
     const bnbPrice = await web3Instance.getBnbPrice();
@@ -62,7 +63,7 @@ const Earn = props => {
   const togglemodal = async (chosenOption = null, action = '') => {
 
     //if wallet not connected
-    if( !isModalOpen && !web3){
+    if( !isModalOpen && !wallet.account){
       toastr.warning("Connect your wallet");
       return;
     }
@@ -448,10 +449,4 @@ const Earn = props => {
   )
 }
 
-const mapStateToProps = state => {
-  return {
-    walletData: state.wallet.walletData,
-  }
-}
-
-export default connect(mapStateToProps, {} )(Earn);
+export default Earn;

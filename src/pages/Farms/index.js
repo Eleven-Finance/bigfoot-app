@@ -1,12 +1,6 @@
 import React, {useEffect, useState} from "react"
-import { connect } from "react-redux"
-
-// import FarmsUpperInfo from './FarmsUpperInfo'
-import farmOptions from '../../data/farmOptions'
-import { addressMasterChef } from '../../data/addresses/addresses';
-import Web3Class from '../../helpers/bigfoot/Web3Class'
-import Formatter from '../../helpers/bigfoot/Formatter'
-
+import { Link } from "react-router-dom"
+import { useWallet } from 'use-wallet'
 import {
   Container,
   Row,
@@ -14,14 +8,9 @@ import {
   Col,
   Card,
   CardBody,
-  Table,
   Modal,
   ModalHeader,
   ModalBody,
-  TabContent,
-  TabPane,
-  NavItem,
-  NavLink,
   Label,
   Input,
   Form,
@@ -32,21 +21,22 @@ import {
 import toastr from "toastr"
 import "toastr/build/toastr.min.css"
 
-import { Link } from "react-router-dom"
+// import FarmsUpperInfo from './FarmsUpperInfo'
+import farmOptions from '../../data/farmOptions'
+import { addressMasterChef } from '../../data/addresses/addresses';
+import Web3Class from '../../helpers/bigfoot/Web3Class'
+import Formatter from '../../helpers/bigfoot/Formatter'
 import './Farms.scss'
 
-const Farms = props => {
+const Farms = () => {
 
-  // initialize wallet variables
-  const web3 = props.walletData.web3;
-  const userAddress = props.walletData.accounts?.[0];
-
-  const web3Instance = new Web3Class(web3, userAddress);
-
+  //wallet & web3
+  const wallet = useWallet()
+  const web3Instance = new Web3Class(wallet);
+  const userAddress = wallet.account;
 
   const [farms, setFarms] = useState(farmOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
-  const [activeTab, setactiveTab] = useState(1);
   const [formData, setFormData] = useState({
     chosenFarm: null, // farm option chosen by the user
     action: '', // deposit,withdraw
@@ -67,11 +57,10 @@ const Farms = props => {
   }, []);
 
   useEffect( () => {
-    if(web3) {
+    if(wallet.account) {
       updateAllFarms();
     }
-  }, [web3]);
-
+  }, [wallet]);
 
   const updateAllFarms = () => {
     farms.forEach(async (farm) => {
@@ -100,7 +89,7 @@ const Farms = props => {
 
   const requestFarmApproval = (farmAddress) => {
 
-    if( !web3){
+    if( !wallet.account){
       toastr.warning("Connect your wallet");
       return;
     }
@@ -506,12 +495,4 @@ const Farms = props => {
   )
 }
 
-
-
-const mapStateToProps = state => {
-  return {
-    walletData: state.wallet.walletData,
-  }
-}
-
-export default connect(mapStateToProps, {} )(Farms);
+export default Farms;

@@ -3,6 +3,7 @@ import React from "react"
 
 import { Switch, BrowserRouter as Router } from "react-router-dom"
 import { connect } from "react-redux"
+import { UseWalletProvider } from 'use-wallet'
 
 // Import Routes all
 import { userRoutes, authRoutes } from "./routes/allRoutes"
@@ -66,30 +67,34 @@ const App = props => {
   const Layout = getLayout()
   return (
     <React.Fragment>
-      <Router>
-        <Switch>
-          {authRoutes.map((route, idx) => (
-            <Authmiddleware
-              path={route.path}
-              layout={NonAuthLayout}
-              component={route.component}
-              key={idx}
-              isAuthProtected={false}
-            />
-          ))}
+      <UseWalletProvider
+        chainId={56}
+      >
+        <Router>
+          <Switch>
+            {authRoutes.map((route, idx) => (
+              <Authmiddleware
+                path={route.path}
+                layout={NonAuthLayout}
+                component={route.component}
+                key={idx}
+                isAuthProtected={false}
+              />
+            ))}
 
-          {userRoutes.map((route, idx) => (
-            <Authmiddleware
-              path={route.path}
-              layout={Layout}
-              component={route.component}
-              key={idx}
-              isAuthProtected={true}
-              exact
-            />
-          ))}
-        </Switch>
-      </Router>
+            {userRoutes.map((route, idx) => (
+              <Authmiddleware
+                path={route.path}
+                layout={Layout}
+                component={route.component}
+                key={idx}
+                isAuthProtected={true}
+                exact
+              />
+            ))}
+          </Switch>
+        </Router>
+      </UseWalletProvider>
     </React.Fragment>
   )
 }

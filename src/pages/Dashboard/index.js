@@ -23,6 +23,7 @@ import "react-rangeslider/lib/index.css"
 
 import { Link } from "react-router-dom"
 
+import Formatter from '../../helpers/bigfoot/Formatter'
 import "./Dashboard.scss"
 
 class Dashboard extends Component {
@@ -40,8 +41,20 @@ class Dashboard extends Component {
         borrowFactor: 2
       },
       modal: false,
+      tvl: '',
     }
     this.togglemodal.bind(this)
+  }
+
+  componentDidMount(){
+    fetch( process.env.REACT_APP_API_URL )
+      .then( res => res.json() )
+      .then( json => {
+        this.setState({
+          tvl: json.totalvaluelocked
+        });
+      })
+      .catch( error => console.log('Error fetching data from api. ', error) )
   }
 
   setBorrowFactor(value){
@@ -109,7 +122,7 @@ class Dashboard extends Component {
                     </h4>
                     <Row>
                       <Col sm="12">
-                        <p className="total-value">$ 0.00</p>
+                        <p className="total-value text-center">$ { Formatter.getFormattedTvl(this.state.tvl) }</p>
                       </Col>
                     </Row>
                   </CardBody>

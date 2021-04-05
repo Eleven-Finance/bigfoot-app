@@ -4,6 +4,12 @@ class Formatter {
 
   static numberUnits = ["", "K", "Million", "Billion", "Trillion", "Quadrillion", "Quintillion", "Sextillion", "Septillion", "Octillion", "Nonillion", "Decillion", "Undecillion"];
 
+
+  static getFormattedTvl(amount) {
+    return amount.toLocaleString('en-US', { maximumFractionDigits: 0 })
+  }
+
+  
   static getFormattedYield(amount, precision = 2) {
     if (!amount) {
       return ''; // while loading
@@ -22,6 +28,8 @@ class Formatter {
 
     return result;
   }
+
+
 }
 
 export default Formatter;

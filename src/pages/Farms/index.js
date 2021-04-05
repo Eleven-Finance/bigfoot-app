@@ -46,10 +46,8 @@ const Farms = () => {
   const [farmStats, setFarmStats] = useState();
 
   useEffect( () => {
-    //@todo: move to .env, implement as a service
-    const apiBaseUrl = 'https://eleven.finance';
-    fetch( apiBaseUrl + '/api.json' )
-      .then(response => response.json())
+    fetch( process.env.REACT_APP_API_URL )
+      .then(res => res.json())
       .then(json => {
         setFarmStats(json)
       })
@@ -316,7 +314,7 @@ const Farms = () => {
         </Row>
       );
     }
-    else if (farm.isAuthorized) {
+    else if (wallet.account && farm.isAuthorized) {
       return (
         <Row>
           <Col sm="6" className="mb-2">

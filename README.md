@@ -1,14 +1,13 @@
-
-[![Netlify Status](https://api.netlify.com/api/v1/badges/fb3918d7-1be4-4565-bd6c-f0b0c8b20690/deploy-status)](https://app.netlify.com/sites/demo-bigfoot-app/deploys)
-
-
 ## About
 
-Web App for BigFoot
+BigFoot App, made with React and some ❤️ by [eleven.finance](https://eleven.finance).
 
 
 ## Installation
 
-```npm install```
+```npm install```  
 ```npm start```
 
+
+## Environment variables:
+.env file is currently included in the repo.

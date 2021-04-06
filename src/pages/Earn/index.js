@@ -95,7 +95,7 @@ const Earn = () => {
 
         //Total Supply
         const totalBnb = await web3Instance.getTotalSupplyBnb();
-        currentOption.supply = totalBnb;
+        currentOption.supply = parseFloat(totalBnb);
 
         //Bigfoot Balance
         const bigfoot = await web3Instance.getBigFootBalance();
@@ -417,7 +417,7 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${option.supply} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${(option.supply * 1).toFixed(2)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
                                 {option.isComingSoon ? "" : `($${(option.supply * bnbPrice).toFixed(2)})` }

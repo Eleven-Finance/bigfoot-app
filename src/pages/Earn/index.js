@@ -41,14 +41,22 @@ const Earn = () => {
     amount: 0,
     userBalance: 0,
   });
+  const [bnbPrice, setBnbPrice] = useState(0);
   const [walletBalance, setWalletBalance] = useState(0);
   const [supplyBalance, setSupplyBalance] = useState(0);
 
   useEffect( async () => {
     if(wallet.account) {
+
+      const price = await web3Instance.getBnbPrice();
+      setBnbPrice(price);
+
       updateSupplyBalance();
       updateWalletBalance();
+      updateAllOptions();
     } else {
+      setBnbPrice(0);
+
       setWalletBalance(0);
       setSupplyBalance(0);
     }
@@ -63,12 +71,45 @@ const Earn = () => {
 
   const updateSupplyBalance = async () => {
     const bnbPrice = await web3Instance.getBnbPrice();
-    const userBalanceBfbnb = await web3Instance.getUserBalance(addressBfBNB);
-    const bfbnbStaked = await web3Instance.getStakedCoins(79); // bfbnb farm id: 79
-    const totalUserBalanceUsd = ( parseFloat(userBalanceBfbnb) + parseFloat(bfbnbStaked) ) * bnbPrice;
+
+    const bigfootBalance = await web3Instance.getBigFootBalance();
+    const chefBalance = await web3Instance.getChefBalance();
+    const totalUserBalanceUsd = ( parseFloat(bigfootBalance) + parseFloat(chefBalance) ) * bnbPrice;
     setSupplyBalance( totalUserBalanceUsd.toFixed(2) );
   }
-  
+
+  const updateAllOptions = () => {
+    options.forEach( async(option) => {
+
+      let newOptions = JSON.parse(JSON.stringify(options));
+      const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
+
+      if(option.title==="bfBNB"){ //temp hack, until the rest of lending options are defined
+
+        //temporal values set to zero
+        currentOption.apy = 0;
+        currentOption.borrow = 0;
+        currentOption.utilization = 0;
+
+        const bnbPrice = await web3Instance.getBnbPrice();
+
+        //Total Supply
+        const totalBnb = await web3Instance.getTotalSupplyBnb();
+        currentOption.supply = totalBnb;
+
+        //Bigfoot Balance
+        const bigfoot = await web3Instance.getBigFootBalance();
+        currentOption.bigfootBalance = parseFloat(bigfoot);
+        
+        //Bigfoot Chef Balance
+        const chef = await web3Instance.getChefBalance();
+        currentOption.bigfootChefBalance = parseFloat(chef);
+      }
+
+      setOptions(newOptions);
+    });
+  }
+
 
   const togglemodal = async (chosenOption = null, action = '') => {
 
@@ -351,7 +392,8 @@ const Earn = () => {
                           <th scope="col">Total Supply</th>
                           <th scope="col">Total Borrow</th>
                           <th scope="col">Utilization</th>
-                          <th scope="col">Balance</th>
+                          <th scope="col">BigFoot Balance</th>
+                          <th scope="col">BigFoot Chef</th>
                           <th scope="col"></th>
                         </tr>
                       </thead>
@@ -378,7 +420,7 @@ const Earn = () => {
                                 {option.isComingSoon ? "" : `${option.supply} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${option.supplyInDollars})` }
+                                {option.isComingSoon ? "" : `($${(option.supply * bnbPrice).toFixed(2)})` }
                               </div>
                             </td>
                             <td>
@@ -386,7 +428,7 @@ const Earn = () => {
                                 {option.isComingSoon ? "" : `${option.borrow} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${option.borrowInDollars})` }
+                                {option.isComingSoon ? "" : `($${(option.borrow * bnbPrice).toFixed(2)})` }
                               </div>
                             </td>
                             <td>
@@ -396,8 +438,19 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${option.balance} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${(option.bigfootBalance).toFixed(2)} ${option.currency}` }
                               </h5>
+                              <div className="text-muted">
+                                {option.isComingSoon ? "" : `($${(option.bigfootBalance * bnbPrice).toFixed(2)})` }
+                              </div>
+                            </td>
+                            <td>
+                              <h5 className="font-size-14 mb-1">
+                                {option.isComingSoon ? "" : `${(option.bigfootChefBalance).toFixed(2)} ${option.currency}` }
+                              </h5>
+                              <div className="text-muted">
+                                {option.isComingSoon ? "" : `($${(option.bigfootChefBalance * bnbPrice).toFixed(2)})` }
+                              </div>
                             </td>
                             <td style={{ width: "120px" }}>
                               {option.isComingSoon ? "Coming Soon" : renderButtons(option) }

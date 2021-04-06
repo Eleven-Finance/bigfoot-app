@@ -96,6 +96,39 @@ class Web3Class {
     const bnbPrice = busdInR / wbnbInR;
     return bnbPrice;
   }
+
+  async getTotalSupplyBnb(){
+    const bfbnbContract = new this.web3.eth.Contract(abiBank, addressBfBNB);
+    const weis = await bfbnbContract.methods.totalBNB().call();
+    return this.getAmoutFromWeis(weis);
+  }
+
+  async convertBnbToBfbnb(amount) {
+    const bfbnbContract = this.getBfbnbBankContract();
+    const totalbnb = await bfbnbContract.methods.totalBNB().call();
+    const totalshares = await bfbnbContract.methods.totalSupply().call();
+    return amount * totalshares / totalbnb;
+  }
+
+  async convertBfbnbToBnb(amount) {
+    const bfbnbContract = this.getBfbnbBankContract();
+    const totalbnb = await bfbnbContract.methods.totalBNB().call();
+    const totalshares = await bfbnbContract.methods.totalSupply().call();
+    return amount * totalbnb / totalshares;
+  }
+
+  async getBigFootBalance() {
+    const userBalanceBfbnb = await this.getUserBalance(addressBfBNB);
+    const userBalanceBfbnbInBnb = await this.convertBfbnbToBnb(userBalanceBfbnb);
+    return userBalanceBfbnbInBnb;
+  } 
+
+  async getChefBalance() {
+    const bfbnbStaked = await this.getStakedCoins(79); // bfbnb farm id: 79
+    const bfbnbStakedInBnb = await this.convertBfbnbToBnb(bfbnbStaked);
+    return bfbnbStakedInBnb;
+  }
+
 }
 
 export default Web3Class;

@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import farmPools from '../../data/farmPools'
+import { Link } from "react-router-dom"
 import {
   Container,
   Row,
@@ -21,9 +21,8 @@ import {
 import Slider from "react-rangeslider"
 import "react-rangeslider/lib/index.css"
 
-import { Link } from "react-router-dom"
-
 import Formatter from '../../helpers/bigfoot/Formatter'
+import farmPools from '../../data/farmPools'
 import "./Dashboard.scss"
 
 class Dashboard extends Component {
@@ -41,7 +40,7 @@ class Dashboard extends Component {
         borrowFactor: 2
       },
       modal: false,
-      tvl: '',
+      poolStats: null,
     }
     this.togglemodal.bind(this)
   }
@@ -51,10 +50,31 @@ class Dashboard extends Component {
       .then( res => res.json() )
       .then( json => {
         this.setState({
-          tvl: json.totalvaluelocked
+          poolStats: json
+        }, () => {
+          this.updatePoolStats();
         });
       })
       .catch( error => console.log('Error fetching data from api. ', error) )
+  }
+
+  updatePoolStats() {
+    const newPools = JSON.parse(JSON.stringify(this.state.pools));
+    this.state.pools.forEach( pool => {
+      const currentPool = newPools.find( thatPool => thatPool.title === pool.title);
+      const data = this.state.poolStats[currentPool.apiKey];
+      
+      currentPool.rates.yieldFarming = data.farm.aprd * 365 * 3;
+      currentPool.rates.eleApr = data.farm.aprl * 3 * 0.6;
+      // @todo: currentPool.rates.tradingFee; 
+      // @todo: currentPool.rates.borrowApy;
+ 
+      currentPool.percentage =  currentPool.rates.yieldFarming + currentPool.rates.eleApr; //@todo: the sum will also include 'tradingFee' & 'borrowApy', once they're ready
+      currentPool.percentageOut = data.farm.aprd * 365;
+    });
+    this.setState({
+      pools: newPools
+    });
   }
 
   setBorrowFactor(value){
@@ -99,7 +119,7 @@ class Dashboard extends Component {
     this.setState(newState);
   }
 
-  renderIcon(icon, color) {
+  renderIcon(icon) {
     return (
       <span className={ "avatar-title rounded-circle bg-transparent font-size-18" } >
         <img src={icon.default} />
@@ -122,7 +142,7 @@ class Dashboard extends Component {
                     </h4>
                     <Row>
                       <Col sm="12">
-                        <p className="total-value text-center">$ { Formatter.getFormattedTvl(this.state.tvl) }</p>
+                        <p className="total-value text-center">$ { Formatter.getFormattedTvl(this.state.poolStats?.totalvaluelocked ?? '') }</p>
                       </Col>
                     </Row>
                   </CardBody>
@@ -156,7 +176,7 @@ class Dashboard extends Component {
                         <p className="mb-0">Active Positions</p>
                       </Col>
                       <Col sm="6" className="text-end">
-                        <p>100 Positions</p>
+                        <p>0 Positions</p>
                       </Col>
                     </Row>
                   </CardBody>
@@ -217,11 +237,11 @@ class Dashboard extends Component {
                                   <div className="avatar-xs avatar-multi">
                                       { 
                                         pool.customIcon ? 
-                                        this.renderIcon(pool.customIcon, pool.color) : 
+                                        this.renderIcon(pool.customIcon) : 
                                         pool.currencies.map( (currency, index) => {
                                           return (
                                             <React.Fragment key={index}>
-                                              {this.renderIcon(currency.icon, pool.color)}
+                                              {this.renderIcon(currency.icon)}
                                             </React.Fragment>
                                           )
                                         })
@@ -239,25 +259,36 @@ class Dashboard extends Component {
                               </td>
                               <td>
                                 <h5 className="font-size-20 mb-1">
-                                  {pool.percentage} %
+                                  { pool.percentage ?
+                                    pool.percentage.toFixed(2) + " %" :
+                                    "--"
+                                  }
                                 </h5>
                                 <div className="text-muted">
                                   <del>
-                                    {pool.percentageOut} %
+                                    { pool.percentageOut ?
+                                      pool.percentageOut.toFixed(2) + " %" :
+                                      "--"
+                                    }
                                   </del>
                                 </div>
                               </td>
                               <td>
-
                                 { 
-                                  pool.details.map( (element, index) => {
+                                  Object.keys(pool.rates).map( (key) => {
                                     return(
-                                      <Row key={index}>
+                                      <Row key={key}>
                                         <Col sm="6">
-                                          {element.title}
+                                          {key === 'yieldFarming' && 'Yield Farming'}
+                                          {key === 'eleApr' && 'ELE APR'}
+                                          {key === 'tradingFee' && 'Trading Fee'}
+                                          {key === 'borrowApy' && 'Borrow APY'}
                                         </Col>
                                         <Col sm="6" className="text-end">
-                                          {element.percentage} %
+                                          { pool.rates[key] ?
+                                            pool.rates[key].toFixed(2) + " %" :
+                                            "--"
+                                          }
                                         </Col>
                                       </Row>
                                     )
@@ -265,13 +296,21 @@ class Dashboard extends Component {
                                 }
                               </td>
                               <td style={{ width: "120px" }}>
+                                <Button
+                                  block
+                                  outline
+                                  disabled={true}
+                                >
+                                  Coming soon
+                                </Button>
+                                {/*                                 
                                 <Link
                                   to="#"
                                   className="btn btn-primary btn-sm w-xs"
                                   onClick={ () => this.togglemodal(pool.title)}
                                 >
                                   Farm
-                                </Link>
+                                </Link> */}
                               </td>
                             </tr>
                           ))}

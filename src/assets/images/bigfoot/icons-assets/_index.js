@@ -1,0 +1,1 @@
+export const Cake = require('./cake.png');

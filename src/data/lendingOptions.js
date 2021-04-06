@@ -17,7 +17,7 @@ const lendingOptions = [
     apy: "",
     supply: "",
     borrow: "",
-    utilization: "90.10",
+    utilization: "",
     bigfootBalance: 0,
     bigfootChefBalance: 0,
   },

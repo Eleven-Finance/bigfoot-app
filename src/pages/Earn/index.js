@@ -41,15 +41,25 @@ const Earn = () => {
     amount: 0,
     userBalance: 0,
   });
+  const [walletBalance, setWalletBalance] = useState(0);
   const [supplyBalance, setSupplyBalance] = useState(0);
 
   useEffect( async () => {
     if(wallet.account) {
       updateSupplyBalance();
+      updateWalletBalance();
     } else {
+      setWalletBalance(0);
       setSupplyBalance(0);
     }
   }, [wallet]);
+
+  const updateWalletBalance = async () => {
+    const walletBalance = web3Instance.getAmoutFromWeis(wallet.balance);
+    const bnbPrice = await web3Instance.getBnbPrice();
+    const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
+    setWalletBalance( walletBalanceUsd.toFixed(2) );
+  }
 
   const updateSupplyBalance = async () => {
     const bnbPrice = await web3Instance.getBnbPrice();
@@ -305,7 +315,13 @@ const Earn = () => {
                   </h4>
 
                   <Row className="text-center mt-3">
-                    <Col sm="12">
+                    <Col sm="6">
+                      <div>
+                        <p className="mb-2">Wallet Balance</p>
+                        <p className="total-value">$ {walletBalance}</p>
+                      </div>
+                    </Col>
+                    <Col sm="6">
                       <div>
                         <p className="mb-2">Supply Balance</p>
                         <p className="total-value">$ {supplyBalance}</p>

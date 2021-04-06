@@ -11,8 +11,8 @@ class Formatter {
 
   
   static getFormattedYield(amount, precision = 2) {
-    if (!amount) {
-      return ''; // while loading
+    if (amount === undefined) {
+      return '--'; // while loading
     }
 
     let result = millify(amount,

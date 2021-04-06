@@ -73,6 +73,24 @@ $yellowBigFoot: #f0b90b;
             padding: 2px 0;
         }
     }
+    .wallet-selector {
+        text-align: center;
+        .wallet-connector{
+            font-size: 2rem;
+            background: #fff;
+            margin-bottom: 2rem;
+            border: none;
+            img{
+                display: block;
+                width: 40%;
+                min-width: 120px;
+                margin: 1rem auto;
+            }
+            &:hover {
+                background: #f1e3b9;
+            }
+        }
+    }
 }
 
 /* Avatar */

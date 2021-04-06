@@ -25,7 +25,7 @@ const ForgetPasswordPage = props => {
   return (
     <React.Fragment>
      <MetaTags>
-          <title>Forget Password | BigFoot - Cryptocurrency & Yield Farming</title>
+          <title>Forget Password | BigFoot - powered by eleven.finance</title>
         </MetaTags>
       <div className="home-btn d-none d-sm-block">
         <Link to="/" className="text-dark">

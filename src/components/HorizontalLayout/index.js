@@ -44,7 +44,7 @@ class Layout extends Component {
     let currentage = title.charAt(1).toUpperCase() + title.slice(2)
 
     document.title =
-      currentage + " | BigFoot - Cryptocurrency & Yield Farming"
+      currentage + " | BigFoot - powered by eleven.finance"
 
     this.props.changeLayout("horizontal")
     if (this.props.topbarTheme) {

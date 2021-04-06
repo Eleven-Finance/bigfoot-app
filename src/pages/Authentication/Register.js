@@ -30,7 +30,7 @@ const Register = props => {
   return (
     <React.Fragment>
      <MetaTags>
-          <title>Register | BigFoot - Cryptocurrency & Yield Farming</title>
+          <title>Register | BigFoot - powered by eleven.finance</title>
         </MetaTags>
       <div className="home-btn d-none d-sm-block">
         <Link to="/" className="text-dark">

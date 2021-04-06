@@ -60,7 +60,7 @@ const UserProfile = props => {
     <React.Fragment>
       <div className="page-content">
         <MetaTags>
-          <title>Profile | BigFoot - Cryptocurrency & Yield Farming</title>
+          <title>Profile | BigFoot - powered by eleven.finance</title>
         </MetaTags>
         <Container fluid>
           {/* Render Breadcrumb */}

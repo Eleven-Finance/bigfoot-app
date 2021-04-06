@@ -1,5 +1,5 @@
 import React, {useState} from "react"
-import allPositions from '../../data/allPositions'
+import { Link } from "react-router-dom"
 import {
   Container,
   Row,
@@ -10,7 +10,29 @@ import {
   Table,
 } from "reactstrap"
 
-import { Link } from "react-router-dom"
+import allPositions from '../../data/allPositions'
+import { Cake } from '../../assets/images/bigfoot/icons-assets/_index'
+import { Bnb } from '../../assets/images/bigfoot/icons-coins/_index'
+
+
+const renderIcon = (positionTitle) => {
+  let icon;
+
+  switch(positionTitle){
+    case '11CAKE':
+      icon = Cake;
+      break;
+    case '11CAKEBNB':
+      icon = Bnb;
+      break;
+  }
+
+  return (
+    <span className={"avatar-title rounded-circle bg-transparent font-size-18 me-2"} >
+      <img src={icon?.default} />
+    </span>
+  );
+}
 
 const Positions = props => {
 
@@ -38,7 +60,7 @@ const Positions = props => {
                       <thead>
                         <tr>
                           <th scope="col">#</th>
-                          <th scope="col">Farm Pool</th>
+                          <th scope="col" className="text-start">Farm Pool</th>
                           <th scope="col">Collateral Value</th>
                           <th scope="col">Borrow Credit</th>
                           <th scope="col">Collateral Credit</th>
@@ -56,22 +78,8 @@ const Positions = props => {
                             </th>
                             <td>
                               <div className="d-flex align-items-center">
-                                <div className="avatar-xs me-3">
-                                  <span
-                                    className={
-                                      "avatar-title rounded-circle bg-soft bg-" +
-                                      position.color +
-                                      " text-" +
-                                      position.color +
-                                      " font-size-18"
-                                    }
-                                  >
-                                    <i className={position.icon}/>
-                                  </span>
-                                </div>
-                                <span>{position.title1}</span>
-                                &nbsp;
-                                <span>{position.title2}</span>
+                                { renderIcon(position.title) }
+                                <span>{position.title}</span>
                               </div>
                             </td>
                             <td>
@@ -101,7 +109,13 @@ const Positions = props => {
                             </td>
                             <td style={{ width: "120px" }}>
                             <Button
-                                disabled={ position.debtRatio < 100 }
+
+                                // temporal values (remove once functionality to liquidate is ready)
+                                disabled={ true }
+                                style={ {color: position.debtRatio < 100 ? '' : "#213c46" }}
+                            
+                                
+                                // disabled={ position.debtRatio < 100 }
                                 outline={ position.debtRatio < 100 }
                                 color={ position.debtRatio < 100 ? "secondary" : "primary" } 
                                 onClick={()=>{

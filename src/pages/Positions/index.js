@@ -112,17 +112,17 @@ const Positions = props => {
 
                                 // temporal values (remove once functionality to liquidate is ready)
                                 disabled={ true }
-                                style={ {color: position.debtRatio < 100 ? '' : "#213c46" }}
-                            
+                                outline={ true }
+                                color={ "secondary" } 
                                 
                                 // disabled={ position.debtRatio < 100 }
-                                outline={ position.debtRatio < 100 }
-                                color={ position.debtRatio < 100 ? "secondary" : "primary" } 
+                                // outline={ position.debtRatio < 100 }
+                                // color={ position.debtRatio < 100 ? "secondary" : "primary" } 
                                 onClick={()=>{
                                   console.log("Liquidate")
                                 }}
                               >
-                                Liquidate
+                                Coming soon
                               </Button>
                             </td>
                           </tr>

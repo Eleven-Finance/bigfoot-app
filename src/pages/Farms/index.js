@@ -412,19 +412,31 @@ const Farms = () => {
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="mb-2">APY</span>
                           <span className="farm-stats-value">
-                            {Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.apy)}%
+                            {
+                              farm.statsKey === 'BFBNB' ?
+                              Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.apy) + '%' :
+                              '--'
+                            }
                           </span>
                         </Col>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="mb-2">Lend APY</span>
                           <span className="farm-stats-value">
-                            {Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprd)}%
+                            {
+                              farm.statsKey === 'BFBNB' ?
+                              Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprd) + '%' :
+                              '--'
+                            }
                           </span>
                         </Col>
                         <Col sm="12" className="d-flex justify-content-between align-items-end">
                           <span className="mb-2">ELE APR</span>
                           <span className="farm-stats-value">
-                            {Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprl)}%
+                            {
+                              farm.statsKey === 'BFBNB' ?
+                              Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprl) + '%' :
+                              '--'
+                            }
                           </span>
                         </Col>
                         <Col sm="12">

@@ -23,7 +23,7 @@ const farmOptions = [
         icon: bfBNB
       },
     ],
-    statsKey: "ICE", //temp value
+    statsKey: "BFBNB",
 
     isComingSoon: false,
     isAuthorized: false,
@@ -40,7 +40,7 @@ const farmOptions = [
         icon: bfETH
       },
     ],
-    statsKey: "YUMCHA-BUSD LP", //temp value
+    statsKey: "BFETH",
 
     isComingSoon: true,
     isAuthorized: false,
@@ -57,7 +57,7 @@ const farmOptions = [
         icon: bfBUSD
       },
     ],
-    statsKey: "LIEN-BNB LP", //temp value
+    statsKey: "BFBUSD",
 
     isComingSoon: true,
     isAuthorized: false,

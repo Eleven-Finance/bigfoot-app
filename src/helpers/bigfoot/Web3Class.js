@@ -8,7 +8,7 @@ class Web3Class {
   constructor(wallet) {
     this.web3 = new Web3(wallet.ethereum)
     this.userAddress = wallet.account;
-    this.maxUint = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    this.maxUint = "999999999999999999999999"; // 1 million
   }
 
   /**
@@ -49,7 +49,7 @@ class Web3Class {
     const erc20 = this.getErc20Contract(tokenAddress);
     const spendAllowance = await erc20.methods.allowance(this.userAddress, spender).call();
     const userBalance = await this.getUserBalance(tokenAddress);
-    return (spendAllowance >= userBalance && spendAllowance != 0);
+    return (spendAllowance > 0);
   }
 
   async getUserBalance(tokenAddress) {

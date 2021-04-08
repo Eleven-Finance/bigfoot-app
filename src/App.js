@@ -3,7 +3,9 @@ import React from "react"
 
 import { Switch, BrowserRouter as Router } from "react-router-dom"
 import { connect } from "react-redux"
-import { UseWalletProvider } from 'use-wallet'
+
+import { useWallet, UseWalletProvider } from '@binance-chain/bsc-use-wallet'
+import bsc from '@binance-chain/bsc-use-wallet'
 
 // Import Routes all
 import { userRoutes, authRoutes } from "./routes/allRoutes"
@@ -69,6 +71,7 @@ const App = props => {
     <React.Fragment>
       <UseWalletProvider
         chainId={56}
+        connectors={{ bsc }}
       >
         <Router>
           <Switch>

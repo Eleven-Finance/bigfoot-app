@@ -76,15 +76,17 @@ $yellowBigFoot: #f0b90b;
     .wallet-selector {
         text-align: center;
         .wallet-connector{
-            font-size: 2rem;
+            font-size: 1.5rem;
+            width: 100%;
             background: #fff;
             margin-bottom: 2rem;
             border: none;
             img{
                 display: block;
-                width: 40%;
-                min-width: 120px;
+                height: 200px;
+                width: auto;
                 margin: 1rem auto;
+                padding: 1rem 2rem;
             }
             &:hover {
                 background: #f1e3b9;

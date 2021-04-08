@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react"
 import { Link } from "react-router-dom"
-import { useWallet } from 'use-wallet'
+import { useWallet } from '@binance-chain/bsc-use-wallet'
 import {
   Container,
   Row,

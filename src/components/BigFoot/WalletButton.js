@@ -1,16 +1,19 @@
-import React, {useState} from 'react'
-import { useWallet } from 'use-wallet'
+import React, { useState } from 'react'
+import { useWallet } from '@binance-chain/bsc-use-wallet'
+
 import {
   Modal,
   ModalHeader,
   ModalBody,
+  Row,
+  Col,
 } from "reactstrap"
 
-const MetamaskImg = require('../../assets/images/bigfoot/icons-wallet/metamask.svg');
+import { Metamask, Binance } from '../../assets/images/bigfoot/icons-wallet/_index'
 
 const getShortAddress = (address) => {
-  return address.length < 11 ? 
-    address : 
+  return address.length < 11 ?
+    address :
     (`${address.slice(0, 6)}...${address.slice(-4)}`);
 }
 
@@ -20,9 +23,12 @@ const WalletButton = () => {
   const [isModalOpen, setisModalOpen] = useState(false);
 
   const connectWallet = (connector) => {
-    switch(connector){
+    switch (connector) {
       case 'injected':
         wallet.connect();
+        break;
+      case 'bsc':
+        wallet.connect('bsc');
         break;
       default:
         wallet.connect();
@@ -50,7 +56,7 @@ const WalletButton = () => {
           className="btn wallet-button"
           onClick={() => {
             togglemodal();
-           }
+          }
           }
         >Connect your wallet</button>
       )}
@@ -75,16 +81,28 @@ const WalletButton = () => {
               className="wizard clearfix"
             >
               <div className="content clearfix">
-                <div>
-                  <button
-                    type="button"
-                    className="wallet-connector btn btn-primary waves-effect waves-light w-sm"
-                    onClick={ () => connectWallet('injected') }
-                  >
-                    <img src={MetamaskImg?.default} />
+                <Row>
+                  <Col sm="12" lg="6">
+                    <button
+                      type="button"
+                      className="wallet-connector btn btn-primary waves-effect waves-light w-sm"
+                      onClick={() => connectWallet('injected')}
+                    >
+                      <img src={Metamask?.default} />
                     Injected
                   </button>
-                </div>
+                  </Col>
+                  <Col sm="12" lg="6">
+                    <button
+                      type="button"
+                      className="wallet-connector btn btn-primary waves-effect waves-light w-sm"
+                      onClick={() => connectWallet('bsc')}
+                    >
+                      <img src={Binance?.default} />
+                      Binance Chain Wallet
+                  </button>
+                  </Col>
+                </Row>
                 <p>
                   Tip: make sure your wallet is connected to Binance Smart Chain mainnet.
                 </p>

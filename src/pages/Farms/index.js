@@ -18,8 +18,8 @@ import {
   InputGroup,
 } from "reactstrap"
 
-import toastr from "toastr"
-import "toastr/build/toastr.min.css"
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 // import FarmsUpperInfo from './FarmsUpperInfo'
 import farmOptions from '../../data/farmOptions'
@@ -88,7 +88,7 @@ const Farms = () => {
   const requestFarmApproval = (farmAddress) => {
 
     if( !wallet.account){
-      toastr.warning("Connect your wallet");
+      toast.warn("Connect your wallet");
       return;
     }
 
@@ -96,17 +96,17 @@ const Farms = () => {
     const maxUint = web3Instance.maxUint;
     erc20.methods.approve(addressMasterChef, maxUint).send({ from: userAddress })
       .on('transactionHash', function (hash) {
-        toastr.info(hash, "Farm authorization in process: ")
+        toast.info(`Farm authorization in process. ${hash}`)
       })
       .on('receipt', function (receipt) {
         updateAllFarms();
-        toastr.success(receipt, "Farm authorization accepted: ")
+        toast.success(`Farm authorization accepted.`)
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Farm authorization failed: ")
+        toast.warn(`Farm authorization failed. ${error?.message}`)
       })
       .catch((error) => {
-        console.log(error?.message, "Farm authorization error: ")
+        console.log(`Farm authorization error. ${error?.message}`)
       });
   }
 
@@ -149,8 +149,8 @@ const Farms = () => {
   const sendTransaction = () => {
 
     // VALIDATION
-    if( parseFloat(formData.amount) <= 0) {
-      toastr.warning("Please enter a valid amount")
+    if( !formData.amount || parseFloat(formData.amount) <= 0) {
+      toast.warn("Please enter a valid amount")
       return;
     }
 
@@ -163,34 +163,34 @@ const Farms = () => {
       masterchefContract.methods.deposit(pid, amount).send({ from: userAddress })
       .on('transactionHash', function (hash) {
         togglemodal()
-        toastr.info(hash, "Farm deposit in process: ")
+        toast.info(`Farm deposit in process. ${hash}`)
       })
       .on('receipt', function (receipt) {
         updateAllFarms();
-        toastr.success(receipt, "Farm deposit completed: ")
+        toast.success(`Farm deposit completed.`)
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Farm deposit failed: ")
+        toast.warn(`Farm deposit failed. ${error?.message}`)
       })
       .catch( error => {
-        console.log(error?.message, "Farm deposit error: ")
+        console.log(`Farm deposit error. ${error?.message}`)
       });
     } else if (formData.action === 'withdraw') {
       // WITHDRAW
       masterchefContract.methods.withdraw(pid, amount).send({ from: userAddress })
       .on('transactionHash', function (hash) {
         togglemodal()
-        toastr.info(hash, "Farm withdraw in process: ")
+        toast.info(`Farm withdraw in process. ${hash}`)
       })
       .on('receipt', function (receipt) {
         updateAllFarms();
-        toastr.success(receipt, "Farm withdraw completed: ")
+        toast.success(`Farm withdraw completed.`)
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Farm withdraw failed: ")
+        toast.warn(`Farm withdraw failed. ${error?.message}`)
       })
       .catch( error => {
-        console.log(error?.message, "Farm withdraw error: ")
+        console.log(`Farm withdraw error. ${error?.message}`)
       });
     }
   }
@@ -204,17 +204,17 @@ const Farms = () => {
     // HARVEST
     masterchefContract.methods.deposit(pid, amount).send({ from: userAddress })
       .on('transactionHash', function (hash) {
-        toastr.info(hash, "Harvest in process: ")
+        toast.info(`Harvest in process. ${hash}`)
       })
       .on('receipt', function (receipt) {
         updateAllFarms();
-        toastr.success(receipt, "Harvest completed: ")
+        toast.success(`Harvest completed.`)
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Harvest failed: ")
+        toast.warn(`Harvest failed. ${error?.message}`)
       })
       .catch(error => {
-        console.log(error?.message, "Harvest error: ")
+        console.log(`Harvest error. ${error?.message}`)
       });
   }
 

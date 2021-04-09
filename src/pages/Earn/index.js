@@ -19,8 +19,8 @@ import {
   InputGroup,
 } from "reactstrap"
 
-import toastr from "toastr"
-import "toastr/build/toastr.min.css"
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 import lendingOptions from '../../data/lendingOptions'
 import Web3Class from '../../helpers/bigfoot/Web3Class'
@@ -116,7 +116,7 @@ const Earn = () => {
 
     //if wallet not connected
     if( !isModalOpen && !wallet.account){
-      toastr.warning("Connect your wallet");
+      toast.warn("Connect your wallet");
       return;
     }
 
@@ -158,10 +158,10 @@ const Earn = () => {
     if (isNativeToken === true) {
       if( formData.userBalance > gasReserve ){
         newAmount = formData.userBalance - gasReserve; //leave a small amount for gas
-        toastr.info(`Gas reserve: ${gasReserve}`, "Leaving a small amount for gas :)");
+        toast.info(`Leaving a small amount for gas (${gasReserve})`);
       } else {
         newAmount = formData.userBalance;
-        toastr.warning("Hey, we recommend you leave some spare balance for gas!");
+        toast.warn("Remember to leave some spare balance for gas.");
       } 
     } else {
       newAmount = formData.userBalance;  
@@ -173,8 +173,8 @@ const Earn = () => {
   const sendTransaction = () => {
 
     // VALIDATION
-    if( parseFloat(formData.amount) <= 0) {
-      toastr.warning("Please enter a valid amount")
+    if( !formData.amount || parseFloat(formData.amount) <= 0) {
+      toast.warn("Please enter a valid amount")
       return;
     }
 
@@ -186,15 +186,15 @@ const Earn = () => {
       bfbnbContract.methods.deposit().send({from: userAddress, value: amount})
       .on('transactionHash', function (hash) {
         togglemodal()
-        toastr.info(hash, "Supply in process: ")
+        toast.info(`Supply in process. ${hash}`)
       })
       .on('receipt', function (receipt) {
         updateSupplyBalance();
         //updateAllOptions();
-        toastr.success(receipt, "Supply completed: ")
+        toast.success(`Supply completed.`)
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Supply failed: ")
+        toast.warn(`Supply failed. ${error?.message}`)
       })
       .catch( error => {
         console.log(error?.message, "Supply error: ")
@@ -204,15 +204,15 @@ const Earn = () => {
       bfbnbContract.methods.withdraw(amount).send({from: userAddress})
       .on('transactionHash', function (hash) {
         togglemodal()
-        toastr.info(hash, "Withdraw in process: ")
+        toast.info(`Withdraw in process. ${hash}`)
       })
       .on('receipt', function (receipt) {
         updateSupplyBalance();
         //updateAllOptions();
-        toastr.success(receipt, "Withdraw completed: ")
+        toast.success(`Withdraw completed.`)
       })
       .on('error', function (error) {
-        toastr.warning(error?.message, "Withdraw failed: ")
+        toast.warn(`Withdraw failed. ${error?.message}`)
       })
       .catch( error => {
         console.log(error?.message, "Withdraw error: ")

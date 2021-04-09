@@ -4,6 +4,8 @@ import React from "react"
 import { Switch, BrowserRouter as Router } from "react-router-dom"
 import { connect } from "react-redux"
 
+import { ToastContainer, Slide } from 'react-toastify';
+
 import { useWallet, UseWalletProvider } from '@binance-chain/bsc-use-wallet'
 import bsc from '@binance-chain/bsc-use-wallet'
 
@@ -23,10 +25,7 @@ import "./assets/scss/theme.scss"
 
 
 // Import for bigfoot scss 
-// Note:
-// - these file "bigfoot.scss" will override the css rules from the theme we use (skote)
-// - if you need to modify any css, add your rules on that file (to avoid changing the theme files) 
-import "./assets/scss/bigfoot/bigfoot.scss"
+import "./assets/scss/bigfoot/main.scss"
 
 
 
@@ -73,6 +72,14 @@ const App = props => {
         chainId={56}
         connectors={{ bsc }}
       >
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          transition={Slide}
+          pauseOnFocusLoss
+          pauseOnHover
+        />
         <Router>
           <Switch>
             {authRoutes.map((route, idx) => (

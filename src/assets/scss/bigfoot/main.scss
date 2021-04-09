@@ -1,17 +1,13 @@
-
-
-
 @import "./node_modules/bootstrap/scss/functions";
 @import "./node_modules/bootstrap/scss/variables";
 @import "./node_modules/bootstrap/scss/mixins.scss";
 
 
+//partials
+@import './variables.scss';
 
-/* Colors */
-$lightSea: #2d5b6e;
-$midSea: #203A43;
-$darkSea: #0F2027;
-$yellowBigFoot: #f0b90b;
+//other imports
+@import './toasts.scss';
 
 
 

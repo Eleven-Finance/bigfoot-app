@@ -1,0 +1,24 @@
+.Toastify{
+  .Toastify__toast-container--top-right {
+    top: 70px; //position toast below header
+    right: 24px;
+    padding-top: 0;
+    padding-right: 0;
+  }
+  .Toastify__toast{
+    min-height: 53px;
+    font-size: 120%;
+    &, .Toastify__close-button{
+      color: $darkSea;
+    }
+    &.Toastify__toast--info {
+      background-color: $paleBlue;
+    }
+    &.Toastify__toast--warning {
+      background-color: $paleYellow;
+    }
+    &.Toastify__toast--success {
+      background-color: $paleGreen;
+    }
+  }
+}

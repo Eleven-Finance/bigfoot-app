@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useWallet } from '@binance-chain/bsc-use-wallet'
 
 import {
@@ -18,27 +18,55 @@ const getShortAddress = (address) => {
 }
 
 
-const WalletButton = () => {
+const WalletConnector = () => {
+
+  const storageKey = 'WEB3_CACHED_PROVIDER'
+
   const wallet = useWallet();
   const [isModalOpen, setisModalOpen] = useState(false);
+  
+  useEffect(() => {
+    if( !wallet.account ) {
+      const cachedProvider = localStorage.getItem(storageKey);
+      if(cachedProvider){
+        connectWallet(cachedProvider);
+      }
+    }
+  }, [])
 
-  const connectWallet = (connector) => {
+  
+  const connectWallet = async (connector) => {
+
+    await wallet.reset(); //needed to force an update of wallet properties (wallet.account, wallet.status)
+    localStorage.removeItem(storageKey); //fixes firefox issue (cached provider was detected and connection attempted but never successful)
+
     switch (connector) {
       case 'injected':
         wallet.connect();
+        localStorage.setItem(storageKey, 'injected')
         break;
       case 'bsc':
         wallet.connect('bsc');
+        localStorage.setItem(storageKey, 'bsc')
         break;
       default:
         wallet.connect();
     }
-    togglemodal();
+
+    setisModalOpen(false);
   }
+
+
+  const resetWallet = () => {
+    wallet.reset();
+    localStorage.removeItem(storageKey);
+  }
+
 
   const togglemodal = () => {
     setisModalOpen(!isModalOpen);
   }
+
 
   return (
     <>
@@ -46,8 +74,8 @@ const WalletButton = () => {
         <button
           type="button"
           className="btn wallet-button"
-          onClick={() => wallet.reset()}
-        >
+          onClick={ resetWallet }
+        > 
           { wallet.account && getShortAddress(wallet.account)}
         </button>
       ) : (
@@ -85,7 +113,7 @@ const WalletButton = () => {
                   <Col sm="12" lg="6">
                     <button
                       type="button"
-                      className="wallet-connector btn btn-primary waves-effect waves-light w-sm"
+                      className="wallet-connector btn btn-primary"
                       onClick={() => connectWallet('injected')}
                     >
                       <img src={Metamask?.default} />
@@ -95,7 +123,7 @@ const WalletButton = () => {
                   <Col sm="12" lg="6">
                     <button
                       type="button"
-                      className="wallet-connector btn btn-primary waves-effect waves-light w-sm"
+                      className="wallet-connector btn btn-primary"
                       onClick={() => connectWallet('bsc')}
                     >
                       <img src={Binance?.default} />
@@ -115,4 +143,4 @@ const WalletButton = () => {
   )
 }
 
-export default WalletButton;
+export default WalletConnector;

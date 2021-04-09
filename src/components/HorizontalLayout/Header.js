@@ -10,7 +10,7 @@ import { showRightSidebarAction, toggleLeftmenu } from "../../store/actions"
 //i18n
 import { withTranslation } from "react-i18next"
 
-import WalletButton from "components/BigFoot/WalletButton"
+import WalletConnector from "components/BigFoot/WalletConnector"
 
 import { ReactComponent as BigfootLogoSvg } from "../../assets/images/bigfoot/bigfoot-logo.svg"
 
@@ -48,7 +48,7 @@ const Header = props => {
           </div>
 
           <div className="d-flex">
-            <WalletButton />
+            <WalletConnector />
           </div>
         </div>
       </header>

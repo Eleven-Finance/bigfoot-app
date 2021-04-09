@@ -25,6 +25,7 @@ import "toastr/build/toastr.min.css"
 import lendingOptions from '../../data/lendingOptions'
 import Web3Class from '../../helpers/bigfoot/Web3Class'
 import { addressBfBNB } from '../../data/addresses/addresses'
+import Formatter from "helpers/bigfoot/Formatter"
 
 const Earn = () => {
 
@@ -66,7 +67,7 @@ const Earn = () => {
     const walletBalance = web3Instance.getAmoutFromWeis(wallet.balance);
     const bnbPrice = await web3Instance.getBnbPrice();
     const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
-    setWalletBalance( walletBalanceUsd.toFixed(2) );
+    setWalletBalance( walletBalanceUsd );
   }
 
   const updateSupplyBalance = async () => {
@@ -75,7 +76,7 @@ const Earn = () => {
     const bigfootBalance = await web3Instance.getBigFootBalance();
     const chefBalance = await web3Instance.getChefBalance();
     const totalUserBalanceUsd = ( parseFloat(bigfootBalance) + parseFloat(chefBalance) ) * bnbPrice;
-    setSupplyBalance( totalUserBalanceUsd.toFixed(2) );
+    setSupplyBalance( totalUserBalanceUsd );
   }
 
   const updateAllOptions = () => {
@@ -303,13 +304,6 @@ const Earn = () => {
                 </Button>
               </Col>
             </Row>
-            <Row className="mb-3">
-              <Col xs="12">
-                <p>
-                  You will get {currency}: xxx
-                </p>
-              </Col>
-            </Row>
           </FormGroup>
         </React.Fragment>
       );
@@ -359,13 +353,13 @@ const Earn = () => {
                     <Col sm="6">
                       <div>
                         <p className="mb-2">Wallet Balance</p>
-                        <p className="total-value">$ {walletBalance}</p>
+                        <p className="total-value">$ {Formatter.formatAmount(walletBalance)}</p>
                       </div>
                     </Col>
                     <Col sm="6">
                       <div>
                         <p className="mb-2">Supply Balance</p>
-                        <p className="total-value">$ {supplyBalance}</p>
+                        <p className="total-value">$ {Formatter.formatAmount(supplyBalance)}</p>
                       </div>
                     </Col>
                   </Row>
@@ -417,18 +411,18 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${(option.supply * 1).toFixed(2)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.supply)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${(option.supply * bnbPrice).toFixed(2)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.supply * bnbPrice), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${option.borrow} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.borrow)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${(option.borrow * bnbPrice).toFixed(2)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.borrow * bnbPrice), 0)})` }
                               </div>
                             </td>
                             <td>
@@ -438,18 +432,18 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${(option.bigfootBalance).toFixed(2)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bigfootBalance)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${(option.bigfootBalance * bnbPrice).toFixed(2)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bigfootBalance * bnbPrice), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${(option.bigfootChefBalance).toFixed(2)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bigfootChefBalance)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${(option.bigfootChefBalance * bnbPrice).toFixed(2)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount(option.bigfootChefBalance * bnbPrice)})` }
                               </div>
                             </td>
                             <td style={{ width: "120px" }}>

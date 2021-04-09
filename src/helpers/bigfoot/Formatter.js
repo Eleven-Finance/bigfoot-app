@@ -5,8 +5,8 @@ class Formatter {
   static numberUnits = ["", "K", "Million", "Billion", "Trillion", "Quadrillion", "Quintillion", "Sextillion", "Septillion", "Octillion", "Nonillion", "Decillion", "Undecillion"];
 
 
-  static getFormattedTvl(amount) {
-    return amount.toLocaleString('en-US', { maximumFractionDigits: 0 })
+  static formatAmount(amount=0, decimals=2) {
+    return amount.toLocaleString('en-US', { maximumFractionDigits: decimals })
   }
 
   

@@ -142,7 +142,7 @@ class Dashboard extends Component {
                     </h4>
                     <Row>
                       <Col sm="12">
-                        <p className="total-value text-center">$ { Formatter.getFormattedTvl(this.state.poolStats?.totalvaluelocked ?? '') }</p>
+                        <p className="total-value text-center">$ { Formatter.formatAmount(this.state.poolStats?.totalvaluelocked, 0) }</p>
                       </Col>
                     </Row>
                   </CardBody>

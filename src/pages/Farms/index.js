@@ -228,9 +228,9 @@ const Farms = () => {
         <React.Fragment>
           <p>I'd like to deposit...</p>
           <FormGroup>
-            <Row>
-              <Col sm="6" lg="8">
-                <InputGroup className="mb-3">
+            <Row className="mb-3">
+              <Col lg="6">
+                <InputGroup className="mb-2">
                   <Label className="input-group-text">
                     {title}
                   </Label>
@@ -243,7 +243,7 @@ const Farms = () => {
                     onChange={(e) => updateAmount(e.target.value)}/>
                 </InputGroup>
               </Col>
-              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+              <Col lg="6" className="max-balance-wrapper text-end">
                 <span className="me-3">
                   Balance: {formData.userBalance}
               </span>

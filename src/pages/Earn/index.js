@@ -230,9 +230,9 @@ const Earn = () => {
         <React.Fragment>
           <p>I'd like to supply...</p>
           <FormGroup>
-            <Row>
-              <Col sm="6" lg="8">
-                <InputGroup className="mb-3">
+            <Row className="mb-3">
+              <Col lg="6">
+                <InputGroup className="mb-2">
                   <Label className="input-group-text">
                     <div className="avatar-xs me-3">
                       <span className={"avatar-title rounded-circle bg-transparent"} >
@@ -250,7 +250,7 @@ const Earn = () => {
                     onChange={(e) => updateAmount(e.target.value)}/>
                 </InputGroup>
               </Col>
-              <Col sm="6" lg="4" className="max-balance-wrapper text-end">
+              <Col lg="6" className="max-balance-wrapper text-end">
                 <span className="me-3">
                   Balance: {formData.userBalance}
               </span>

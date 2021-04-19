@@ -1,8 +1,8 @@
 import Web3 from "web3";
 import BigNumber from "bignumber.js";
 
-import { abiMasterChef, abiERC20, abiBank } from '../../data/abis/abis';
-import { addressMasterChef, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB } from '../../data/addresses/addresses';
+import { abiMasterChef, abiERC20, abiBank, abiVault, abiFactory, lpAbi } from '../../data/abis/abis';
+import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(wallet) {
@@ -38,6 +38,18 @@ class Web3Class {
 
   getErc20Contract(tokenAddress) {
     return new this.web3.eth.Contract(abiERC20, tokenAddress);
+  }
+
+  getVaultContract(addressVault) {
+    return new this.web3.eth.Contract(abiVault, addressVault);
+  }
+
+  getFactoryContract() {
+    return new this.web3.eth.Contract(abiFactory, addressFactory);
+  }
+
+  getLpContract(token) {
+    return new this.web3.eth.Contract(lpAbi, token);
   }
   
   async approveM(tokenAddress, spender, amount = this.maxUint) {
@@ -97,6 +109,16 @@ class Web3Class {
     return bnbPrice;
   }
 
+  async getAssetPriceInCoin(assetaddress, coinaddress) {
+    const factoryContract = this.getFactoryContract();
+    const lpAddress = await factoryContract.methods.getPair(assetaddress, coinaddress).call();
+    const assetContract = this.getErc20Contract(assetaddress);
+    const coinContract = this.getErc20Contract(coinaddress);
+    const assinlp = await assetContract.methods.balanceOf(lpAddress).call();
+    const coininlp = await coinContract.methods.balanceOf(lpAddress).call();
+    return coininlp/assinlp;
+  }
+
   async getTotalSupplyBnb(){
     const bfbnbContract = new this.web3.eth.Contract(abiBank, addressBfBNB);
     const weis = await bfbnbContract.methods.totalBNB().call();
@@ -117,6 +139,24 @@ class Web3Class {
     return amount * totalbnb / totalshares;
   }
 
+  async convert11xxxToBnb(type, vaultaddress, amount) {
+    const vaultContract = this.getVaultContract(vaultaddress);
+    const pps = await vaultContract.methods.getPricePerFullShare().call();
+    const amountFinal = amount * pps / 1e18;
+    const token = await vaultContract.methods.token().call();
+    if (type == 0) {//LP vault with bnb pair inside
+      const lpContract = this.getLpContract(token);
+      const wbnbContract = this.getErc20Contract(addressWbnb);
+      const wbnbBalanceOfLP = await wbnbContract.methods.balanceOf(token).call() * 2;
+      const totallpsupply = await lpContract.methods.totalSupply().call();
+      return Math.floor(wbnbBalanceOfLP / totallpsupply * amountFinal);
+    }
+    if (type == 1) {//single asset paired with bnb
+      const price = await getAssetPriceInCoin(token, addressWbnb);
+      return Math.floor(amountFinal * price);
+    }
+  }
+
   async getBigFootBalance() {
     const userBalanceBfbnb = await this.getUserBalance(addressBfBNB);
     const userBalanceBfbnbInBnb = await this.convertBfbnbToBnb(userBalanceBfbnb);
@@ -127,6 +167,43 @@ class Web3Class {
     const bfbnbStaked = await this.getStakedCoins(79); // bfbnb farm id: 79
     const bfbnbStakedInBnb = await this.convertBfbnbToBnb(bfbnbStaked);
     return bfbnbStakedInBnb;
+  }
+
+  async openPosition(bigfootVaultAddress, leverage, amountVault = 0, amountBnb = 0) {
+
+    let stratInfo;
+    let bigfootInfo;
+    let vaultValue;
+    
+    const amountVaultWeis = this.getWeiStrFromAmount(amountVault);
+    const amountBnbWeis = this.getWeiStrFromAmount(amountBnb);
+    
+    const bfbnbContract = this.getBfbnbBankContract();
+
+    switch(bigfootVaultAddress){
+      case addressBigfoot11Cake:
+        stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
+        bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyZapperAddSingleAsset, amountVaultWeis, stratInfo]);
+        vaultValue = await this.convert11xxxToBnb(1, bigfootVaultAddress, amountVaultWeis);
+        break;
+      case addressBigfoot11CakeBnb:
+        stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
+        bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyZapperAdd, amountVaultWeis, stratInfo]);
+        vaultValue = await this.convert11xxxToBnb(0, bigfootVaultAddress, amountVaultWeis);
+        break;
+    }
+
+    const totalValue = new BigNumber(vaultValue).plus(new BigNumber(amountBnbWeis)).toString();
+    const loan = new BigNumber(totalValue * (leverage - 1)).toString();
+
+    bfbnbContract.methods
+      .work(0, bigfootVaultAddress, loan, totalValue, bigfootInfo)
+      .send({from: this.userAddress, value: amountBnbWeis});
+  }
+  
+  async liquidatePosition(positionUint){
+    const bfbnbContract = this.getBfbnbBankContract();
+    bfbnbContract.methods.kill(positionUint).send();
   }
 
 }

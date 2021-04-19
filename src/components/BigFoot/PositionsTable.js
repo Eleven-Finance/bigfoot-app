@@ -1,11 +1,19 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useWallet } from '@binance-chain/bsc-use-wallet'
 import {
   Button,
   Table,
 } from "reactstrap"
 
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+
 import { Cake } from '../../assets/images/bigfoot/icons-assets/_index'
 import { Bnb } from '../../assets/images/bigfoot/icons-coins/_index'
+
+import Web3Class from '../../helpers/bigfoot/Web3Class'
+import LeverageModal from './LeverageModal';
+
 
 const renderIcon = (positionTitle) => {
   let icon;
@@ -29,7 +37,32 @@ const renderIcon = (positionTitle) => {
 
 function PositionsTable(props) {
 
+  //wallet & web3
+  const wallet = useWallet()
+  const web3Instance = new Web3Class(wallet);
+  const userAddress = wallet.account;
+
   const {positions, showAll} = props;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [chosenPosition, setChosenPosition] = useState(null);
+
+
+  const togglemodal = (position) => {
+
+    //if wallet not connected
+    if( !isModalOpen && !wallet.account){
+      toast.warn("Connect your wallet");
+      return;
+    }
+
+    if(isModalOpen) {//close
+      setChosenPosition(null);
+      setIsModalOpen(false);
+    } else {//open
+      setChosenPosition(position);
+      setIsModalOpen(true);
+    }
+  }
 
   const renderButtons = (position) => {
     if (showAll) {
@@ -56,7 +89,11 @@ function PositionsTable(props) {
           <Button 
             className="me-2"
             outline={true}
-            color={"primary"}>
+            color={"primary"}
+            onClick={()=>{
+              togglemodal(position)
+            }}
+          >
             Adjust
           </Button>
           
@@ -133,6 +170,11 @@ function PositionsTable(props) {
           ))}
         </tbody>
       </Table>
+
+      { chosenPosition &&
+        <LeverageModal isOpen={isModalOpen} togglemodal={togglemodal} pool={chosenPosition} userBalances={userBalances} />
+      }
+
     </div>
   )
 }

@@ -4,32 +4,22 @@ import { useWallet } from '@binance-chain/bsc-use-wallet'
 import {
   Container,
   Row,
-  Button,
   Col,
   Card,
   CardBody,
   Table,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  Label,
-  Input,
-  Form,
-  FormGroup,
-  InputGroup,
 } from "reactstrap"
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import Slider from "react-rangeslider"
-import "react-rangeslider/lib/index.css"
-
 import Web3Class from '../../helpers/bigfoot/Web3Class'
 import Formatter from '../../helpers/bigfoot/Formatter'
 import farmPools from '../../data/farmPools'
 import "./Dashboard.scss"
-import { initialize } from "redux-form"
+import LeverageModal from "components/BigFoot/LeverageModal";
+import Icon from "components/BigFoot/Icon"
+
 
 function Dashboard() {
 
@@ -39,17 +29,9 @@ function Dashboard() {
   const userAddress = wallet.account;
 
   const [pools, setPools] = useState(farmPools);
+  const [chosenPool, setChosenPool] = useState(null);
   const [userBalances, setUserBalances] = useState({});
-  const [formData, setFormData] = useState({
-    poolTitle: '',
-    currencySupply: {
-      // currencyCodeA: amountA,
-      // currencyCodeB: amountB,
-      // ...
-    },
-    borrowFactor: 2
-  });
-  const [modal, setModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [poolStats, setPoolStats] = useState(null);
 
   useEffect(()=>{
@@ -83,9 +65,6 @@ function Dashboard() {
     pools.forEach(pool => {
       pool.currencies.forEach( async (currency) => {
         if( allBalances[currency.code] === undefined) {
-
-          
-          // const balance = await web3Instance.getUserBalance();
           const balance = await web3Instance.getUserBalance(currency.address); // get user balance for this specific token
           allBalances[currency.code] = balance;
         }
@@ -111,71 +90,21 @@ function Dashboard() {
     setPools(newPools);
   }
 
-  const setBorrowFactor = (value) => {
-    const newFormData = JSON.parse(JSON.stringify(formData));
-    newFormData.borrowFactor = value;
-    setFormData(newFormData);
-  }
+  const togglemodal = (pool) => {
 
-  const updateCurrencySupply = (currencyCode, value) => {
-    const newFormData = JSON.parse(JSON.stringify(formData));
-    newFormData.currencySupply[currencyCode] = value;
-    setFormData(newFormData);
-  }
-
-  const togglemodal = (poolTitle) => {
-    if(modal) { //reset formData and close
-      setFormData({
-        poolTitle: '',
-        currencySupply: {},
-        borrowFactor: 2
-      });
-      setModal(false);
-    } else { //initialize formData and open
-
-      // initialize currencySupply as { currencyCodeA: 0, currencyCodeB: 0, ...}
-      const poolCurrencies = pools.find( pool => pool.title===poolTitle).currencies;
-      const newCurrencySupply = Object.fromEntries(
-        poolCurrencies.map(currency => [currency.code, 0])
-      );
-
-      setFormData({ 
-        poolTitle: poolTitle,
-        currencySupply: newCurrencySupply,
-        borrowFactor: 2
-      });      
-      setModal(true);
-    }
-  }
-
-  const renderIcon = (icon) => {
-    return (
-      <span className={ "avatar-title rounded-circle bg-transparent font-size-18" } >
-        <img src={icon.default} />
-      </span>
-    )
-  }
-
-
-  const setMax = (currencyCode, isNativeToken) => {
-    let amount = 0;
-    let gasReserve = 0.02;
-    const newFormData = JSON.parse(JSON.stringify(formData));
-
-    if (isNativeToken === true) {
-      if( userBalances[currencyCode] > gasReserve ){
-        amount = userBalances[currencyCode] - gasReserve; //leave a small amount for gas
-        toast.info(`Leaving a small amount for gas (${gasReserve})`);
-      } else {
-        amount = userBalances[currencyCode];
-        toast.warn("Remember to leave some spare balance for gas.");
-      } 
-    } else {
-      amount = userBalances[currencyCode];
+    //if wallet not connected
+    if( !isModalOpen && !wallet.account){
+      toast.warn("Connect your wallet");
+      return;
     }
 
-    newFormData.currencySupply[currencyCode] = amount;
-    setFormData(newFormData);
+    if(isModalOpen) {//close
+      setChosenPool(null);
+      setIsModalOpen(false);
+    } else {//open
+      setChosenPool(pool);
+      setIsModalOpen(true);
+    }
   }
 
   return (
@@ -287,11 +216,11 @@ function Dashboard() {
                                 <div className="avatar-xs avatar-multi">
                                   {
                                     pool.customIcon ?
-                                      renderIcon(pool.customIcon) :
+                                      <Icon icon={pool.customIcon} /> :
                                       pool.currencies.map((currency, index) => {
                                         return (
                                           <React.Fragment key={index}>
-                                            {renderIcon(currency.icon)}
+                                            <Icon icon={currency.icon} />                                      
                                           </React.Fragment>
                                         )
                                       })
@@ -349,7 +278,7 @@ function Dashboard() {
                               <Link
                                 to="#"
                                 className="btn btn-primary btn-sm w-xs"
-                                onClick={() => togglemodal(pool.title)}
+                                onClick={() => togglemodal(pool)}
                               >
                                 Farm
                                 </Link>
@@ -361,116 +290,9 @@ function Dashboard() {
                   </div>
                 </CardBody>
 
-                <Modal
-                  id="dashboardModal"
-                  isOpen={modal}
-                  role="dialog"
-                  size="lg"
-                  autoFocus={true}
-                  centered={true}
-                  toggle={togglemodal}
-                >
-                  <div className="modal-content">
-                    <ModalHeader toggle={togglemodal}>
-                      Farm: {formData.poolTitle}
-                    </ModalHeader>
-                    <ModalBody>
-                      <div
-                        className="wizard clearfix"
-                      >
-                        <div className="content clearfix">
-
-                          <Form>
-
-                            <div className="mb-3">
-                              <p>Choose how much you want to supply:</p>
-
-                              {
-                                formData.poolTitle &&
-                                pools.find(pool => pool.title === formData.poolTitle).currencies.map((currency, index) => {
-                                  return (
-                                    <FormGroup key={currency.code}>
-                                      <Row>
-                                        <Col sm="6" lg="8">
-                                          <InputGroup className="mb-3">
-                                            <Label className="input-group-text">
-                                              <span className="me-2">
-                                                {renderIcon(currency.icon)}
-                                              </span>
-                                              {currency.code}
-                                            </Label>
-                                            <Input
-                                              type="number"
-                                              className="form-control"
-                                              min="0"
-                                              step="0.000001"
-                                              value={formData.currencySupply?.[currency.code] ?? 0}
-                                              onChange={(e) => updateCurrencySupply(currency.code, e.target.value)}
-                                            />
-                                          </InputGroup>
-                                        </Col>
-                                        <Col sm="6" lg="4" className="max-balance-wrapper text-end">
-                                          <span className="me-3">
-                                            Balance: {userBalances[currency.code]}
-                                            </span>
-                                          <Button
-                                            outline
-                                            color="primary"
-                                            onClick={() => {
-                                              if(currency.address){
-                                                setMax(currency.code, false);
-                                              }else{
-                                                setMax(currency.code, true);
-                                              }
-                                            }}
-                                          >
-                                            MAX
-                                            </Button>
-                                        </Col>
-                                      </Row>
-                                    </FormGroup>
-                                  )
-                                })
-                              }
-                            </div>
-                            <div className="mb-3">
-                              <p>Choose how much you 'd like to borrow:</p>
-                              <Slider
-                                value={formData.borrowFactor}
-                                min={1.5}
-                                max={3}
-                                step={0.5}
-                                labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
-                                orientation="horizontal"
-                                onChange={value => {
-                                  setBorrowFactor(value)
-                                }}
-                              />
-                            </div>
-                            <p>
-                              Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
-                              </p>
-
-                          </Form>
-                        </div>
-                        <div className="actions clearfix">
-                          <ul role="menu" aria-label="Pagination">
-                            <li className={"next"} >
-                              <Link
-                                to="#"
-                                onClick={() => {
-                                  console.log("confirm...")
-                                }}
-                              >
-                                Confirm
-                                </Link>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </ModalBody>
-                  </div>
-                </Modal>
+                { chosenPool && 
+                  <LeverageModal isOpen={isModalOpen} togglemodal={togglemodal} pool={chosenPool} userBalances={userBalances} />
+                }      
               </Card>
             </Col>
           </Row>

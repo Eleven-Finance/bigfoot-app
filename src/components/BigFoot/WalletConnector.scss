@@ -1,0 +1,14 @@
+#WalletConnector {
+    .wallet-button{
+        margin-right: 12px;
+        box-shadow: none;
+        border: 0.15rem solid #f0b90b40;
+        canvas {
+            margin-right: 0.5rem;
+            max-height: 1.6rem;
+            max-width: 1.6rem;
+            border-radius: 50%;
+            vertical-align: text-bottom
+        }
+    }
+}

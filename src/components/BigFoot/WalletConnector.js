@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useWallet } from '@binance-chain/bsc-use-wallet'
-
+import Blockies from 'react-blockies';
 import {
   Modal,
   ModalHeader,
@@ -9,6 +9,7 @@ import {
   Col,
 } from "reactstrap"
 
+import './WalletConnector.scss'
 import { Metamask, Binance } from '../../assets/images/bigfoot/icons-wallet/_index'
 
 const getShortAddress = (address) => {
@@ -69,13 +70,14 @@ const WalletConnector = () => {
 
 
   return (
-    <>
+    <div id="WalletConnector">
       {wallet.status === 'connected' ? (
         <button
           type="button"
           className="btn wallet-button"
           onClick={ resetWallet }
         > 
+          { wallet.account && <Blockies seed={wallet.account.toLowerCase()} />}
           { wallet.account && getShortAddress(wallet.account)}
         </button>
       ) : (
@@ -139,7 +141,7 @@ const WalletConnector = () => {
           </ModalBody>
         </div>
       </Modal>
-    </>
+    </div>
   )
 }
 

@@ -7,15 +7,24 @@
 import { Cake } from '../assets/images/bigfoot/icons-assets/_index'
 import { Bnb } from '../assets/images/bigfoot/icons-coins/_index'
 
+import { address11Cake, address11CakeBnb } from '../data/addresses/addresses'
+
 const farmPools = [
   {
     title: "11CAKE",
     type: "Yield Farming",
     apiKey: "CAKE",
+    customIcon: Cake,
     currencies: [
       {
-        code: "CAKE",
-        icon: Cake
+        code: "11CAKE",
+        icon: Cake,
+        address: address11Cake,
+      },
+      {
+        code: "BNB",
+        icon: Bnb,
+        address: null, //native token
       },
     ],
     rates: {
@@ -32,12 +41,14 @@ const farmPools = [
     apiKey: "CAKE-BNB LP",
     currencies: [
       {
-        code: "CAKE",
-        icon: Cake
+        code: "11CAKEBNB",
+        icon: Cake,
+        address: address11CakeBnb,
       },
       {
         code: "BNB",
-        icon: Bnb
+        icon: Bnb,
+        address: null, //native token
       },
     ],
     rates: {

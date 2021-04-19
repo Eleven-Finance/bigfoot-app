@@ -9,13 +9,15 @@ import { Redirect } from "react-router-dom"
 
 // Dashboard
 import Dashboard from "../pages/Dashboard/index"
-import Positions from "../pages/Positions/index"
+import AllPositions from "../pages/AllPositions/index"
+import MyPositions from "../pages/MyPositions/index"
 import Earn from "../pages/Earn/index"
 import Farms from "../pages/Farms/index"
 
 const userRoutes = [
   { path: "/dashboard", component: Dashboard },
-  { path: "/positions", component: Positions },
+  { path: "/all-positions", component: AllPositions },
+  { path: "/my-positions", component: MyPositions },
   { path: "/earn", component: Earn },
   { path: "/farms", component: Farms },
 

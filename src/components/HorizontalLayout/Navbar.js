@@ -20,8 +20,12 @@ const Navbar = props => {
       anchorText: 'Dashboard'
     },
     {
-      destinationPath: '/positions',
+      destinationPath: '/all-positions',
       anchorText: 'All positions'
+    },
+    {
+      destinationPath: '/my-positions',
+      anchorText: 'My positions'
     },
     {
       destinationPath: '/earn',

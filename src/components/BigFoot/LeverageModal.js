@@ -70,6 +70,32 @@ function LeverageModal(props) {
     updateCurrencySupply(currencyCode, amount);
   }
 
+
+  const renderSlider = (pool) => {
+
+    const sliderMax = Math.floor(pool.maxLeverage * 2) / 2; //round to the nearest 0.5
+    const sliderLabels = {};
+
+    for (let i=1.5; i<=sliderMax; i=i+0.5) {
+      sliderLabels[i] = i.toString(); //populate the object with key: "value" --example: { 1.5: "1.5", 2: "2.0"}
+    }
+
+    return (
+      <Slider
+        value={borrowFactor}
+        min={1.5}
+        max={sliderMax}
+        step={0.5}
+        labels={sliderLabels}
+        orientation="horizontal"
+        onChange={value => {
+          setBorrowFactor(value)
+        }}
+      />
+    );
+  }
+
+
   const toggleApprovalModal = () => {
     setIsApprovalModalOpen(!isApprovalModalOpen);
   }
@@ -191,17 +217,7 @@ function LeverageModal(props) {
                 </div>
                 <div className="mb-3">
                   <p>Choose how much you 'd like to borrow:</p>
-                  <Slider
-                    value={borrowFactor}
-                    min={1.5}
-                    max={3}
-                    step={0.5}
-                    labels={{ 1.5: "1.5", 2: "2.0", 2.5: "2.5", 3: "3.0" }}
-                    orientation="horizontal"
-                    onChange={value => {
-                      setBorrowFactor(value)
-                    }}
-                  />
+                  { renderSlider(pool) }
                 </div>
                 <br />
                 <p>

@@ -14,8 +14,10 @@ const farmPools = [
     title: "11CAKE",
     type: "Yield Farming",
     apiKey: "CAKE",
-    bigfootAddress: null,
     customIcon: Cake,
+    bigfootAddress: null,
+    deathLeverage: 10.333333333333,
+    maxLeverage: 10.666666666666,
     currencies: [
       {
         code: "11CAKE",
@@ -41,6 +43,8 @@ const farmPools = [
     type: "Yield Farming",
     apiKey: "CAKE-BNB LP",
     bigfootAddress: addressBigfoot11CakeBnb,
+    deathLeverage: 3.333333333333,
+    maxLeverage: 2.666666666666,
     currencies: [
       {
         code: "11CAKEBNB",

@@ -25,7 +25,7 @@ const AllPositions = props => {
 
   useEffect( async () => {
     if(wallet.account) {
-      let allPositions = await web3Instance.getAllPositions();
+      let allPositions = await web3Instance.getPositions();
       allPositions.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) ); // sort positions by debt in descending order
       setPositions(allPositions);
     }

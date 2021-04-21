@@ -57,12 +57,14 @@ class Web3Class {
     erc20.methods.approve(spender, amount).send({ from: this.userAddress });
   }
 
+
   async checkApproval(tokenAddress, spender) {
     const erc20 = this.getErc20Contract(tokenAddress);
     const spendAllowance = await erc20.methods.allowance(this.userAddress, spender).call();
     const userBalance = await this.getUserBalance(tokenAddress);
     return (spendAllowance > 0);
   }
+
 
   async getUserBalance(tokenAddress) {
     let weis;
@@ -77,6 +79,7 @@ class Web3Class {
     return this.getAmoutFromWeis(weis);
   }
 
+
   async getStakedCoins(pid) {
     const masterchefContract = this.getMasterchefContract();
     const userInfo = await masterchefContract.methods.userInfo(pid, this.userAddress).call();
@@ -84,21 +87,25 @@ class Web3Class {
     return stakedCoins;
   }
 
+
   async getPendingRewards(pid) {
     const masterchefContract = this.getMasterchefContract();
     const pendingRewards = await masterchefContract.methods.pendingEleven(pid, this.userAddress).call();
     return pendingRewards;
   }
 
+
   async deposit(pid, amount) {
     const masterchefContract = this.getMasterchefContract();
     masterchefContract.methods.deposit(pid, amount).send();
   }
 
+
   async withdraw(pid, amount) {
     const masterchefContract = this.getMasterchefContract();
     masterchefContract.methods.withdraw(pid, amount).send();
   }
+
 
   async getBnbPrice(){
     const wbnbContract = this.getErc20Contract(addressWbnb);
@@ -108,6 +115,7 @@ class Web3Class {
     const bnbPrice = busdInR / wbnbInR;
     return bnbPrice;
   }
+
 
   async getAssetPriceInCoin(assetaddress, coinaddress) {
     const factoryContract = this.getFactoryContract();
@@ -119,11 +127,13 @@ class Web3Class {
     return coininlp/assinlp;
   }
 
+
   async getTotalSupplyBnb(){
     const bfbnbContract = new this.web3.eth.Contract(abiBank, addressBfBNB);
     const weis = await bfbnbContract.methods.totalBNB().call();
     return this.getAmoutFromWeis(weis);
   }
+
 
   async convertBnbToBfbnb(amount) {
     const bfbnbContract = this.getBfbnbBankContract();
@@ -132,12 +142,14 @@ class Web3Class {
     return amount * totalshares / totalbnb;
   }
 
+
   async convertBfbnbToBnb(amount) {
     const bfbnbContract = this.getBfbnbBankContract();
     const totalbnb = await bfbnbContract.methods.totalBNB().call();
     const totalshares = await bfbnbContract.methods.totalSupply().call();
     return amount * totalbnb / totalshares;
   }
+
 
   async convert11xxxToBnb(type, vaultaddress, amount) {
     const vaultContract = this.getVaultContract(vaultaddress);
@@ -163,14 +175,15 @@ class Web3Class {
     return userBalanceBfbnbInBnb;
   } 
 
+
   async getChefBalance() {
     const bfbnbStaked = await this.getStakedCoins(79); // bfbnb farm id: 79
     const bfbnbStakedInBnb = await this.convertBfbnbToBnb(bfbnbStaked);
     return bfbnbStakedInBnb;
   }
 
-  async openPosition(bigfootVaultAddress, leverage, amountVault = 0, amountBnb = 0) {
 
+  async openPosition(bigfootVaultAddress, leverage, amountVault = 0, amountBnb = 0) {
     let stratInfo;
     let bigfootInfo;
     let vaultValue;
@@ -201,8 +214,12 @@ class Web3Class {
       .send({from: this.userAddress, value: amountBnbWeis});
   }
   
-
-  async getAllPositions(){
+  
+  /**
+   * @param   {String} ownerAddress   optional
+   * @returns {Array}                 array with all positions matching owner (if ownerAddress is not provided, a list with all positions will be returned)
+   */
+  async getPositions(ownerAddress){
     const positionsArr = [];
     const bfbnbContract = this.getBfbnbBankContract();
     const nextPositionID = await bfbnbContract.methods.nextPositionID().call();
@@ -210,13 +227,16 @@ class Web3Class {
     for(let i=1; i<nextPositionID; i++){
       let positionData = await bfbnbContract.methods.positions(i).call();
       let positionInfo = await bfbnbContract.methods.positionInfo(i).call();
-      positionsArr.push({positionId: i, positionData, positionInfo});
+
+      if(ownerAddress === undefined || positionData.owner === ownerAddress ) {
+        positionsArr.push({positionId: i, positionData, positionInfo});
+      }
     }
 
     return positionsArr;
   }
 
-  
+
   async liquidatePosition(positionUint){
     const bfbnbContract = this.getBfbnbBankContract();
     bfbnbContract.methods.kill(positionUint).send({ from: this.userAddress });

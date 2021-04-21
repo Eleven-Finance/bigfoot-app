@@ -2,7 +2,7 @@ import Web3 from "web3";
 import BigNumber from "bignumber.js";
 
 import { abiMasterChef, abiERC20, abiBank, abiVault, abiFactory, lpAbi } from '../../data/abis/abis';
-import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory } from '../../data/addresses/addresses';
+import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(wallet) {
@@ -214,12 +214,29 @@ class Web3Class {
       .send({from: this.userAddress, value: amountBnbWeis});
   }
   
+
+  async closePosition(positionUint, bigfootVaultAddress){
+    const bfbnbContract = this.getBfbnbBankContract();
+    const stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
+    const bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyLiquidation11xxxBnb, 0, stratInfo]);
+
+    bfbnbContract.methods
+    .work(positionUint, bigfootVaultAddress, 0, 0, bigfootInfo)
+    .send({from: this.userAddress});
+  }
+
+
+  async liquidatePosition(positionUint){
+    const bfbnbContract = this.getBfbnbBankContract();
+    bfbnbContract.methods.kill(positionUint).send({ from: this.userAddress });
+  }
+
   
   /**
    * @param   {String} ownerAddress   optional
    * @returns {Array}                 array with all positions matching owner (if ownerAddress is not provided, a list with all positions will be returned)
    */
-  async getPositions(ownerAddress){
+   async getPositions(ownerAddress){
     const positionsArr = [];
     const bfbnbContract = this.getBfbnbBankContract();
     const nextPositionID = await bfbnbContract.methods.nextPositionID().call();
@@ -236,11 +253,6 @@ class Web3Class {
     return positionsArr;
   }
 
-
-  async liquidatePosition(positionUint){
-    const bfbnbContract = this.getBfbnbBankContract();
-    bfbnbContract.methods.kill(positionUint).send({ from: this.userAddress });
-  }
 
 }
 

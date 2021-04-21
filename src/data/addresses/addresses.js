@@ -1,10 +1,13 @@
 //bigfoot
 export const addressMasterChef = "0x1ac6C0B955B6D7ACb61c9Bdf3EE98E0689e07B8A";
 export const addressBfBNB = "0xA96C90223e4cC69192A9ffF1BA4c8b86D02765B2";
-export const addressStrategyZapperAddSingleAsset = "";
-export const addressStrategyZapperAdd = "0x63fcBd5F43b5640DDCEEF07AC2309F66F1495924";
 export const addressBigfoot11Cake = "";
 export const addressBigfoot11CakeBnb = "0x662a29061f5aA31296e24db14b54a2C134Bd41e8";
+
+//strategies
+export const addressStrategyZapperAddSingleAsset = "";
+export const addressStrategyZapperAdd = "0x63fcBd5F43b5640DDCEEF07AC2309F66F1495924";
+export const addressStrategyLiquidation11xxxBnb = "0xFA8331C59e7A0C86A2E8C530639aA45b34a6CA7D";
 
 //eleven
 export const address11Cake = "0xE050ACc68c778b6F7F63bDfeCDEc576FcC6D2274";

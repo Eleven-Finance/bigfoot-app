@@ -94,18 +94,24 @@ function PositionsTable(props) {
     return parseFloat(currentLeverage);
   }
 
+  const requestClose = (positionId, bigfootAddress) => {
+    web3Instance.closePosition(positionId, bigfootAddress);
+  }
+
   const requestLiquidatation = (positionId) => {
     web3Instance.liquidatePosition(positionId);
   }
 
-  const renderButtons = (position, debtRatio) => {
+  const renderButtons = (position, debtRatio, bigfootAddress) => {
     if (showAll) {
       return (
         <Button
           disabled={ debtRatio < 100 }
           outline={ debtRatio < 100 }
           color={ debtRatio < 100 ? "secondary" : "primary" } 
-          onClick={ () => requestLiquidatation(position.positionId) }
+          onClick={() => {
+            requestLiquidatation(position.positionId)
+          }}
         >
           Liquidate
         </Button>
@@ -126,7 +132,11 @@ function PositionsTable(props) {
           
           <Button
             outline={true}
-            color={"primary"}>
+            color={"primary"}
+            onClick={() => {
+              requestClose(position.positionId, bigfootAddress)
+            }}
+          >
             Close
           </Button>
         </>
@@ -197,7 +207,7 @@ function PositionsTable(props) {
                   </h5>
                 </td>
                 <td style={{ width: "120px" }}>
-                  {renderButtons(position, debtRatio)}
+                  {renderButtons(position, debtRatio, pool.bigfootAddress)}
                 </td>
               </tr>
             );

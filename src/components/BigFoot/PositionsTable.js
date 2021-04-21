@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useWallet } from '@binance-chain/bsc-use-wallet'
 import {
   Button,
@@ -8,31 +8,38 @@ import {
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import { Cake } from '../../assets/images/bigfoot/icons-assets/_index'
-import { Bnb } from '../../assets/images/bigfoot/icons-coins/_index'
-
 import Web3Class from '../../helpers/bigfoot/Web3Class'
+import Formatter from 'helpers/bigfoot/Formatter';
+import farmPools from '../../data/farmPools'
+import Icon from "./Icon"
 import LeverageModal from './LeverageModal';
 
 
-const renderIcon = (positionTitle) => {
-  let icon;
+const renderPoolInfo = (pool) => {
+  let icons;
 
-  switch(positionTitle){
-    case '11CAKE':
-      icon = Cake;
-      break;
-    case '11CAKEBNB':
-      icon = Bnb;
-      break;
+  if (pool.customIcon) {
+    icons = <Icon icon={pool.customIcon} />
+  } else {
+    icons = pool.currencies.map((currency, index) => {
+      return (
+        <React.Fragment key={index}>
+          <Icon icon={currency.icon} />                                      
+        </React.Fragment>
+      )
+    })
   }
 
   return (
-    <span className={"avatar-title rounded-circle bg-transparent font-size-18 me-2"} >
-      <img src={icon?.default} />
-    </span>
+    <>
+      <span className="avatar-xs avatar-multi">
+        {icons}
+      </span>
+      <span>{pool.title}</span>
+    </>
   );
 }
+
 
 
 function PositionsTable(props) {
@@ -42,9 +49,19 @@ function PositionsTable(props) {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
+  const TOTAL_SIZE = 0;
+  const DEBT_SIZE = 1;
+
   const {positions, showAll} = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chosenPosition, setChosenPosition] = useState(null);
+  const [bnbPrice, setBnbPrice] = useState(0);
+
+
+  useEffect( async () => {
+    const price = await web3Instance.getBnbPrice();
+    setBnbPrice(price);
+  }, [wallet]);
 
 
   const togglemodal = (position) => {
@@ -64,23 +81,33 @@ function PositionsTable(props) {
     }
   }
 
-  const renderButtons = (position) => {
+
+  const getCollateralValue = (position) => {
+    let collateral = position.positionInfo[TOTAL_SIZE] - position.positionInfo[DEBT_SIZE];
+    collateral = web3Instance.getAmoutFromWeis(collateral * bnbPrice);
+    return parseFloat(collateral);
+  }
+
+  const getCurrentLeverage = (position) => {
+    let collateral = position.positionInfo[TOTAL_SIZE] - position.positionInfo[DEBT_SIZE];
+    let currentLeverage = position.positionInfo[TOTAL_SIZE] / collateral;
+    return parseFloat(currentLeverage);
+  }
+
+  const requestLiquidatation = (positionId) => {
+    web3Instance.liquidatePosition(positionId);
+  }
+
+  const renderButtons = (position, debtRatio) => {
     if (showAll) {
       return (
         <Button
-          // temporal values (remove once functionality to liquidate is ready)
-          disabled={true}
-          outline={true}
-          color={"secondary"}
-
-          // disabled={ position.debtRatio < 100 }
-          // outline={ position.debtRatio < 100 }
-          // color={ position.debtRatio < 100 ? "secondary" : "primary" } 
-          onClick={() => {
-            console.log("Liquidate")
-          }}
+          disabled={ debtRatio < 100 }
+          outline={ debtRatio < 100 }
+          color={ debtRatio < 100 ? "secondary" : "primary" } 
+          onClick={ () => requestLiquidatation(position.positionId) }
         >
-          Coming soon
+          Liquidate
         </Button>
       );
     } else {
@@ -113,61 +140,69 @@ function PositionsTable(props) {
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col" className="text-start">Farm Pool</th>
+            <th scope="col">Farm Pool</th>
             <th scope="col">Collateral Value</th>
-            <th scope="col">Borrow Credit</th>
-            <th scope="col">Collateral Credit</th>
+            <th scope="col">Current Leverage</th>
+            <th scope="col">Death Leverage</th>
             <th scope="col">Debt Ratio</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {positions.map(position => (
-            <tr key={position.id}>
-              <th scope="row">
-                <h5 className="font-size-14 mb-1">
-                  #{position.id}
-                </h5>
-              </th>
-              <td>
-                <div className="d-flex align-items-center">
-                  {renderIcon(position.title)}
-                  <span>{position.title}</span>
-                </div>
-              </td>
-              <td>
-                <h5 className="font-size-14 mb-1">
-                  $ {position.collateralInDollars}
-                </h5>
-              </td>
-              <td>
-                <h5 className="font-size-14 mb-1">
-                  {position.borrowCredit} %
-                              </h5>
-              </td>
-              <td>
-                <h5 className="font-size-14 mb-1">
-                  {position.collateralCredit}
-                </h5>
-              </td>
-              <td>
-                <h5 className="font-size-14 mb-1">
-                  <span className={
-                    position.debtRatio < 33 ? "text-success" :
-                      position.debtRatio < 85 ? "text-warning" : "text-danger"
-                  }>
-                    {position.debtRatio} %
-                    {/* <div className="text-muted mt-1">
-                      ({(position.debtRatio /10).toFixed(2)}x)
-                    </div> */}
-                  </span>
-                </h5>
-              </td>
-              <td style={{ width: "120px" }}>
-                {renderButtons(position)}
-              </td>
-            </tr>
-          ))}
+          {positions.map(position => {
+
+            const bigfootAddress = position.positionData.bigfoot;
+            const pool = farmPools.find( pool => pool.bigfootAddress === bigfootAddress );
+            
+            const collateralValue = getCollateralValue(position);
+            const currentLeverage = getCurrentLeverage(position);
+            const deathLeverage = pool.deathLeverage;
+            const debtRatio = currentLeverage / deathLeverage * 100;
+
+            return (
+              <tr key={position.positionId}>
+                <th scope="row">
+                  <h5 className="font-size-14 mb-1">
+                    #{position.positionId}
+                  </h5>
+                </th>
+                <td>
+                  <div className="d-flex align-items-center">
+                    {renderPoolInfo(pool)}
+                  </div>
+                </td>
+                <td>
+                  <h5 className="font-size-14 mb-1">
+                    $ {Formatter.formatAmount(collateralValue)}
+                  </h5>
+                </td>
+                <td>
+                  <h5 className="font-size-14 mb-1">
+                    {Formatter.formatAmount(currentLeverage)}
+                  </h5>
+                </td>
+                <td>
+                  <h5 className="font-size-14 mb-1">
+                    {deathLeverage.toFixed(2)}
+                  </h5>
+                </td>
+                <td>
+                  <h5 className="font-size-14 mb-1">
+                    <span className={
+                      debtRatio < 33 ? "text-success" :
+                      debtRatio < 85 ? "text-warning" : "text-danger"
+                    }>
+                      {debtRatio.toFixed(2)} %
+                    </span>
+                  </h5>
+                </td>
+                <td style={{ width: "120px" }}>
+                  {renderButtons(position, debtRatio)}
+                </td>
+              </tr>
+            );
+          }
+          )}
         </tbody>
       </Table>
 

@@ -201,9 +201,25 @@ class Web3Class {
       .send({from: this.userAddress, value: amountBnbWeis});
   }
   
+
+  async getAllPositions(){
+    const positionsArr = [];
+    const bfbnbContract = this.getBfbnbBankContract();
+    const nextPositionID = await bfbnbContract.methods.nextPositionID().call();
+
+    for(let i=1; i<nextPositionID; i++){
+      let positionData = await bfbnbContract.methods.positions(i).call();
+      let positionInfo = await bfbnbContract.methods.positionInfo(i).call();
+      positionsArr.push({positionId: i, positionData, positionInfo});
+    }
+
+    return positionsArr;
+  }
+
+  
   async liquidatePosition(positionUint){
     const bfbnbContract = this.getBfbnbBankContract();
-    bfbnbContract.methods.kill(positionUint).send();
+    bfbnbContract.methods.kill(positionUint).send({ from: this.userAddress });
   }
 
 }

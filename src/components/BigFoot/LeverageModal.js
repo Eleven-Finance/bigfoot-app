@@ -34,7 +34,7 @@ function LeverageModal(props) {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const { isOpen, togglemodal, pool, userBalances } = props;
+  const { isOpen, togglemodal, pool, userBalances, isAdjust, positionCurrentLeverage } = props;
 
   // initial currency supply: { currencyCodeA: 0, currencyCodeB: 0, ...}
   const initialSupply = Object.fromEntries(
@@ -81,20 +81,31 @@ function LeverageModal(props) {
     }
 
     return (
-      <Slider
-        value={borrowFactor}
-        min={1.5}
-        max={sliderMax}
-        step={0.5}
-        labels={sliderLabels}
-        orientation="horizontal"
-        onChange={value => {
-          setBorrowFactor(value)
-        }}
-      />
+      <div className="mb-3">
+        <p>Choose how much you 'd like to borrow:</p>
+        <Slider
+          value={borrowFactor}
+          min={1.5}
+          max={sliderMax}
+          step={0.5}
+          labels={sliderLabels}
+          orientation="horizontal"
+          onChange={value => {
+            setBorrowFactor(value)
+          }}
+        />
+      </div>
     );
   }
 
+  const calcNewLeverage = () => {
+    // let collateral = ;
+    // let newLeverage =  / collateral;
+    // return parseFloat(newLeverage);
+
+    //@todo
+    return 1.50
+  }
 
   const toggleApprovalModal = () => {
     setIsApprovalModalOpen(!isApprovalModalOpen);
@@ -155,7 +166,10 @@ function LeverageModal(props) {
     >
       <div className="modal-content">
         <ModalHeader toggle={togglemodal}>
-          Farm: {pool.title}
+          { isAdjust ?
+            `Adjust Position (Farm: ${pool.title})` :
+            `Farm: ${pool.title}`
+          }
         </ModalHeader>
         <ModalBody>
           <div
@@ -215,10 +229,19 @@ function LeverageModal(props) {
                     })
                   }
                 </div>
-                <div className="mb-3">
-                  <p>Choose how much you 'd like to borrow:</p>
-                  { renderSlider(pool) }
-                </div>
+                {
+                  isAdjust ?
+                    <>
+                      <p>
+                        Current Leverage: {positionCurrentLeverage.toFixed(2)} <br />
+                        New Leverage: {calcNewLeverage().toFixed(2)}
+                      </p>
+                      <p>Provide additional assets in order to pay your debt and reduce liquidation risks.</p>
+                    </>
+                    :
+                    renderSlider(pool)
+                }
+                
                 <br />
                 <p>
                   Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
@@ -265,7 +288,7 @@ function LeverageModal(props) {
               <Icon icon={pool.currencies[0].icon} />
             </p>
             <p>
-              Approve your {pool.currencies[0].code} to be spent by bigfoot contract. 
+              Approve your {pool.currencies[0].code} to be spent by BigFoot contract. 
             </p>
             <div className="actions clearfix">
               <ul role="menu" aria-label="Pagination">

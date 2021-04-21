@@ -40,7 +40,8 @@ function Dashboard() {
 
   useEffect( () => {
     if(wallet.account) {
-      initializeUserBalances();
+      const allBalances = web3Instance.getUserBalancesForPools(pools);
+      setUserBalances(allBalances);
     }
   }, [wallet]);
 
@@ -60,18 +61,6 @@ function Dashboard() {
       .catch(error => console.log('Error fetching data from api. ', error));
   }
 
-  const initializeUserBalances = () => {
-    const allBalances = {};
-    pools.forEach(pool => {
-      pool.currencies.forEach( async (currency) => {
-        if( allBalances[currency.code] === undefined) {
-          const balance = await web3Instance.getUserBalance(currency.address); // get user balance for this specific token
-          allBalances[currency.code] = balance;
-        }
-      });
-    });
-    setUserBalances(allBalances);
-  }
 
   const updatePoolStats = () => {
     const newPools = JSON.parse(JSON.stringify(pools));

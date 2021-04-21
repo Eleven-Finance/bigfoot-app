@@ -80,6 +80,20 @@ class Web3Class {
   }
 
 
+  getUserBalancesForPools(pools) {
+    const allBalances = {};
+    pools.forEach(pool => {
+      pool.currencies.forEach(async (currency) => {
+        if (allBalances[currency.code] === undefined) {
+          const balance = await this.getUserBalance(currency.address); // get user balance for this specific token
+          allBalances[currency.code] = balance;
+        }
+      });
+    });
+    return allBalances;
+  }
+
+
   async getStakedCoins(pid) {
     const masterchefContract = this.getMasterchefContract();
     const userInfo = await masterchefContract.methods.userInfo(pid, this.userAddress).call();

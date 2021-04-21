@@ -55,16 +55,25 @@ function PositionsTable(props) {
   const {positions, showAll} = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chosenPosition, setChosenPosition] = useState(null);
+  const [chosenPool, setChosenPool] = useState(null);
+  const [userBalances, setUserBalances] = useState({});
   const [bnbPrice, setBnbPrice] = useState(0);
 
 
   useEffect( async () => {
+    //set user balances
+    if(wallet.account) {
+      const allBalances = web3Instance.getUserBalancesForPools(farmPools);
+      setUserBalances(allBalances);
+    }
+
+    //get bnb price
     const price = await web3Instance.getBnbPrice();
     setBnbPrice(price);
+
   }, [wallet]);
 
-
-  const togglemodal = (position) => {
+  const togglemodal = (position, pool) => {
 
     //if wallet not connected
     if( !isModalOpen && !wallet.account){
@@ -74,9 +83,11 @@ function PositionsTable(props) {
 
     if(isModalOpen) {//close
       setChosenPosition(null);
+      setChosenPool(null);
       setIsModalOpen(false);
     } else {//open
       setChosenPosition(position);
+      setChosenPool(pool);
       setIsModalOpen(true);
     }
   }
@@ -102,7 +113,7 @@ function PositionsTable(props) {
     web3Instance.liquidatePosition(positionId);
   }
 
-  const renderButtons = (position, debtRatio, bigfootAddress) => {
+  const renderButtons = (position, pool, debtRatio) => {
     if (showAll) {
       return (
         <Button
@@ -124,7 +135,7 @@ function PositionsTable(props) {
             outline={true}
             color={"primary"}
             onClick={()=>{
-              togglemodal(position)
+              togglemodal(position, pool)
             }}
           >
             Adjust
@@ -134,7 +145,7 @@ function PositionsTable(props) {
             outline={true}
             color={"primary"}
             onClick={() => {
-              requestClose(position.positionId, bigfootAddress)
+              requestClose(position.positionId, pool.bigfootAddress)
             }}
           >
             Close
@@ -207,7 +218,7 @@ function PositionsTable(props) {
                   </h5>
                 </td>
                 <td style={{ width: "120px" }}>
-                  {renderButtons(position, debtRatio, pool.bigfootAddress)}
+                  {renderButtons(position, pool, debtRatio)}
                 </td>
               </tr>
             );
@@ -217,7 +228,7 @@ function PositionsTable(props) {
       </Table>
 
       { chosenPosition &&
-        <LeverageModal isOpen={isModalOpen} togglemodal={togglemodal} pool={chosenPosition} userBalances={userBalances} />
+        <LeverageModal isOpen={isModalOpen} togglemodal={togglemodal} pool={chosenPool} userBalances={userBalances} isAdjust positionCurrentLeverage={getCurrentLeverage(chosenPosition)} />
       }
 
     </div>

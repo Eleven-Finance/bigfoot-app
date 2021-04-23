@@ -280,7 +280,12 @@ function Dashboard() {
                 </CardBody>
 
                 { chosenPool && 
-                  <LeverageModal isOpen={isModalOpen} togglemodal={togglemodal} pool={chosenPool} userBalances={userBalances} />
+                  <LeverageModal 
+                    isOpen={isModalOpen} 
+                    togglemodal={togglemodal} 
+                    pool={chosenPool} 
+                    userBalances={userBalances} 
+                    />
                 }      
               </Card>
             </Col>

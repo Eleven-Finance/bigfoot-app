@@ -21,8 +21,9 @@ import "react-rangeslider/lib/index.css"
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import Web3Class from '../../helpers/bigfoot/Web3Class'
-import { addressBigfoot11CakeBnb } from '../../data/addresses/addresses';
+import Web3Class from 'helpers/bigfoot/Web3Class'
+import Calculator from 'helpers/bigfoot/Calculator'
+import { addressBigfoot11CakeBnb } from 'data/addresses/addresses';
 import Icon from './Icon';
 
 
@@ -34,7 +35,7 @@ function LeverageModal(props) {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const { isOpen, togglemodal, pool, userBalances, isAdjust, positionCurrentLeverage } = props;
+  const { isOpen, togglemodal, pool, userBalances, currentPosition } = props;
 
   // initial currency supply: { currencyCodeA: 0, currencyCodeB: 0, ...}
   const initialSupply = Object.fromEntries(
@@ -44,7 +45,28 @@ function LeverageModal(props) {
   const [ isApprovalModalOpen, setIsApprovalModalOpen ] = useState(false);
   const [ borrowFactor, setBorrowFactor ] = useState(2);
   const [ currencySupply, setCurrencySupply ] = useState(initialSupply);
+  const [ currencyValues, setCurrencyValues ] = useState();
   
+
+  useEffect( async () => {
+    if(wallet.account) {
+      //get the value for all assets of current pool
+      const arr = await Promise.all(pool.currencies.map( async (currency) => {
+        let assetValue;
+        if(currency.address){
+          assetValue = await web3Instance.get11xxxValue(pool.assetType, currency.address);
+        }else{
+          assetValue = 1; //native token
+        }
+        return [currency.code, assetValue];
+      }));
+
+      const values = Object.fromEntries(arr);
+      setCurrencyValues(values);
+    }
+  }, [wallet]);
+
+
   const updateCurrencySupply = (currencyCode, value) => {
     const newCurrencySupply = {...currencySupply};
     newCurrencySupply[currencyCode] = value;
@@ -98,14 +120,6 @@ function LeverageModal(props) {
     );
   }
 
-  const calcNewLeverage = () => {
-    // let collateral = ;
-    // let newLeverage =  / collateral;
-    // return parseFloat(newLeverage);
-
-    //@todo
-    return 1.50
-  }
 
   const toggleApprovalModal = () => {
     setIsApprovalModalOpen(!isApprovalModalOpen);
@@ -148,7 +162,7 @@ function LeverageModal(props) {
     if( amountVault && !isApproved ) {
       setIsApprovalModalOpen(true);
     } else {
-      web3Instance.openPosition(pool.bigfootAddress, borrowFactor, amountVault, amountBnb);
+      web3Instance.openPosition(pool.bigfootAddress, pool.assetType, borrowFactor, amountVault, amountBnb);
     }
   }
 
@@ -166,7 +180,7 @@ function LeverageModal(props) {
     >
       <div className="modal-content">
         <ModalHeader toggle={togglemodal}>
-          { isAdjust ?
+          { currentPosition ?
             `Adjust Position (Farm: ${pool.title})` :
             `Farm: ${pool.title}`
           }
@@ -180,7 +194,10 @@ function LeverageModal(props) {
               <Form>
 
                 <div className="mb-3">
-                  <p>Choose how much you want to supply:</p>
+                  { currentPosition ?
+                    <p>Provide additional assets in order to pay your debt and reduce liquidation risks:</p> :
+                    <p>Choose how much you want to supply:</p>
+                  }
 
                   {
                     pool.currencies.map((currency, index) => {
@@ -221,7 +238,7 @@ function LeverageModal(props) {
                                 }}
                               >
                                 MAX
-                                            </Button>
+                              </Button>
                             </Col>
                           </Row>
                         </FormGroup>
@@ -230,14 +247,11 @@ function LeverageModal(props) {
                   }
                 </div>
                 {
-                  isAdjust ?
-                    <>
-                      <p>
-                        Current Leverage: {positionCurrentLeverage.toFixed(2)} <br />
-                        New Leverage: {calcNewLeverage().toFixed(2)}
-                      </p>
-                      <p>Provide additional assets in order to pay your debt and reduce liquidation risks.</p>
-                    </>
+                  currentPosition ?
+                    <div className="text-center">
+                      <h5>Current Leverage: {Calculator.getCurrentLeverage(currentPosition).toFixed(2)}</h5>
+                      <h5>New Leverage: { currencyValues && Calculator.calcNewLeverage(currentPosition, pool, currencySupply, currencyValues).toFixed(2)}</h5>
+                    </div>
                     :
                     renderSlider(pool)
                 }

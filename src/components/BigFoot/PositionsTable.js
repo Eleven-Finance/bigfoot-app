@@ -8,9 +8,10 @@ import {
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import Web3Class from '../../helpers/bigfoot/Web3Class'
+import Web3Class from 'helpers/bigfoot/Web3Class'
+import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from 'helpers/bigfoot/Formatter';
-import farmPools from '../../data/farmPools'
+import farmPools from 'data/farmPools'
 import Icon from "./Icon"
 import LeverageModal from './LeverageModal';
 
@@ -48,9 +49,6 @@ function PositionsTable(props) {
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
-
-  const TOTAL_SIZE = 0;
-  const DEBT_SIZE = 1;
 
   const {positions, showAll} = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,19 +88,6 @@ function PositionsTable(props) {
       setChosenPool(pool);
       setIsModalOpen(true);
     }
-  }
-
-
-  const getCollateralValue = (position) => {
-    let collateral = position.positionInfo[TOTAL_SIZE] - position.positionInfo[DEBT_SIZE];
-    collateral = web3Instance.getAmoutFromWeis(collateral * bnbPrice);
-    return parseFloat(collateral);
-  }
-
-  const getCurrentLeverage = (position) => {
-    let collateral = position.positionInfo[TOTAL_SIZE] - position.positionInfo[DEBT_SIZE];
-    let currentLeverage = position.positionInfo[TOTAL_SIZE] / collateral;
-    return parseFloat(currentLeverage);
   }
 
   const requestClose = (positionId, bigfootAddress) => {
@@ -175,8 +160,8 @@ function PositionsTable(props) {
             const bigfootAddress = position.positionData.bigfoot;
             const pool = farmPools.find( pool => pool.bigfootAddress === bigfootAddress );
             
-            const collateralValue = getCollateralValue(position);
-            const currentLeverage = getCurrentLeverage(position);
+            const collateralValue = Calculator.getCollateralValue(position, bnbPrice);
+            const currentLeverage = Calculator.getCurrentLeverage(position);
             const deathLeverage = pool.deathLeverage;
             const debtRatio = currentLeverage / deathLeverage * 100;
 
@@ -228,7 +213,13 @@ function PositionsTable(props) {
       </Table>
 
       { chosenPosition &&
-        <LeverageModal isOpen={isModalOpen} togglemodal={togglemodal} pool={chosenPool} userBalances={userBalances} isAdjust positionCurrentLeverage={getCurrentLeverage(chosenPosition)} />
+        <LeverageModal 
+          isOpen={isModalOpen} 
+          togglemodal={togglemodal} 
+          pool={chosenPool} 
+          userBalances={userBalances}
+          currentPosition={chosenPosition}
+          />
       }
 
     </div>

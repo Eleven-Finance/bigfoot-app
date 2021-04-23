@@ -24,7 +24,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 
 import lendingOptions from '../../data/lendingOptions'
 import Web3Class from '../../helpers/bigfoot/Web3Class'
-import { addressBfBNB } from '../../data/addresses/addresses'
+import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from "helpers/bigfoot/Formatter"
 
 const Earn = () => {
@@ -64,7 +64,7 @@ const Earn = () => {
   }, [wallet]);
 
   const updateWalletBalance = async () => {
-    const walletBalance = web3Instance.getAmoutFromWeis(wallet.balance);
+    const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
     const bnbPrice = await web3Instance.getBnbPrice();
     const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
     setWalletBalance( walletBalanceUsd );
@@ -178,7 +178,7 @@ const Earn = () => {
       return;
     }
 
-    const amount = web3Instance.getWeiStrFromAmount(formData.amount);
+    const amount = Calculator.getWeiStrFromAmount(formData.amount);
     const bfbnbContract = web3Instance.getBfbnbBankContract();
 
     if(formData.action === 'supply'){

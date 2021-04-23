@@ -18,6 +18,7 @@ const farmPools = [
     bigfootAddress: null,
     deathLeverage: 10.333333333333,
     maxLeverage: 10.666666666666,
+    assetType: 1,
     currencies: [
       {
         code: "11CAKE",
@@ -45,6 +46,7 @@ const farmPools = [
     bigfootAddress: addressBigfoot11CakeBnb,
     deathLeverage: 3.333333333333,
     maxLeverage: 2.666666666666,
+    assetType: 0,
     currencies: [
       {
         code: "11CAKEBNB",

@@ -25,6 +25,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import farmOptions from '../../data/farmOptions'
 import { addressMasterChef } from '../../data/addresses/addresses';
 import Web3Class from '../../helpers/bigfoot/Web3Class'
+import Calculator from '../../helpers/bigfoot/Calculator'
 import Formatter from '../../helpers/bigfoot/Formatter'
 import './Farms.scss'
 
@@ -155,7 +156,7 @@ const Farms = () => {
     }
 
     const pid = formData.chosenFarm.pid;
-    const amount = web3Instance.getWeiStrFromAmount(formData.amount);
+    const amount = Calculator.getWeiStrFromAmount(formData.amount);
     const masterchefContract = web3Instance.getMasterchefContract();
 
     if(formData.action === 'deposit'){
@@ -343,7 +344,7 @@ const Farms = () => {
               disabled={ ! (parseFloat(farm.pendingRewards) > 0) }
               onClick={ () => requestHarvest(farm) }
             >
-              Harvest { Math.floor(web3Instance.getAmoutFromWeis(farm.pendingRewards) * 10000) / 10000 } ELE
+              Harvest { Math.floor(Calculator.getAmoutFromWeis(farm.pendingRewards) * 10000) / 10000 } ELE
               </Button>
           </Col>
         </Row>

@@ -156,13 +156,15 @@ function LeverageModal(props) {
 
     const isApproved = await web3Instance.checkApproval(pool.currencies[0].address, addressBigfoot11CakeBnb);
     const amountVault = currencySupply[pool.currencies[0].code] || 0;
+    const valueVaultAsset = currencyValues[pool.currencies[0].code] || 0;
+    
     const amountBnb = currencySupply[pool.currencies[1].code] || 0;
 
     //if user supplies vault asset & that asset is not approved, request approval
-    if( amountVault && !isApproved ) {
+    if( amountVault != 0 && !isApproved ) {
       setIsApprovalModalOpen(true);
     } else {
-      web3Instance.openPosition(pool.bigfootAddress, pool.assetType, borrowFactor, amountVault, amountBnb);
+      web3Instance.openPosition(pool.bigfootAddress, pool.assetType, borrowFactor, valueVaultAsset, amountVault, amountBnb);
     }
   }
 

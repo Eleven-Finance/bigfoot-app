@@ -183,7 +183,7 @@ class Web3Class {
   }
 
 
-  async openPosition(bigfootVaultAddress, assetType, leverage, amountVault = 0, amountBnb = 0) {
+  async openPosition(bigfootVaultAddress, assetType, leverage, valueVaultAsset, amountVault = 0, amountBnb = 0) {
     let stratInfo;
     let bigfootInfo;
     
@@ -203,8 +203,7 @@ class Web3Class {
         break;
     }
 
-    const assetValue = await this.get11xxxValue(assetType, bigfootVaultAddress);
-    const vaultValue = assetValue * amountVaultWeis;
+    const vaultValue = valueVaultAsset * amountVaultWeis;
     const totalValue = new BigNumber(vaultValue).plus(new BigNumber(amountBnbWeis)).toString();
     const loan = new BigNumber(totalValue * (leverage - 1)).toString();
 

@@ -36,10 +36,11 @@ class Web3Class {
   getLpContract(token) {
     return new this.web3.eth.Contract(lpAbi, token);
   }
-  
-  async approveM(tokenAddress, spender, amount = this.maxUint) {
+
+
+  async reqApproval(tokenAddress, spender, amount = this.maxUint){
     const erc20 = this.getErc20Contract(tokenAddress);
-    erc20.methods.approve(spender, amount).send({ from: this.userAddress });
+    return erc20.methods.approve(spender, amount);
   }
 
 
@@ -94,9 +95,9 @@ class Web3Class {
   }
 
 
-  async deposit(pid, amount) {
+  async reqDeposit(pid, amount) {
     const masterchefContract = this.getMasterchefContract();
-    masterchefContract.methods.deposit(pid, amount).send();
+    return masterchefContract.methods.deposit(pid, amount);
   }
 
 
@@ -183,7 +184,7 @@ class Web3Class {
   }
 
 
-  async openPosition(bigfootVaultAddress, assetType, leverage, valueVaultAsset, amountVault = 0, amountBnb = 0) {
+  async reqPosition(positionId, bigfootVaultAddress, leverage, valueVaultAsset, amountVault = 0, amountBnb = 0) {
     let stratInfo;
     let bigfootInfo;
     
@@ -205,11 +206,11 @@ class Web3Class {
 
     const vaultValue = valueVaultAsset * amountVaultWeis;
     const totalValue = new BigNumber(vaultValue).plus(new BigNumber(amountBnbWeis)).toString();
-    const loan = new BigNumber(totalValue * (leverage - 1)).toString();
+    
+    //calc loan (when adjusting an existing position, loan = 0)
+    const loan = (positionId === 0) ? new BigNumber(totalValue * (leverage - 1)).toString() : 0;
 
-    bfbnbContract.methods
-      .work(0, bigfootVaultAddress, loan, totalValue, bigfootInfo)
-      .send({from: this.userAddress, value: amountBnbWeis});
+    return bfbnbContract.methods.work(positionId, bigfootVaultAddress, loan, totalValue, bigfootInfo);
   }
 
 

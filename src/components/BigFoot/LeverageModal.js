@@ -126,10 +126,9 @@ function LeverageModal(props) {
   }
 
 
-  const requestBigFootApproval = () => {
-    const erc20 = web3Instance.getErc20Contract(pool.currencies[0].address);
-    const maxUint = web3Instance.maxUint;
-    erc20.methods.approve(pool.bigfootAddress, maxUint).send({ from: userAddress })
+  const requestBigFootApproval = async () => {
+    const request = await web3Instance.reqApproval(pool.currencies[0].address, pool.bigfootAddress);
+    request.send({ from: userAddress })
       .on('transactionHash', function (hash) {
         toast.info(`BigFoot authorization in process. ${hash}`)
       })
@@ -159,12 +158,29 @@ function LeverageModal(props) {
     const valueVaultAsset = currencyValues[pool.currencies[0].code] || 0;
     
     const amountBnb = currencySupply[pool.currencies[1].code] || 0;
+    const amountBnbWeis = Calculator.getWeiStrFromAmount(amountBnb);
 
-    //if user supplies vault asset & that asset is not approved, request approval
+    const positionId = currentPosition?.positionId || 0;
+
     if( amountVault != 0 && !isApproved ) {
+      //if user supplies vault asset & that asset is not approved, request approval
       setIsApprovalModalOpen(true);
     } else {
-      web3Instance.openPosition(pool.bigfootAddress, pool.assetType, borrowFactor, valueVaultAsset, amountVault, amountBnb);
+      const request = await web3Instance.reqPosition(positionId, pool.bigfootAddress, borrowFactor, valueVaultAsset, amountVault, amountBnb);
+      request.send({from: userAddress, value: amountBnbWeis})
+        .on('transactionHash', function (hash) {
+          toast.info(`Position request in process. ${hash}`)
+        })
+        .on('receipt', function (receipt) {
+          togglemodal();
+          toast.success(`Position request completed.`)
+        })
+        .on('error', function (error) {
+          toast.warn(`Position request failed. ${error?.message}`)
+        })
+        .catch(error => {
+          console.log(`Position request error. ${error?.message}`)
+        });
     }
   }
 

@@ -170,7 +170,7 @@ function LeverageModal(props) {
     } else if ( amountVault != 0 && !isApproved ) {
       setIsApprovalModalOpen(true); //if user supplies vault asset & that asset is not approved, request approval
     } else {
-      const request = await web3Instance.reqPosition(positionId, pool.bigfootAddress, borrowFactor, valueVaultAsset, amountVault, amountBnb);
+      const request = await web3Instance.reqOpenOrAdjustPosition(positionId, pool.bigfootAddress, borrowFactor, valueVaultAsset, amountVault, amountBnb);
       request.send({from: userAddress, value: amountBnbWeis})
         .on('transactionHash', function (hash) {
           toast.info(`Position request in process. ${hash}`)

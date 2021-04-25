@@ -90,12 +90,38 @@ function PositionsTable(props) {
     }
   }
 
-  const requestClose = (positionId, bigfootAddress) => {
-    web3Instance.closePosition(positionId, bigfootAddress);
+  const requestClose = async (positionId, bigfootAddress) => {
+    const request = await web3Instance.reqClosePosition(positionId, bigfootAddress);
+    request.send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        toast.info(`Request to close position in process. ${hash}`)
+      })
+      .on('receipt', function (receipt) {
+        toast.success(`Request to close position completed.`)
+      })
+      .on('error', function (error) {
+        toast.warn(`Request to close position failed. ${error?.message}`)
+      })
+      .catch(error => {
+        console.log(`Request to close position error. ${error?.message}`)
+      });
   }
 
-  const requestLiquidatation = (positionId) => {
-    web3Instance.liquidatePosition(positionId);
+  const requestLiquidation = async (positionId) => {
+    const request = await web3Instance.reqLiquidatePosition(positionId);
+    request.send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        toast.info(`Request to liquidate position in process. ${hash}`)
+      })
+      .on('receipt', function (receipt) {
+        toast.success(`Request to liquidate position completed.`)
+      })
+      .on('error', function (error) {
+        toast.warn(`Request to liquidate position failed. ${error?.message}`)
+      })
+      .catch(error => {
+        console.log(`Request to liquidate position error. ${error?.message}`)
+      });
   }
 
   const renderButtons = (position, pool, debtRatio) => {
@@ -106,7 +132,7 @@ function PositionsTable(props) {
           outline={ debtRatio < 100 }
           color={ debtRatio < 100 ? "secondary" : "primary" } 
           onClick={() => {
-            requestLiquidatation(position.positionId)
+            requestLiquidation(position.positionId)
           }}
         >
           Liquidate

@@ -183,8 +183,9 @@ class Web3Class {
     return bfbnbStakedInBnb;
   }
 
-
-  async reqPosition(positionId, bigfootVaultAddress, leverage, valueVaultAsset, amountVault = 0, amountBnb = 0) {
+  
+  //reqOpenOrAdjustPosition(): adjust an existing position (positionId) or open a new position (if positionId==0)
+  async reqOpenOrAdjustPosition(positionId, bigfootVaultAddress, leverage, valueVaultAsset, amountVault = 0, amountBnb = 0) {
     let stratInfo;
     let bigfootInfo;
     
@@ -214,20 +215,18 @@ class Web3Class {
   }
 
 
-  async closePosition(positionUint, bigfootVaultAddress){
+  async reqClosePosition(positionUint, bigfootVaultAddress){
     const bfbnbContract = this.getBfbnbBankContract();
     const stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
     const bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyLiquidation11xxxBnb, 0, stratInfo]);
 
-    bfbnbContract.methods
-    .work(positionUint, bigfootVaultAddress, 0, 0, bigfootInfo)
-    .send({from: this.userAddress});
+    return bfbnbContract.methods.work(positionUint, bigfootVaultAddress, 0, 0, bigfootInfo);
   }
 
 
-  async liquidatePosition(positionUint){
+  async reqLiquidatePosition(positionUint){
     const bfbnbContract = this.getBfbnbBankContract();
-    bfbnbContract.methods.kill(positionUint).send({ from: this.userAddress });
+    return bfbnbContract.methods.kill(positionUint);
   }
 
   

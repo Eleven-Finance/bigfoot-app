@@ -160,11 +160,15 @@ function LeverageModal(props) {
     const amountBnb = currencySupply[pool.currencies[1].code] || 0;
     const amountBnbWeis = Calculator.getWeiStrFromAmount(amountBnb);
 
-    const positionId = currentPosition?.positionId || 0;
+    const requiredValueToOpenPosition = 0.11; //minumum value in BNB, required to open a new position
+    const totalProvidedValueInBnb = (amountVault * valueVaultAsset) + (amountBnb * 1);
 
-    if( amountVault != 0 && !isApproved ) {
-      //if user supplies vault asset & that asset is not approved, request approval
-      setIsApprovalModalOpen(true);
+    const positionId = currentPosition?.positionId || 0; //set to 0 if starting a new position
+
+    if (positionId === 0 && totalProvidedValueInBnb < requiredValueToOpenPosition) {
+      toast.warn(`Min. value required to open new positions is ${requiredValueToOpenPosition}BNB (or the equivalent in other assets)`);
+    } else if ( amountVault != 0 && !isApproved ) {
+      setIsApprovalModalOpen(true); //if user supplies vault asset & that asset is not approved, request approval
     } else {
       const request = await web3Instance.reqPosition(positionId, pool.bigfootAddress, borrowFactor, valueVaultAsset, amountVault, amountBnb);
       request.send({from: userAddress, value: amountBnbWeis})

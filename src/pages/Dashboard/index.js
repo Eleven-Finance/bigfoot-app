@@ -8,17 +8,20 @@ import {
   Card,
   CardBody,
   Table,
+  Spinner,
 } from "reactstrap"
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import Web3Class from '../../helpers/bigfoot/Web3Class'
-import Formatter from '../../helpers/bigfoot/Formatter'
+import Web3Class from 'helpers/bigfoot/Web3Class'
+import Formatter from 'helpers/bigfoot/Formatter'
+import Calculator from "helpers/bigfoot/Calculator";
 import farmPools from '../../data/farmPools'
-import "./Dashboard.scss"
+import usePositions from 'hooks/usePositions';
 import LeverageModal from "components/BigFoot/LeverageModal";
 import Icon from "components/BigFoot/Icon"
+import "./Dashboard.scss"
 
 
 function Dashboard() {
@@ -28,20 +31,38 @@ function Dashboard() {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
+  const { loadingPositions, allPositions, myPositions } = usePositions();
+
   const [pools, setPools] = useState(farmPools);
   const [chosenPool, setChosenPool] = useState(null);
   const [userBalances, setUserBalances] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [poolStats, setPoolStats] = useState(null);
+  const [bnbPrice, setBnbPrice] = useState(0);
+
+  const [globalInfo, setGlobalInfo] = useState({
+    totalCollateral: undefined,
+    totalBorrow: undefined,
+    activePositions: undefined,
+  });
+  const [yourInfo, setYourInfo] = useState({
+    yourTotalCollateral: undefined,
+    yourTotalBorrow: undefined,
+  });
 
   useEffect(()=>{
     initializePoolStats();
   }, []);
 
-  useEffect( () => {
+  useEffect( async () => {
     if(wallet.account) {
+      //set user balances
       const allBalances = web3Instance.getUserBalancesForPools(pools);
       setUserBalances(allBalances);
+
+      //get bnb price
+      const price = await web3Instance.getBnbPrice();
+      setBnbPrice(price);
     }
   }, [wallet]);
 
@@ -51,6 +72,15 @@ function Dashboard() {
     }
   }, [poolStats]);
 
+  useEffect( ()=>{
+    updateGlobalInfo();
+  }, [allPositions]);
+
+  useEffect( ()=>{
+    if(bnbPrice){
+      updateYourInfo();
+    }
+  }, [myPositions, bnbPrice]);
 
   const initializePoolStats = () => {
     fetch(process.env.REACT_APP_API_URL)
@@ -77,6 +107,39 @@ function Dashboard() {
       currentPool.percentageOut = data.farm.aprd * 365;
     });
     setPools(newPools);
+  }
+
+  const updateGlobalInfo = () => {
+
+    let collateral = 0;
+    let borrow = 0;
+
+    allPositions.forEach( position => {
+      collateral += Calculator.getCollateralValue(position, bnbPrice);
+      borrow += Calculator.getDebtValue(position, bnbPrice);
+    });
+
+    setGlobalInfo({
+      totalCollateral: collateral,
+      totalBorrow: borrow,
+      activePositions: allPositions.length
+    });
+  }
+
+  const updateYourInfo = () => {
+
+    let ownTotalCollateral = 0;
+    let ownTotalBorrow = 0;
+
+    myPositions.forEach( position => {
+      ownTotalCollateral += Calculator.getCollateralValue(position, bnbPrice);
+      ownTotalBorrow += Calculator.getDebtValue(position, bnbPrice);
+    });
+
+    setYourInfo({
+      yourTotalCollateral: ownTotalCollateral,
+      yourTotalBorrow: ownTotalBorrow,
+    });
   }
 
   const togglemodal = (pool) => {
@@ -121,14 +184,14 @@ function Dashboard() {
                 <CardBody>
                   <h4 className="card-title">
                     <i className="mdi mdi-earth text-primary h1" />
-                      Global
-                    </h4>
+                    Global
+                  </h4>
                   <Row>
                     <Col sm="6">
                       <p className="mb-0">Total Collateral</p>
                     </Col>
                     <Col sm="6" className="text-end">
-                      <p>$ 0.00</p>
+                      <p>$ {Formatter.formatAmount(globalInfo.totalCollateral)}</p>
                     </Col>
                   </Row>
                   <Row>
@@ -136,7 +199,7 @@ function Dashboard() {
                       <p className="mb-0">Total Borrow</p>
                     </Col>
                     <Col sm="6" className="text-end">
-                      <p>$ 0.00</p>
+                      <p>$ {Formatter.formatAmount(globalInfo.totalBorrow)}</p>
                     </Col>
                   </Row>
                   <Row>
@@ -144,7 +207,7 @@ function Dashboard() {
                       <p className="mb-0">Active Positions</p>
                     </Col>
                     <Col sm="6" className="text-end">
-                      <p>0 Positions</p>
+                      <p>{globalInfo.activePositions} Positions</p>
                     </Col>
                   </Row>
                 </CardBody>
@@ -163,13 +226,13 @@ function Dashboard() {
                     <Col sm="12">
                       <div>
                         <p className="mb-2">Total Collateral</p>
-                        <h5>$ 0.00</h5>
+                        <h5>$ {Formatter.formatAmount(yourInfo.yourTotalCollateral)}</h5>
                       </div>
                     </Col>
                     <Col sm="12" className="mb-0">
                       <div>
                         <p className="mb-2">Total Borrow</p>
-                        <h5>$ 0.00</h5>
+                        <h5>$ {Formatter.formatAmount(yourInfo.yourTotalBorrow)}</h5>
                       </div>
                     </Col>
                   </Row>

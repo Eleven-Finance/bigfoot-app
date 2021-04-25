@@ -59,16 +59,15 @@ function PositionsTable(props) {
 
 
   useEffect( async () => {
-    //set user balances
     if(wallet.account) {
+      //set user balances
       const allBalances = web3Instance.getUserBalancesForPools(farmPools);
       setUserBalances(allBalances);
+    
+      //get bnb price
+      const price = await web3Instance.getBnbPrice();
+      setBnbPrice(price);
     }
-
-    //get bnb price
-    const price = await web3Instance.getBnbPrice();
-    setBnbPrice(price);
-
   }, [wallet]);
 
   const togglemodal = (position, pool) => {

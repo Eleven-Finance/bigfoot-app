@@ -18,29 +18,32 @@ class Calculator {
   static extractPositionInfo(position){
     const totalSize = position.positionInfo[0];
     const debtSize = position.positionInfo[1];
-    return {totalSize, debtSize};
+    const collateral = totalSize - debtSize;
+    return {totalSize, debtSize, collateral};
   }
 
 
   static getCollateralValue(position, bnbPrice) {
-    const {totalSize, debtSize} = this.extractPositionInfo(position);
-    const collateral = totalSize - debtSize;
+    const {collateral} = this.extractPositionInfo(position);
     const collateralValue = this.getAmoutFromWeis(collateral * bnbPrice);
     return parseFloat(collateralValue);
   }
 
+  static getDebtValue(position, bnbPrice) {
+    const {debtSize} = this.extractPositionInfo(position);
+    const debtValue = this.getAmoutFromWeis(debtSize * bnbPrice);
+    return parseFloat(debtValue);
+  }
 
   static getCurrentLeverage(position) {
-    const {totalSize, debtSize} = this.extractPositionInfo(position);
-    let collateral = totalSize - debtSize;
+    const {totalSize, collateral} = this.extractPositionInfo(position);
     let currentLeverage = totalSize / collateral;
     return parseFloat(currentLeverage);
   }
 
 
   static calcNewLeverage(position, pool, currencySupply, currencyValues) {
-    const {totalSize, debtSize} = this.extractPositionInfo(position);
-    const prevCollateral = totalSize - debtSize;
+    const {totalSize, collateral} = this.extractPositionInfo(position);
 
     //calc the total value of additional supplied assets in BNB
     let additionalSupplyInBnb = 0;
@@ -59,7 +62,7 @@ class Calculator {
 
     }
     
-    const newCollateral = prevCollateral + additionalSupplyInBnb;
+    const newCollateral = collateral + additionalSupplyInBnb;
     const newLeverage = Math.max(1, totalSize/newCollateral);
     return parseFloat(newLeverage);
   }

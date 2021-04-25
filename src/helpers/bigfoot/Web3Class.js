@@ -230,21 +230,15 @@ class Web3Class {
   }
 
   
-  //getPositions(): returns an array with all positions for a given owner address (or all positions if ownerAddress not provided)
-  async getPositions(ownerAddress){
+  async getAllPositions(){
     const positionsArr = [];
     const bfbnbContract = this.getBfbnbBankContract();
     const nextPositionID = await bfbnbContract.methods.nextPositionID().call();
-
     for(let i=1; i<nextPositionID; i++){
       let positionData = await bfbnbContract.methods.positions(i).call();
       let positionInfo = await bfbnbContract.methods.positionInfo(i).call();
-
-      if(ownerAddress === undefined || positionData.owner === ownerAddress ) {
-        positionsArr.push({positionId: i, positionData, positionInfo});
-      }
+      positionsArr.push({positionId: i, positionData, positionInfo});
     }
-
     return positionsArr;
   }
 

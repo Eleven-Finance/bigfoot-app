@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react"
+import React from "react"
 import { useWallet } from '@binance-chain/bsc-use-wallet'
 import {
   Container,
@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "reactstrap"
 
-import Web3Class from '../../helpers/bigfoot/Web3Class'
+import usePositions from 'hooks/usePositions';
 import PositionsTable from "components/BigFoot/PositionsTable"
 
 
@@ -17,20 +17,8 @@ const AllPositions = props => {
 
   //wallet & web3
   const wallet = useWallet()
-  const web3Instance = new Web3Class(wallet);
-  const userAddress = wallet.account;
 
-  const [positions, setPositions] = useState([]);
-
-
-  useEffect( async () => {
-    if(wallet.account) {
-      let allPositions = await web3Instance.getPositions();
-      allPositions.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) ); // sort positions by debt in descending order
-      setPositions(allPositions);
-    }
-  }, [wallet]);
-
+  const { loadingPositions, allPositions } = usePositions();
 
   const renderContent = () => {
     if( !wallet.account){ //wallet not connected
@@ -39,14 +27,14 @@ const AllPositions = props => {
           <p>Connect your wallet</p>
         </div>
       );
-    } else if( !positions.length ) { //loading
+    }else if( loadingPositions ){
       return (
         <div className="text-center">
           <Spinner animation="border" variant="primary" />
         </div>
       );
-    } else { //content
-      return <PositionsTable positions={positions} showAll />
+    }else{
+      return <PositionsTable positions={allPositions} showAll />
     }
   }
 

@@ -115,8 +115,8 @@ function Dashboard() {
     let borrow = 0;
 
     allPositions.forEach( position => {
-      collateral += Calculator.getCollateralValue(position, bnbPrice);
-      borrow += Calculator.getDebtValue(position, bnbPrice);
+      collateral += Calculator.getPositionCollateral(position) * bnbPrice;
+      borrow += Calculator.getPositionDebt(position) * bnbPrice;
     });
 
     setGlobalInfo({
@@ -132,8 +132,8 @@ function Dashboard() {
     let ownTotalBorrow = 0;
 
     myPositions.forEach( position => {
-      ownTotalCollateral += Calculator.getCollateralValue(position, bnbPrice);
-      ownTotalBorrow += Calculator.getDebtValue(position, bnbPrice);
+      ownTotalCollateral += Calculator.getPositionCollateral(position) * bnbPrice;
+      ownTotalBorrow += Calculator.getPositionDebt(position) * bnbPrice;
     });
 
     setYourInfo({

@@ -185,7 +185,7 @@ function PositionsTable(props) {
             const bigfootAddress = position.positionData.bigfoot;
             const pool = farmPools.find( pool => pool.bigfootAddress === bigfootAddress );
             
-            const collateralValue = Calculator.getCollateralValue(position, bnbPrice);
+            const collateralValue = Calculator.getPositionCollateral(position) * bnbPrice;
             const currentLeverage = Calculator.getCurrentLeverage(position);
             const deathLeverage = pool.deathLeverage;
             const debtRatio = currentLeverage / deathLeverage * 100;

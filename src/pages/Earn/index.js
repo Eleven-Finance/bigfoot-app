@@ -22,10 +22,12 @@ import {
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import lendingOptions from '../../data/lendingOptions'
-import Web3Class from '../../helpers/bigfoot/Web3Class'
+import lendingOptions from 'data/lendingOptions'
+import Web3Class from 'helpers/bigfoot/Web3Class'
 import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from "helpers/bigfoot/Formatter"
+import usePositions from 'hooks/usePositions';
+
 
 const Earn = () => {
 
@@ -33,6 +35,8 @@ const Earn = () => {
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
+
+  const { loadingPositions, allPositions } = usePositions();
 
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
@@ -48,31 +52,35 @@ const Earn = () => {
 
   useEffect( async () => {
     if(wallet.account) {
-
       const price = await web3Instance.getBnbPrice();
       setBnbPrice(price);
-
-      updateSupplyBalance();
-      updateWalletBalance();
-      updateAllOptions();
-    } else {
-      setBnbPrice(0);
-
-      setWalletBalance(0);
-      setSupplyBalance(0);
     }
   }, [wallet]);
 
-  const updateWalletBalance = async () => {
+  useEffect( async () => {
+    if(wallet.balance != -1 && bnbPrice) {
+      updateWalletBalance();
+      updateSupplyBalance();
+    } else {
+      setWalletBalance(0);
+      setSupplyBalance(0);
+    }
+  }, [wallet, bnbPrice]);
+
+  useEffect( async () => {
+    if(wallet.account) {
+      updateAllOptions();
+    }
+  }, [wallet, allPositions]);
+
+
+  const updateWalletBalance = () => {
     const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
-    const bnbPrice = await web3Instance.getBnbPrice();
     const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
     setWalletBalance( walletBalanceUsd );
   }
 
   const updateSupplyBalance = async () => {
-    const bnbPrice = await web3Instance.getBnbPrice();
-
     const bigfootBalance = await web3Instance.getBigFootBalance();
     const chefBalance = await web3Instance.getChefBalance();
     const totalUserBalanceUsd = ( parseFloat(bigfootBalance) + parseFloat(chefBalance) ) * bnbPrice;
@@ -87,16 +95,24 @@ const Earn = () => {
 
       if(option.title==="bfBNB"){ //temp hack, until the rest of lending options are defined
 
+        //
         //temporal values set to zero
+        //
         currentOption.apy = 0;
-        currentOption.borrow = 0;
-        currentOption.utilization = 0;
 
-        const bnbPrice = await web3Instance.getBnbPrice();
 
         //Total Supply
         const totalBnb = await web3Instance.getTotalSupplyBnb();
         currentOption.supply = parseFloat(totalBnb);
+
+        //Total Borrow
+        currentOption.borrow = 0;
+        allPositions.forEach( position => {
+          currentOption.borrow += Calculator.getPositionDebt(position);
+        });
+
+        //Utilization
+        currentOption.utilization = (currentOption.borrow / currentOption.supply * 100).toFixed(2);
 
         //Bigfoot Balance
         const bigfoot = await web3Instance.getBigFootBalance();

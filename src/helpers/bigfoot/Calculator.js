@@ -23,16 +23,14 @@ class Calculator {
   }
 
 
-  static getCollateralValue(position, bnbPrice) {
+  static getPositionCollateral(position) {
     const {collateral} = this.extractPositionInfo(position);
-    const collateralValue = this.getAmoutFromWeis(collateral * bnbPrice);
-    return parseFloat(collateralValue);
+    return parseFloat(this.getAmoutFromWeis(collateral));
   }
 
-  static getDebtValue(position, bnbPrice) {
+  static getPositionDebt(position) {
     const {debtSize} = this.extractPositionInfo(position);
-    const debtValue = this.getAmoutFromWeis(debtSize * bnbPrice);
-    return parseFloat(debtValue);
+    return parseFloat(this.getAmoutFromWeis(debtSize));
   }
 
   static getCurrentLeverage(position) {

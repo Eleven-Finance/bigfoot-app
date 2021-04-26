@@ -18,7 +18,8 @@ const AllPositions = props => {
   //wallet & web3
   const wallet = useWallet()
 
-  const { loadingPositions, allPositions } = usePositions();
+  const { isLoadingPositions, allPositions, updatePositions } = usePositions();
+
 
   const renderContent = () => {
     if( !wallet.account){ //wallet not connected
@@ -27,16 +28,17 @@ const AllPositions = props => {
           <p>Connect your wallet</p>
         </div>
       );
-    }else if( loadingPositions ){
+    }else if( isLoadingPositions ){
       return (
         <div className="text-center">
           <Spinner animation="border" variant="primary" />
         </div>
       );
     }else{
-      return <PositionsTable positions={allPositions} showAll />
+      return <PositionsTable positions={allPositions} updatePositions={updatePositions} showAll />
     }
   }
+
 
   return (
     <React.Fragment>

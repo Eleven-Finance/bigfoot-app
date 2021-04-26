@@ -50,7 +50,8 @@ function PositionsTable(props) {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const {positions, showAll} = props;
+  const {positions, updatePositions, showAll} = props;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chosenPosition, setChosenPosition] = useState(null);
   const [chosenPool, setChosenPool] = useState(null);
@@ -69,6 +70,7 @@ function PositionsTable(props) {
       setBnbPrice(price);
     }
   }, [wallet]);
+
 
   const togglemodal = (position, pool) => {
 
@@ -113,6 +115,7 @@ function PositionsTable(props) {
         toast.info(`Request to liquidate position in process. ${hash}`)
       })
       .on('receipt', function (receipt) {
+        updatePositions();
         toast.success(`Request to liquidate position completed.`)
       })
       .on('error', function (error) {
@@ -244,6 +247,7 @@ function PositionsTable(props) {
           pool={chosenPool} 
           userBalances={userBalances}
           currentPosition={chosenPosition}
+          updatePositions={updatePositions}
           />
       }
 

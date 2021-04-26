@@ -36,7 +36,7 @@ const Earn = () => {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const { loadingPositions, allPositions } = usePositions();
+  const { isLoadingPositions, allPositions } = usePositions();
 
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);

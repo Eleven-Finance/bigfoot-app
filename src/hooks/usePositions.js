@@ -9,28 +9,31 @@ function usePositions(props) {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const [loadingPositions, setLoadingPositions] = useState(true);
+  const [isLoadingPositions, setIsLoadingPositions] = useState(true);
   const [allPositions, setAllPositions] = useState([]);
   const [myPositions, setMyPositions] = useState([]);
 
-  useEffect( async () => {
+  useEffect( () => {
     if(wallet.account) {
-
-      //get all positions
-      let all = await web3Instance.getAllPositions();
-      all.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) ); // sort positions by debt in descending order
-      
-      //filter own positions
-      const own = all.filter( pos => pos.positionData.owner === userAddress);
-
-      setLoadingPositions(false);
-      setAllPositions(all);
-      setMyPositions(own);
+      updatePositions();
     }
   }, [wallet]);
 
 
-  return { loadingPositions, allPositions, myPositions };
+  const updatePositions = async () => {
+    //get all positions
+    let all = await web3Instance.getAllPositions();
+    all.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) ); // sort positions by debt in descending order
+    
+    //filter own positions
+    const own = all.filter( pos => pos.positionData.owner === userAddress);
+
+    setIsLoadingPositions(false);
+    setAllPositions(all);
+    setMyPositions(own);
+  }
+
+  return { isLoadingPositions, allPositions, myPositions, updatePositions };
 }
 
 export default usePositions;

@@ -35,7 +35,7 @@ function LeverageModal(props) {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const { isOpen, togglemodal, pool, userBalances, currentPosition } = props;
+  const { isOpen, togglemodal, pool, userBalances, currentPosition, updatePositions } = props;
 
   // initial currency supply: { currencyCodeA: 0, currencyCodeB: 0, ...}
   const initialSupply = Object.fromEntries(
@@ -176,6 +176,7 @@ function LeverageModal(props) {
           toast.info(`Position request in process. ${hash}`)
         })
         .on('receipt', function (receipt) {
+          updatePositions();
           togglemodal();
           toast.success(`Position request completed.`)
         })

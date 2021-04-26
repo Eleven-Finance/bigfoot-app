@@ -31,7 +31,7 @@ function Dashboard() {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const { loadingPositions, allPositions, myPositions } = usePositions();
+  const { isLoadingPositions, allPositions, myPositions } = usePositions();
 
   const [pools, setPools] = useState(farmPools);
   const [chosenPool, setChosenPool] = useState(null);

@@ -95,12 +95,6 @@ const Earn = () => {
 
       if(option.title==="bfBNB"){ //temp hack, until the rest of lending options are defined
 
-        //
-        //temporal values set to zero
-        //
-        currentOption.apy = 0;
-
-
         //Total Supply
         const totalBnb = await web3Instance.getTotalSupplyBnb();
         currentOption.supply = parseFloat(totalBnb);
@@ -112,7 +106,25 @@ const Earn = () => {
         });
 
         //Utilization
-        currentOption.utilization = (currentOption.borrow / currentOption.supply * 100).toFixed(2);
+        const utilization = (currentOption.borrow / currentOption.supply * 100);
+        currentOption.utilization = utilization.toFixed(2);
+
+        
+        //APY
+        if (utilization < 80) {
+          // Less than 80% utilization - 0%-20% APY
+          currentOption.apy = utilization * 2 / 8;
+        } else if (utilization < 90) {
+          // Between 80% and 90% - 20% APY
+          currentOption.apy = 20;
+        } else if (utilization < 100) {
+          // Between 90% and 100% - 20%-200% APY
+          currentOption.apy = 20 + (utilization - 9000) * 18 / 100;
+        } else {
+          // Not possible, but just in case - 200% APY
+          currentOption.apy = 200;
+        }
+
 
         //Bigfoot Balance
         const bigfoot = await web3Instance.getBigFootBalance();

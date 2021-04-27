@@ -180,7 +180,7 @@ function Dashboard() {
               </Card>
             </Col>
             <Col md="4">
-              <Card>
+              <Card className={ wallet.account && isLoadingPositions && 'card-loading'}>
                 <CardBody>
                   <h4 className="card-title">
                     <i className="mdi mdi-earth text-primary h1" />
@@ -215,7 +215,7 @@ function Dashboard() {
             </Col>
 
             <Col md="4">
-              <Card>
+              <Card className={ wallet.account && isLoadingPositions && 'card-loading'}>
                 <CardBody>
                   <h4 className="card-title">
                     <i className="mdi mdi-information-variant text-primary h1" />

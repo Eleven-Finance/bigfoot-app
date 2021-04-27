@@ -39,6 +39,23 @@
 /* Cards */
 .card {
     background-color: #2a3042bf;
+    &.card-loading{
+        &::after{
+            content: '';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+            display: inline-block;
+            vertical-align: text-bottom;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: 0.75s linear infinite spinner-border;
+        }
+    }
     .card-title {
         display: flex;
         align-items: center;

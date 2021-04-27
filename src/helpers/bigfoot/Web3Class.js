@@ -220,7 +220,7 @@ class Web3Class {
     const stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
     const bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyLiquidation11xxxBnb, 0, stratInfo]);
 
-    return bfbnbContract.methods.work(positionUint, bigfootVaultAddress, 0, 0, bigfootInfo);
+    return bfbnbContract.methods.work(positionUint, bigfootVaultAddress, 0, "9999999999999999999999999999", bigfootInfo);
   }
 
 

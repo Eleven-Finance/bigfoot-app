@@ -176,8 +176,8 @@ function LeverageModal(props) {
           toast.info(`Position request in process. ${hash}`)
         })
         .on('receipt', function (receipt) {
-          updatePositions();
-          togglemodal();
+          updatePositions && updatePositions();
+          togglemodal && togglemodal();
           toast.success(`Position request completed.`)
         })
         .on('error', function (error) {

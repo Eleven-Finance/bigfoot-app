@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useWallet } from '@binance-chain/bsc-use-wallet'
 import Web3Class from 'helpers/bigfoot/Web3Class'
+import Calculator from 'helpers/bigfoot/Calculator';
+import farmPools from 'data/farmPools'
 
 function usePositions(props) {
 
@@ -23,9 +25,18 @@ function usePositions(props) {
   const updatePositions = async () => {
     //get all positions
     let all = await web3Instance.getAllPositions();
-    all.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) ); // sort positions by debt in descending order
+
+    //discard closed positions & positions opened in old farms
+    all = all.filter( position => {
+      const { collateral } = Calculator.extractPositionInfo(position);
+      const pool = farmPools.find( pool => pool.bigfootAddress === position.positionData.bigfoot ); //pool on which this position has been opened
+      return (collateral > 0) && (pool !== undefined);
+    });
+
+    // sort positions by debt in descending order
+    all.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) );
     
-    //filter own positions
+    //get own positions
     const own = all.filter( pos => pos.positionData.owner === userAddress);
 
     setIsLoadingPositions(false);

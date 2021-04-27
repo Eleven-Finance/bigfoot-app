@@ -185,15 +185,7 @@ function PositionsTable(props) {
         <tbody>
           {positions.map(position => {
 
-            const bigfootAddress = position.positionData.bigfoot;
-            const pool = farmPools.find( pool => pool.bigfootAddress === bigfootAddress );
-            
-            if(pool===undefined){
-              //position does not match with an existing pool
-              console.log("Did not find pool for position: ", position)
-              return;
-            }
-
+            const pool = farmPools.find( pool => pool.bigfootAddress === position.positionData.bigfoot );
             const collateralValue = Calculator.getPositionCollateral(position) * bnbPrice;
             const currentLeverage = Calculator.getCurrentLeverage(position);
             const deathLeverage = pool.deathLeverage;

@@ -98,12 +98,12 @@ function Dashboard() {
       const currentPool = newPools.find( thatPool => thatPool.title === pool.title);
       const data = poolStats[currentPool.apiKey];
       
-      currentPool.rates.yieldFarming = data.farm.aprd * 365 * 3;
-      currentPool.rates.eleApr = data.farm.aprl * 3 * 0.6;
-      // @todo: currentPool.rates.tradingFee; 
-      // @todo: currentPool.rates.borrowApy;
- 
-      currentPool.percentage =  currentPool.rates.yieldFarming + currentPool.rates.eleApr; //@todo: the sum will also include 'tradingFee' & 'borrowApy', once they're ready
+      currentPool.rates.yieldFarming = data.farm.aprd * 365 * 2.5;
+      currentPool.rates.eleApr = data.farm.aprl * 2.5;
+      const tradingFee = currentPool.rates.tradingFee ?? 0; // @todo
+      const borrowApy = currentPool.rates.borrowApy ?? 0; // @todo
+
+      currentPool.percentage =  currentPool.rates.yieldFarming + currentPool.rates.eleApr + borrowApy + tradingFee;
       currentPool.percentageOut = data.farm.aprd * 365;
     });
     setPools(newPools);
@@ -327,13 +327,21 @@ function Dashboard() {
                               }
                             </td>
                             <td style={{ width: "120px" }}>
-                              <Link
-                                to="#"
-                                className="btn btn-primary btn-sm w-xs"
-                                onClick={() => togglemodal(pool)}
-                              >
-                                Farm
-                                </Link>
+                              {pool.isComingSoon ?
+                                <Link
+                                  to="#"
+                                  className="btn btn-primary btn-sm w-xs btn-coming-soon"
+                                >
+                                  Stay Tuned
+                                </Link> :
+                                <Link
+                                  to="#"
+                                  className="btn btn-primary btn-sm w-xs"
+                                  onClick={() => togglemodal(pool)}
+                                >
+                                  Farm
+                              </Link>
+                              }
                             </td>
                           </tr>
                         ))}

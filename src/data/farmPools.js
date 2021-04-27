@@ -11,6 +11,7 @@ import { address11Cake, address11CakeBnb, addressBigfoot11CakeBnb } from '../dat
 
 const farmPools = [
   {
+    isComingSoon: true,
     title: "11CAKE",
     type: "Yield Farming",
     apiKey: "CAKE",
@@ -62,8 +63,8 @@ const farmPools = [
     rates: {
       yieldFarming: 0,
       eleApr: 0,
-      tradingFee: 0,
-      borrowApy: 0,
+      tradingFee: 23.16,
+      borrowApy: -0.05,
     },
     percentage: 0,
     percentageOut: 0,

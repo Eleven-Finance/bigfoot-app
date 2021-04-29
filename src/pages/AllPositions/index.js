@@ -1,4 +1,4 @@
-import React from "react"
+import React, {useState, useEffect} from "react"
 import { useWallet } from '@binance-chain/bsc-use-wallet'
 import {
   Container,
@@ -11,6 +11,7 @@ import {
 
 import usePositions from 'hooks/usePositions';
 import PositionsTable from "components/BigFoot/PositionsTable"
+import Calculator from "helpers/bigfoot/Calculator";
 
 
 const AllPositions = props => {
@@ -19,6 +20,21 @@ const AllPositions = props => {
   const wallet = useWallet()
 
   const { isLoadingPositions, allPositions, updatePositions } = usePositions();
+
+  const [allPositionsList, setAllPositionsList] = useState();
+
+  
+  useEffect(() => {
+    const list = allPositions.map( position => {
+      Object.assign(position, Calculator.getPositionDetails(position))
+      return position;
+    });
+
+    //sort by debt in descending order
+    list.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) );
+
+    setAllPositionsList(list);
+  }, [allPositions]);
 
 
   const renderContent = () => {
@@ -35,7 +51,7 @@ const AllPositions = props => {
         </div>
       );
     }else{
-      return <PositionsTable positions={allPositions} updatePositions={updatePositions} showAll />
+      return <PositionsTable positions={allPositionsList} updatePositions={updatePositions} showAll />
     }
   }
 

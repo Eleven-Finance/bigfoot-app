@@ -32,9 +32,6 @@ function usePositions(props) {
       const pool = farmPools.find( pool => pool.bigfootAddress === position.positionData.bigfoot ); //pool on which this position has been opened
       return (collateral > 0) && (pool !== undefined);
     });
-
-    // sort positions by debt in descending order
-    all.sort( (a,b) => parseFloat(b.debtRatio) - parseFloat(a.debtRatio) );
     
     //get own positions
     const own = all.filter( pos => pos.positionData.owner === userAddress);

@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import farmPools from 'data/farmPools'
 
 
 class Calculator {
@@ -32,6 +33,17 @@ class Calculator {
     const {debtSize} = this.extractPositionInfo(position);
     return parseFloat(this.getAmoutFromWeis(debtSize));
   }
+
+  static getPositionDetails(position){
+    const pool = farmPools.find( pool => pool.bigfootAddress === position.positionData.bigfoot );
+    const collateral = this.getPositionCollateral(position);
+    const currentLeverage = this.getCurrentLeverage(position);
+    const deathLeverage = pool?.deathLeverage;
+    const debtRatio = currentLeverage / deathLeverage * 100;
+    return {pool, collateral, currentLeverage, deathLeverage, debtRatio};
+  }
+
+
 
   static getCurrentLeverage(position) {
     const {totalSize, collateral} = this.extractPositionInfo(position);

@@ -184,13 +184,6 @@ function PositionsTable(props) {
         </thead>
         <tbody>
           {positions.map(position => {
-
-            const pool = farmPools.find( pool => pool.bigfootAddress === position.positionData.bigfoot );
-            const collateralValue = Calculator.getPositionCollateral(position) * bnbPrice;
-            const currentLeverage = Calculator.getCurrentLeverage(position);
-            const deathLeverage = pool?.deathLeverage;
-            const debtRatio = currentLeverage / deathLeverage * 100;
-
             return (
               <tr key={position.positionId}>
                 <th scope="row">
@@ -200,36 +193,36 @@ function PositionsTable(props) {
                 </th>
                 <td>
                   <div className="d-flex align-items-center">
-                    {renderPoolInfo(pool)}
+                    {renderPoolInfo(position.pool)}
                   </div>
                 </td>
                 <td>
                   <h5 className="font-size-14 mb-1">
-                    $ {Formatter.formatAmount(collateralValue)}
+                    $ {Formatter.formatAmount(position.collateral * bnbPrice)}
                   </h5>
                 </td>
                 <td>
                   <h5 className="font-size-14 mb-1">
-                    {Formatter.formatAmount(currentLeverage)}
+                    {Formatter.formatAmount(position.currentLeverage)}
                   </h5>
                 </td>
                 <td>
                   <h5 className="font-size-14 mb-1">
-                    {deathLeverage.toFixed(2)}
+                    {position.deathLeverage.toFixed(2)}
                   </h5>
                 </td>
                 <td>
                   <h5 className="font-size-14 mb-1">
                     <span className={
-                      debtRatio < 33 ? "text-success" :
-                      debtRatio < 85 ? "text-warning" : "text-danger"
+                      position.debtRatio < 33 ? "text-success" :
+                      position.debtRatio < 85 ? "text-warning" : "text-danger"
                     }>
-                      {debtRatio.toFixed(2)} %
+                      {position.debtRatio.toFixed(2)} %
                     </span>
                   </h5>
                 </td>
                 <td style={{ width: "120px" }}>
-                  {renderButtons(position, pool, debtRatio)}
+                  {renderButtons(position, position.pool, position.debtRatio)}
                 </td>
               </tr>
             );

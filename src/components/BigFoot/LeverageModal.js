@@ -281,7 +281,7 @@ function LeverageModal(props) {
                 
                 <br />
                 <p>
-                  Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
+                  Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/using-bigfoot/liquidation">here</a> to understand the risks involved.
                 </p>
 
               </Form>

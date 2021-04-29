@@ -55,7 +55,7 @@ const Earn = () => {
   }, [wallet]);
 
   useEffect( async () => {
-    if(wallet.balance != -1 && bnbPrice) {
+    if(wallet.account && wallet.balance != -1 && bnbPrice) {
       updateWalletBalance();
       updateSupplyBalance();
     } else {
@@ -412,7 +412,9 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${option.bankStats?.utilization.toFixed(2)} %` }
+                                { option.isComingSoon ? "" : 
+                                  option.bankStats?.utilization ? `${option.bankStats?.utilization.toFixed(2)} %` : ' %' 
+                                }
                               </h5>
                             </td>
                             <td>
@@ -467,7 +469,7 @@ const Earn = () => {
                               renderFormContent()
                             }
                             <p>
-                              Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a href="#">here</a> to understand the risks involved.
+                              Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/introduction/an-introduction">here</a> to understand the risks involved.
                             </p>
                           </Form>
                         </div>

@@ -5,7 +5,10 @@ class Formatter {
   static numberUnits = ["", "K", "Million", "Billion", "Trillion", "Quadrillion", "Quintillion", "Sextillion", "Septillion", "Octillion", "Nonillion", "Decillion", "Undecillion"];
 
 
-  static formatAmount(amount=0, decimals=2) {
+  static formatAmount(amount, decimals=2) {
+    if(amount===undefined || isNaN(amount)){
+      return '';
+    }
     return amount.toLocaleString('en-US', { maximumFractionDigits: decimals })
   }
 

@@ -191,7 +191,7 @@ function Dashboard() {
                       <p className="mb-0">Total Collateral</p>
                     </Col>
                     <Col sm="6" className="text-end">
-                      <p>$ {Formatter.formatAmount(globalInfo.totalCollateral)}</p>
+                      <p>$ {Formatter.formatAmount(globalInfo.totalCollateral, 0)}</p>
                     </Col>
                   </Row>
                   <Row>
@@ -199,7 +199,7 @@ function Dashboard() {
                       <p className="mb-0">Total Borrow</p>
                     </Col>
                     <Col sm="6" className="text-end">
-                      <p>$ {Formatter.formatAmount(globalInfo.totalBorrow)}</p>
+                      <p>$ {Formatter.formatAmount(globalInfo.totalBorrow, 0)}</p>
                     </Col>
                   </Row>
                   <Row>
@@ -256,7 +256,7 @@ function Dashboard() {
                         <tr>
                           <th scope="col" className="text-center">Pair</th>
                           <th scope="col">Type</th>
-                          <th scope="col">Percentage</th>
+                          <th scope="col">APR</th>
                           <th scope="col" colSpan="2">Details</th>
                         </tr>
                       </thead>

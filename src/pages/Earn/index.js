@@ -26,7 +26,6 @@ import lendingOptions from 'data/lendingOptions'
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from "helpers/bigfoot/Formatter"
-import usePositions from 'hooks/usePositions';
 
 
 const Earn = () => {
@@ -35,8 +34,6 @@ const Earn = () => {
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
-
-  const { isLoadingPositions, allPositions } = usePositions();
 
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
@@ -67,11 +64,12 @@ const Earn = () => {
     }
   }, [wallet, bnbPrice]);
 
+  
   useEffect( async () => {
     if(wallet.account) {
       updateAllOptions();
     }
-  }, [wallet, allPositions]);
+  }, [wallet]);
 
 
   const updateWalletBalance = () => {
@@ -89,52 +87,11 @@ const Earn = () => {
 
   const updateAllOptions = () => {
     options.forEach( async(option) => {
-
       let newOptions = JSON.parse(JSON.stringify(options));
       const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
-
       if(option.title==="bfBNB"){ //temp hack, until the rest of lending options are defined
-
-        //Total Supply
-        const totalBnb = await web3Instance.getTotalSupplyBnb();
-        currentOption.supply = parseFloat(totalBnb);
-
-        //Total Borrow
-        currentOption.borrow = 0;
-        allPositions.forEach( position => {
-          currentOption.borrow += Calculator.getPositionDebt(position);
-        });
-
-        //Utilization
-        const utilization = (currentOption.borrow / currentOption.supply * 100);
-        currentOption.utilization = utilization.toFixed(2);
-
-        
-        //APY
-        if (utilization < 80) {
-          // Less than 80% utilization - 0%-20% APY
-          currentOption.apy = utilization * 2 / 8;
-        } else if (utilization < 90) {
-          // Between 80% and 90% - 20% APY
-          currentOption.apy = 20;
-        } else if (utilization < 100) {
-          // Between 90% and 100% - 20%-200% APY
-          currentOption.apy = 20 + (utilization - 9000) * 18 / 100;
-        } else {
-          // Not possible, but just in case - 200% APY
-          currentOption.apy = 200;
-        }
-
-
-        //Bigfoot Balance
-        const bigfoot = await web3Instance.getBigFootBalance();
-        currentOption.bigfootBalance = parseFloat(bigfoot);
-        
-        //Bigfoot Chef Balance
-        const chef = await web3Instance.getChefBalance();
-        currentOption.bigfootChefBalance = parseFloat(chef);
+        currentOption.bankStats = await web3Instance.getBankStats();
       }
-
       setOptions(newOptions);
     });
   }
@@ -434,44 +391,44 @@ const Earn = () => {
                             </th>
                             <td>
                               <div>
-                                {option.isComingSoon ? "" : `${option.apy} %` }
+                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(option.bankStats?.apy)} %` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.supply)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalSupply)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.supply * bnbPrice), 0)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.totalSupply * bnbPrice), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.borrow)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalBorrow)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.borrow * bnbPrice), 0)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.totalBorrow * bnbPrice), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${option.utilization} %` }
+                                {option.isComingSoon ? "" : `${option.bankStats?.utilization.toFixed(2)} %` }
                               </h5>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bigfootBalance)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootBalance)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bigfootBalance * bnbPrice), 0)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.bigfootBalance * bnbPrice), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bigfootChefBalance)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootChefBalance)} ${option.currency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount(option.bigfootChefBalance * bnbPrice)})` }
+                                {option.isComingSoon ? "" : `($${Formatter.formatAmount(option.bankStats?.bigfootChefBalance * bnbPrice)})` }
                               </div>
                             </td>
                             <td style={{ width: "120px" }}>

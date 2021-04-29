@@ -59,17 +59,19 @@ const Farms = () => {
     if(wallet.account) {
       updateAllFarms();
     }
-  }, [wallet]);
+  }, [wallet, farmStats]);
+
 
   const updateAllFarms = () => {
     farms.forEach(async (farm) => {
       let newFarms = JSON.parse(JSON.stringify(farms))
+      const currentFarm = newFarms.find(thatFarm => thatFarm.title === farm.title);
 
       //update farm approval
       if (farm.address) {
         const approval = await web3Instance.checkApproval(farm.address, addressMasterChef);
         if (approval) {
-          newFarms.find(thatFarm => thatFarm.title === farm.title).isAuthorized = true;
+          currentFarm.isAuthorized = true;
         }
       }
 
@@ -77,8 +79,16 @@ const Farms = () => {
       if (farm.pid) {
         const rewards = await web3Instance.getPendingRewards(farm.pid);
         if (parseFloat(rewards) > 0) {
-          newFarms.find(thatFarm => thatFarm.title === farm.title).pendingRewards = rewards;
+          currentFarm.pendingRewards = rewards;
         }
+      }
+
+      //update stats
+      const bankStats = await web3Instance.getBankStats();
+      currentFarm.lendApy = bankStats.apy;
+      currentFarm.eleApr = farmStats?.[farm.statsKey]?.farm?.aprl;
+      if(currentFarm.lendApy && currentFarm.eleApr){
+        currentFarm.totalApy = currentFarm.lendApy + currentFarm.eleApr;
       }
 
       // update state
@@ -415,7 +425,7 @@ const Farms = () => {
                           <span className="farm-stats-value">
                             {
                               farm.statsKey === 'BFBNB' ?
-                              Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.apy) + '%' :
+                              Formatter.getFormattedYield(farm.totalApy) + '%' :
                               '--'
                             }
                           </span>
@@ -425,7 +435,7 @@ const Farms = () => {
                           <span className="farm-stats-value">
                             {
                               farm.statsKey === 'BFBNB' ?
-                              Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprd) + '%' :
+                              Formatter.getFormattedYield(farm.lendApy) + '%' :
                               '--'
                             }
                           </span>
@@ -435,7 +445,7 @@ const Farms = () => {
                           <span className="farm-stats-value">
                             {
                               farm.statsKey === 'BFBNB' ?
-                              Formatter.getFormattedYield(farmStats?.[farm.statsKey]?.farm?.aprl) + '%' :
+                              Formatter.getFormattedYield(farm.eleApr) + '%' :
                               '--'
                             }
                           </span>

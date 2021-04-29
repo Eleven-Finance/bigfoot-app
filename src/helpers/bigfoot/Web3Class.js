@@ -135,6 +135,52 @@ class Web3Class {
   }
 
 
+
+  async getBankStats(){
+    let totalSupply;
+    let totalBorrow = 0;
+    let utilization;
+    let apy;
+    let bigfootBalance;
+    let bigfootChefBalance;
+
+    const bfbnbContract = this.getBfbnbBankContract();
+
+    //Total Supply
+    const totalBnb = await this.getTotalSupplyBnb();
+    totalSupply = parseFloat(totalBnb);
+
+    //Total Borrow
+    totalBorrow = await bfbnbContract.methods.glbDebtVal().call();
+    totalBorrow = Calculator.getAmoutFromWeis(totalBorrow);
+    totalBorrow = parseFloat(totalBorrow);
+    
+    //Utilization
+    utilization = (totalBorrow / totalSupply * 100);
+
+    //APY
+    if (utilization < 80) { // Less than 80% utilization - 0%-20% APY
+      apy = utilization * 2 / 8;
+    } else if (utilization < 90) { // Between 80% and 90% - 20% APY
+      apy = 20;
+    } else if (utilization < 100) { // Between 90% and 100% - 20%-200% APY
+      apy = 20 + (utilization - 9000) * 18 / 100;
+    } else { // Not possible, but just in case - 200% APY
+      apy = 200;
+    }
+
+    //Bigfoot Balance
+    const bigfoot = await this.getBigFootBalance();
+    bigfootBalance = parseFloat(bigfoot);
+    
+    //Bigfoot Chef Balance
+    const chef = await this.getChefBalance();
+    bigfootChefBalance = parseFloat(chef);
+
+    return { totalSupply, totalBorrow, utilization, apy, bigfootBalance, bigfootChefBalance};
+  }
+
+
   async convertBnbToBfbnb(amount) {
     const bfbnbContract = this.getBfbnbBankContract();
     const totalbnb = await bfbnbContract.methods.totalBNB().call();

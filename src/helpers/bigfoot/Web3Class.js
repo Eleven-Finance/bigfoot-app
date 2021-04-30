@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 
 import Calculator from './Calculator';
 
-import { abiMasterChef, abiERC20, abiBank, abiVault, abiFactory, lpAbi } from '../../data/abis/abis';
+import { abiMasterChef, abiERC20, abiBank, abiVault, abiFactory, lpAbi, abiBigfootVault } from '../../data/abis/abis';
 import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory } from '../../data/addresses/addresses';
 
 class Web3Class {
@@ -27,6 +27,10 @@ class Web3Class {
 
   getVaultContract(addressVault) {
     return new this.web3.eth.Contract(abiVault, addressVault);
+  }
+
+  getBigfootVaultContract(addressBigfootVault) {
+    return new this.web3.eth.Contract(abiBigfootVault, addressBigfootVault);
   }
 
   getFactoryContract() {
@@ -88,10 +92,22 @@ class Web3Class {
   }
 
 
-  async getPendingRewards(pid) {
+  async getPendingEle(pid) {
     const masterchefContract = this.getMasterchefContract();
-    const pendingRewards = await masterchefContract.methods.pendingEleven(pid, this.userAddress).call();
-    return pendingRewards;
+    const pendingEle = await masterchefContract.methods.pendingEleven(pid, this.userAddress).call();
+    return pendingEle;
+  }
+
+  // async getPendingE11(positionId, bigfootAddress) {
+  //   const bfVaultContract = this.getBigfootVaultContract(bigfootAddress);
+  //   const pendingE11 = await bfVaultContract.methods.pendingE11(positionId).call();
+  //   return pendingE11;
+  // }
+
+
+  async reqClaimE11(positionId, bigfootAddress){
+    const bfVaultContract = this.getBigfootVaultContract(bigfootAddress);
+    return bfVaultContract.methods.claimRewards(positionId);
   }
 
 
@@ -133,7 +149,6 @@ class Web3Class {
     const weis = await bfbnbContract.methods.totalBNB().call();
     return Calculator.getAmoutFromWeis(weis);
   }
-
 
 
   async getBankStats(){

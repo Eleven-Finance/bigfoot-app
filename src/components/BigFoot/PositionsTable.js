@@ -33,7 +33,7 @@ const renderPoolInfo = (pool) => {
 
   return (
     <>
-      <span className="avatar-xs avatar-multi">
+      <span className="avatar-xs avatar-multi" style={{minWidth: "3rem"}}>
         {icons}
       </span>
       <span>{pool.title}</span>
@@ -57,6 +57,7 @@ function PositionsTable(props) {
   const [chosenPool, setChosenPool] = useState(null);
   const [userBalances, setUserBalances] = useState({});
   const [bnbPrice, setBnbPrice] = useState(0);
+  const [rewards, setRewards] = useState();
 
 
   useEffect( async () => {
@@ -70,6 +71,18 @@ function PositionsTable(props) {
       setBnbPrice(price);
     }
   }, [wallet]);
+
+
+  useEffect( async () => {
+    if(!showAll){ //only 'my-positions'
+      const rewardsObj = {};
+      positions.forEach( async (position) => {
+        // get pending rewards (E11)
+        // rewardsObj[position.positionId] = await web3Instance.getPendingE11(position.positionData.bigfoot, position.positionId);
+      });
+      setRewards(rewardsObj);
+    }
+  }, [positions]);
 
 
   const togglemodal = (position, pool) => {
@@ -89,6 +102,23 @@ function PositionsTable(props) {
       setChosenPool(pool);
       setIsModalOpen(true);
     }
+  }
+
+  const requestClaim = async (positionId, bigfootAddress) => {
+    const request = await web3Instance.reqClaimE11(positionId, bigfootAddress);
+    request.send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        toast.info(`Claiming E11... ${hash}`)
+      })
+      .on('receipt', function (receipt) {
+        toast.success(`E11 collected :)`)
+      })
+      .on('error', function (error) {
+        toast.warn(`Request to claim E11 failed. ${error?.message}`)
+      })
+      .catch(error => {
+        console.log(`Request to claim E11 error. ${error?.message}`)
+      });
   }
 
   const requestClose = async (positionId, bigfootAddress) => {
@@ -155,6 +185,7 @@ function PositionsTable(props) {
           </Button>
           
           <Button
+            className="me-2"
             outline={true}
             color={"primary"}
             onClick={() => {
@@ -163,6 +194,15 @@ function PositionsTable(props) {
           >
             Close
           </Button>
+
+          {/* <Button
+            color={"primary"}
+            onClick={() => {
+              requestClaim(position.positionId, pool.bigfootAddress)
+            }}
+          >
+            Claim {rewards[position.positionId]} E11
+          </Button> */}
         </>
       );
     }

@@ -77,7 +77,7 @@ const Farms = () => {
 
       //update pending rewards
       if (farm.pid) {
-        const rewards = await web3Instance.getPendingRewards(farm.pid);
+        const rewards = await web3Instance.getPendingEle(farm.pid);
         if (parseFloat(rewards) > 0) {
           currentFarm.pendingRewards = rewards;
         }

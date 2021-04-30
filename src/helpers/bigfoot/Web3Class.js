@@ -292,15 +292,30 @@ class Web3Class {
 
   
   async getAllPositions(){
-    const positionsArr = [];
     const bfbnbContract = this.getBfbnbBankContract();
     const nextPositionID = await bfbnbContract.methods.nextPositionID().call();
+
+    const promises = []; //notice: will store an array of arrays of promises
     for(let i=1; i<nextPositionID; i++){
-      let positionData = await bfbnbContract.methods.positions(i).call();
-      let positionInfo = await bfbnbContract.methods.positionInfo(i).call();
-      positionsArr.push({positionId: i, positionData, positionInfo});
+      promises.push([
+        bfbnbContract.methods.positions(i).call(),
+        bfbnbContract.methods.positionInfo(i).call()
+      ]);
     }
-    return positionsArr;
+
+    const results = await Promise.all(promises.map( innerArray => {
+      return Promise.all(innerArray);
+    }));
+
+    const positions = results.map((elm, index) => {
+      return { 
+        positionId: index + 1, //positionId is index increased by one
+        positionData: elm[0], 
+        positionInfo: elm[1]
+      };
+    });
+
+    return positions;
   }
 
 

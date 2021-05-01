@@ -10,6 +10,7 @@ import {
   Table,
   Spinner,
 } from "reactstrap"
+import NumericInput from 'react-numeric-input';
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
@@ -39,6 +40,12 @@ function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [poolStats, setPoolStats] = useState(null);
   const [bnbPrice, setBnbPrice] = useState(0);
+
+  const initialLeverages = Object.fromEntries(pools.map( pool => {
+    const max = Math.floor(pool.maxLeverage * 2) / 2; //round to the nearest 0.5
+    return [pool.title, max]
+  }));
+  const [leverages, setLeverages] = useState(initialLeverages);
 
   const [globalInfo, setGlobalInfo] = useState({
     totalCollateral: undefined,
@@ -70,7 +77,7 @@ function Dashboard() {
     if(poolStats){
       updatePoolStats();
     }
-  }, [poolStats]);
+  }, [poolStats, leverages]);
 
   useEffect( ()=>{
     updateGlobalInfo();
@@ -95,11 +102,13 @@ function Dashboard() {
   const updatePoolStats = () => {
     const newPools = JSON.parse(JSON.stringify(pools));
     pools.forEach( pool => {
+
+      const currentLeverage = leverages[pool.title];
       const currentPool = newPools.find( thatPool => thatPool.title === pool.title);
       const data = poolStats[currentPool.apiKey];
       
-      currentPool.rates.yieldFarming = data.farm.aprd * 365 * 2.5;
-      currentPool.rates.eleApr = data.farm.aprl * 2.5;
+      currentPool.rates.yieldFarming = data.farm.aprd * 365 * currentLeverage;
+      currentPool.rates.eleApr = data.farm.aprl * currentLeverage;
       const tradingFee = currentPool.rates.tradingFee ?? 0; // @todo
       const borrowApy = currentPool.rates.borrowApy ?? 0; // @todo
 
@@ -141,6 +150,14 @@ function Dashboard() {
       yourTotalBorrow: ownTotalBorrow,
     });
   }
+
+
+  const updateLeverage = (poolTitle, value) => {
+    let newLeverages = {...leverages};
+    newLeverages[poolTitle] = value;
+    setLeverages(newLeverages);
+  }
+
 
   const togglemodal = (pool) => {
 
@@ -257,7 +274,8 @@ function Dashboard() {
                           <th scope="col" className="text-center">Pair</th>
                           <th scope="col">Type</th>
                           <th scope="col">APR</th>
-                          <th scope="col" colSpan="2">Details</th>
+                          <th scope="col">Details</th>
+                          <th scope="col" colSpan="2">Leverage</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -326,6 +344,18 @@ function Dashboard() {
                                 })
                               }
                             </td>
+                            <td>
+                              <NumericInput 
+                              min={1.5} 
+                              max={initialLeverages[pool.title]} 
+                              step={0.5} 
+                              precision={1} 
+                              value={leverages[pool.title]} 
+                              snap 
+                              strict 
+                              onChange={ (valueAsNumber) => updateLeverage(pool.title, valueAsNumber) }
+                              />
+                            </td>
                             <td style={{ width: "120px" }}>
                               {pool.isComingSoon ?
                                 <Link
@@ -355,6 +385,7 @@ function Dashboard() {
                     isOpen={isModalOpen} 
                     togglemodal={togglemodal} 
                     pool={chosenPool} 
+                    initialLeverage={leverages[chosenPool.title]}
                     userBalances={userBalances} 
                     />
                 }      

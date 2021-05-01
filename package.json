@@ -78,6 +78,7 @@
     "react-leaflet": "^3.0.5",
     "react-meta-tags": "^1.0.1",
     "react-modal-video": "^1.2.6",
+    "react-numeric-input": "^2.2.3",
     "react-perfect-scrollbar": "^1.5.8",
     "react-rangeslider": "^2.2.0",
     "react-rating": "^2.0.5",

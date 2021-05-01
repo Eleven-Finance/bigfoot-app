@@ -35,7 +35,7 @@ function LeverageModal(props) {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
-  const { isOpen, togglemodal, pool, userBalances, currentPosition, updatePositions } = props;
+  const { isOpen, togglemodal, pool, initialLeverage, userBalances, currentPosition, updatePositions } = props;
 
   // initial currency supply: { currencyCodeA: 0, currencyCodeB: 0, ...}
   const initialSupply = Object.fromEntries(
@@ -43,10 +43,9 @@ function LeverageModal(props) {
   );
 
   const [ isApprovalModalOpen, setIsApprovalModalOpen ] = useState(false);
-  const [ borrowFactor, setBorrowFactor ] = useState(2);
+  const [ borrowFactor, setBorrowFactor ] = useState( initialLeverage ?? 2);
   const [ currencySupply, setCurrencySupply ] = useState(initialSupply);
   const [ currencyValues, setCurrencyValues ] = useState();
-  
 
   useEffect( async () => {
     if(wallet.account) {

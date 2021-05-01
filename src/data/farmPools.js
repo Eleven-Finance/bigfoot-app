@@ -18,7 +18,7 @@ const farmPools = [
     customIcon: Cake,
     bigfootAddress: null,
     deathLeverage: 10.333333333333,
-    maxLeverage: 10.666666666666,
+    maxLeverage: 2.666666666666,
     assetType: 1,
     currencies: [
       {
@@ -63,8 +63,8 @@ const farmPools = [
     rates: {
       yieldFarming: 0,
       eleApr: 0,
-      tradingFee: 35.24,
-      borrowApy: -13.57,
+      tradingFee: 37.43,
+      borrowApy: -14.24,
     },
     percentage: 0,
     percentageOut: 0,

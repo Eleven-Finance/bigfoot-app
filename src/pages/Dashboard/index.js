@@ -344,7 +344,7 @@ function Dashboard() {
                                 })
                               }
                             </td>
-                            <td>
+                            <td style={{ width: "140px" }}>
                               <NumericInput 
                               min={1.5} 
                               max={initialLeverages[pool.title]} 

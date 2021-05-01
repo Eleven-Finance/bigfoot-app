@@ -1,3 +1,28 @@
+#Dashboard {
+    .btn-primary {
+        padding: 0.35rem;
+        font-size: 1rem;
+        width: 100%;
+    }
+    .btn-coming-soon{
+        font-size: 0.8rem;
+    }
+    .react-numeric-input {
+        input {
+            width: 6rem;
+            padding-top: 0.2rem;
+            padding-bottom: 0.2rem;
+            font-size: 1.5em !important;
+            font-weight: 700;
+            text-align: center;
+            color: #555;
+        }
+        b {
+            padding: 0 0.8rem;
+        }
+    }
+}
+
 #dashboardModal {
     .rangeslider {
         margin-bottom: 4rem;

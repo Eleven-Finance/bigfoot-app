@@ -63,8 +63,8 @@ const farmPools = [
     rates: {
       yieldFarming: 0,
       eleApr: 0,
-      tradingFee: 37.43,
-      borrowApy: -14.24,
+      tradingFee: 11.74,
+      borrowApy: -4.74,
     },
     percentage: 0,
     percentageOut: 0,

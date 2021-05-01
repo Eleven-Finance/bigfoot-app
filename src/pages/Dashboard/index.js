@@ -103,16 +103,20 @@ function Dashboard() {
     const newPools = JSON.parse(JSON.stringify(pools));
     pools.forEach( pool => {
 
-      const currentLeverage = leverages[pool.title];
+      const poolInitialValues = farmPools.find( thatPool => thatPool.title === pool.title);
       const currentPool = newPools.find( thatPool => thatPool.title === pool.title);
       const data = poolStats[currentPool.apiKey];
       
-      currentPool.rates.yieldFarming = data.farm.aprd * 365 * currentLeverage;
-      currentPool.rates.eleApr = data.farm.aprl * currentLeverage;
-      const tradingFee = currentPool.rates.tradingFee ?? 0; // @todo
-      const borrowApy = currentPool.rates.borrowApy ?? 0; // @todo
+      const currentLeverage = leverages[pool.title];
+      const multiplier = (currentLeverage - 1) * 2 ;
 
-      currentPool.percentage =  currentPool.rates.yieldFarming + currentPool.rates.eleApr + borrowApy + tradingFee;
+      const yieldFarming = data.farm.aprd * 365 * currentLeverage;
+      const eleApr = data.farm.aprl * currentLeverage;
+      const tradingFee = (poolInitialValues.rates.tradingFee ?? 0) * multiplier;
+      const borrowApy = (poolInitialValues.rates.borrowApy ?? 0) * multiplier;
+
+      currentPool.rates = { yieldFarming, eleApr, tradingFee, borrowApy }
+      currentPool.percentage = yieldFarming + eleApr + tradingFee + borrowApy;
       currentPool.percentageOut = data.farm.aprd * 365;
     });
     setPools(newPools);

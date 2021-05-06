@@ -16,7 +16,13 @@ export const address11CakeBnb = "0x58D25A7e34eE8fA7A070510e6D2E0096Ed62c828";
 //pancake
 export const addressPancakeWbnbBusdLp = "0x1B96B92314C44b159149f7E0303511fB2Fc4774f";	
 export const addressWbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-export const addressBusd = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
 export const addressCakeBnbLp = "0xA527a61703D82139F8a06Bc30097cC9CAA2df5A6";
 export const addressFactory = "0xBCfCcbde45cE874adCB698cC183deBcF17952812";
 export const addressCake = "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82";
+export const addressBusd = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
+export const addressUsdt = "0x55d398326f99059ff775485246999027b3197955";
+export const addressUsdc = "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d";
+
+//nerve
+export const address3nrvLp = "0xf2511b5e4fb0e5e2d123004b672ba14850478c14";
+

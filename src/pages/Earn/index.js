@@ -40,12 +40,12 @@ const Earn = () => {
   const [formData, setFormData] = useState({
     chosenOption: '', // lending option chosen by the user
     action: '', // supply,withdraw
-    amount: 0,
-    userBalance: 0,
+    assetSupply: {},
+    assetBalance: {},
   });
   const [bnbPrice, setBnbPrice] = useState(0);
   const [walletBalance, setWalletBalance] = useState(0);
-  const [supplyBalance, setSupplyBalance] = useState(0);
+  const [userSupplyBalance, setUserSupplyBalance] = useState(0);
 
   useEffect( async () => {
     if(wallet.account) {
@@ -60,7 +60,7 @@ const Earn = () => {
       updateSupplyBalance();
     } else {
       setWalletBalance(0);
-      setSupplyBalance(0);
+      setUserSupplyBalance(0);
     }
   }, [wallet, bnbPrice]);
 
@@ -82,7 +82,7 @@ const Earn = () => {
     const bigfootBalance = await web3Instance.getBigFootBalance();
     const chefBalance = await web3Instance.getChefBalance();
     const totalUserBalanceUsd = ( parseFloat(bigfootBalance) + parseFloat(chefBalance) ) * bnbPrice;
-    setSupplyBalance( totalUserBalanceUsd );
+    setUserSupplyBalance( totalUserBalanceUsd );
   }
 
   const updateAllOptions = () => {
@@ -109,146 +109,171 @@ const Earn = () => {
       setFormData({
         chosenOption: chosenOption,
         action: action,
-        amount: 0,
-        userBalance: 0
+        assetSupply: {},
+        assetBalance: {}
       });
       setisModalOpen(false);
     } else { //open...
-      let balance = 0;
+      let balances = {};
       if (action === 'supply') {
-        balance = await web3Instance.getUserBalance(); //balance in native token
+        for(const asset of chosenOption.assets){
+          balances[asset.code] = await web3Instance.getUserBalance(asset.address);
+        }
       } else if (action === 'withdraw') {
-        balance = await web3Instance.getUserBalance(chosenOption.address);
+        //@todo: get balance for each asset
+        // balances = await web3Instance.getUserBalance(chosenOption.address);
       }
+
       setFormData({
         chosenOption: chosenOption,
         action: action,
-        amount: 0,
-        userBalance: balance
+        assetSupply: {},
+        assetBalance: balances
       });
       setisModalOpen(true);
     }
   }
 
-  const updateAmount = (value) => {
+  const updateAssetSupply = (assetCode, value) => {
     let newFormData = {...formData};
-    newFormData.amount = value
+    newFormData.assetSupply[assetCode] = value;
     setFormData(newFormData);
   }
 
-  const setMax = (isNativeToken) => {
+  const setMax = (assetCode, isNativeToken = false) => {
     let newAmount = 0;
-    let gasReserve = 0.02;
+    const gasReserve = 0.02;
+    const balance = formData.assetBalance[assetCode];
 
     if (isNativeToken === true) {
-      if( formData.userBalance > gasReserve ){
-        newAmount = formData.userBalance - gasReserve; //leave a small amount for gas
+      if( balance > gasReserve ){
+        newAmount = balance - gasReserve; //leave a small amount for gas
         toast.info(`Leaving a small amount for gas (${gasReserve})`);
       } else {
-        newAmount = formData.userBalance;
+        newAmount = balance;
         toast.warn("Remember to leave some spare balance for gas.");
       } 
     } else {
-      newAmount = formData.userBalance;  
+      newAmount = balance;  
     }
 
-    updateAmount(newAmount);
+    updateAssetSupply(assetCode, newAmount);
   }
 
-  const sendTransaction = () => {
 
-    // VALIDATION
-    if( !formData.amount || parseFloat(formData.amount) <= 0) {
+  const sendTransaction = async (option) => {
+
+    // Validation
+    if( Object.values(formData.assetSupply).every( amount => !amount ) ){
       toast.warn("Please enter a valid amount")
       return;
     }
 
-    const amount = Calculator.getWeiStrFromAmount(formData.amount);
-    const bfbnbContract = web3Instance.getBfbnbBankContract();
+    // Prep. amount/s in the correct format
+    let amount;
+    if(option.assets.length === 1){ 
+      // single asset --> amount will be provided as a plain variable
+      const assetCode = option.assets[0].code;
+      amount = Calculator.getWeiStrFromAmount(formData.assetSupply[assetCode]);
+    }else{ 
+      // multiple asset --> amount will be provided as an array
+      // note: the expected order of the assets is given by the smart contract
+      // (ex., bfUSD bank expects an array with [ busdAmount, usdtAmount, usdcAmount, 3nrv-lpAmount])
+      amount = Object.values(formData.assetSupply).map( value => Calculator.getWeiStrFromAmount(value) );
+    }
 
+    // Submit tx
     if(formData.action === 'supply'){
       // SUPPLY
-      bfbnbContract.methods.deposit().send({from: userAddress, value: amount})
-      .on('transactionHash', function (hash) {
-        togglemodal()
-        toast.info(`Supply in process. ${hash}`)
-      })
-      .on('receipt', function (receipt) {
-        updateSupplyBalance();
-        //updateAllOptions();
-        toast.success(`Supply completed.`)
-      })
-      .on('error', function (error) {
-        toast.warn(`Supply failed. ${error?.message}`)
-      })
-      .catch( error => {
-        console.log(error?.message, "Supply error: ")
-      });
+      const depositRequest = await web3Instance.reqBankDeposit(option.bankAbi, option.bankAddress);
+      depositRequest.send({ from: userAddress, value: amount })
+        .on('transactionHash', function (hash) {
+          togglemodal()
+          toast.info(`Supply in process. ${hash}`)
+        })
+        .on('receipt', function (receipt) {
+          updateSupplyBalance();
+          //updateAllOptions();
+          toast.success(`Supply completed.`)
+        })
+        .on('error', function (error) {
+          toast.warn(`Supply failed. ${error?.message}`)
+        })
+        .catch(error => {
+          console.log(error?.message, "Supply error: ")
+        });
     } else if (formData.action === 'withdraw') {
       // WITHDRAW
-      bfbnbContract.methods.withdraw(amount).send({from: userAddress})
-      .on('transactionHash', function (hash) {
-        togglemodal()
-        toast.info(`Withdraw in process. ${hash}`)
-      })
-      .on('receipt', function (receipt) {
-        updateSupplyBalance();
-        //updateAllOptions();
-        toast.success(`Withdraw completed.`)
-      })
-      .on('error', function (error) {
-        toast.warn(`Withdraw failed. ${error?.message}`)
-      })
-      .catch( error => {
-        console.log(error?.message, "Withdraw error: ")
-      });
+      const withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAbi, option.bankAddress, amount);
+      withdrawRequest.send({ from: userAddress })
+        .on('transactionHash', function (hash) {
+          togglemodal()
+          toast.info(`Withdraw in process. ${hash}`)
+        })
+        .on('receipt', function (receipt) {
+          updateSupplyBalance();
+          //updateAllOptions();
+          toast.success(`Withdraw completed.`)
+        })
+        .on('error', function (error) {
+          toast.warn(`Withdraw failed. ${error?.message}`)
+        })
+        .catch(error => {
+          console.log(error?.message, "Withdraw error: ")
+        });
     }
   }
+
 
   const renderFormContent = () => {
 
     const selectedOption = options.find( option => option.title === formData.chosenOption.title);
-    const {title = '', currency = '', icon = ''} = selectedOption || {};
+    const {title = '', assets = []} = selectedOption || {};
     
     if (formData.action === 'supply') {
       return (
         <React.Fragment>
           <p>I'd like to supply...</p>
-          <FormGroup>
-            <Row className="mb-3">
-              <Col lg="6">
-                <InputGroup className="mb-2">
-                  <Label className="input-group-text">
-                    <div className="avatar-xs me-3">
-                      <span className={"avatar-title rounded-circle bg-transparent"} >
-                        <img src={icon.default} />
-                      </span>
-                    </div>
-                    {currency}
-                  </Label>
-                  <Input 
-                    type="number" 
-                    className="form-control" 
-                    min={0}
-                    step={0.000001}
-                    value={formData.amount} 
-                    onChange={(e) => updateAmount(e.target.value)}/>
-                </InputGroup>
-              </Col>
-              <Col lg="6" className="max-balance-wrapper text-end">
-                <span className="me-3">
-                  Balance: {formData.userBalance}
-              </span>
-                <Button
-                  outline
-                  color="primary"
-                  onClick={() => setMax(true) }
-                >
-                  MAX
-              </Button>
-              </Col>
-            </Row>
-          </FormGroup>
+          { assets.map( asset => {
+            return(
+              <FormGroup key={asset.code}>
+                <Row className="mb-3">
+                  <Col lg="6">
+                    <InputGroup className="mb-2">
+                      <Label className="input-group-text">
+                        <div className="avatar-xs me-3">
+                          <span className={"avatar-title rounded-circle bg-transparent"} >
+                            <img src={asset.icon.default} />
+                          </span>
+                        </div>
+                        {asset.code}
+                      </Label>
+                      <Input
+                        type="number"
+                        className="form-control"
+                        min={0}
+                        step={0.000001}
+                        value={formData.assetSupply[asset.code] ?? 0}
+                        onChange={(e) => updateAssetSupply(asset.code, e.target.value)} />
+                    </InputGroup>
+                  </Col>
+                  <Col lg="6" className="max-balance-wrapper text-end">
+                    <span className="me-3">
+                      Balance: {formData.assetBalance[asset.code]}
+                    </span>
+                    <Button
+                      outline
+                      color="primary"
+                      onClick={() => setMax(asset.code, asset.isNativeToken)}
+                    >
+                      MAX
+                    </Button>
+                  </Col>
+                </Row>
+              </FormGroup>
+            )
+          })
+          }
         </React.Fragment>
       );
     } else if (formData.action === 'withdraw') {
@@ -344,7 +369,7 @@ const Earn = () => {
                     <Col sm="6">
                       <div>
                         <p className="mb-2">Supply Balance</p>
-                        <p className="total-value">$ {Formatter.formatAmount(supplyBalance)}</p>
+                        <p className="total-value">$ {Formatter.formatAmount(userSupplyBalance  )}</p>
                       </div>
                     </Col>
                   </Row>
@@ -383,7 +408,7 @@ const Earn = () => {
                               <div className="d-flex align-items-center">
                                 <div className="avatar-xs me-3">
                                   <span className={"avatar-title rounded-circle bg-transparent"} >
-                                    <img src={option.icon.default} />
+                                    <img src={option.bankIcon.default} />
                                   </span>
                                 </div>
                                 <span>{option.title}</span>
@@ -396,7 +421,7 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalSupply)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalSupply)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
                                 {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.totalSupply * bnbPrice), 0)})` }
@@ -404,7 +429,7 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalBorrow)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalBorrow)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
                                 {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.totalBorrow * bnbPrice), 0)})` }
@@ -419,7 +444,7 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootBalance)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootBalance)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
                                 {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.bigfootBalance * bnbPrice), 0)})` }
@@ -427,7 +452,7 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootChefBalance)} ${option.currency}` }
+                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootChefBalance)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
                                 {option.isComingSoon ? "" : `($${Formatter.formatAmount(option.bankStats?.bigfootChefBalance * bnbPrice)})` }
@@ -478,7 +503,7 @@ const Earn = () => {
                             <li className={"next"} >
                               <Link
                                 to="#"
-                                onClick={ sendTransaction }
+                                onClick={ () => sendTransaction(formData.chosenOption) }
                               >
                                 Confirm
                               </Link>

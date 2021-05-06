@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 
 import Calculator from './Calculator';
 
-import { abiMasterChef, abiERC20, abiBank, abiVault, abiFactory, lpAbi, abiBigfootVault } from '../../data/abis/abis';
+import { abiMasterChef, abiERC20, abiBankBnb, abiVault, abiFactory, lpAbi, abiBigfootVault } from '../../data/abis/abis';
 import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory } from '../../data/addresses/addresses';
 
 class Web3Class {
@@ -18,7 +18,11 @@ class Web3Class {
   }
 
   getBfbnbBankContract() {
-    return new this.web3.eth.Contract(abiBank, addressBfBNB);
+    return new this.web3.eth.Contract(abiBankBnb, addressBfBNB);
+  }
+
+  getSpecificBankContract(bankAbi, bankAddress) {
+    return new this.web3.eth.Contract(bankAbi, bankAddress);
   }
 
   getErc20Contract(tokenAddress) {
@@ -110,18 +114,15 @@ class Web3Class {
     return bfVaultContract.methods.claimRewards(positionId);
   }
 
-
-  async reqDeposit(pid, amount) {
-    const masterchefContract = this.getMasterchefContract();
-    return masterchefContract.methods.deposit(pid, amount);
+  async reqBankDeposit(bankAbi, bankAddress){
+    const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
+    return bankContract.methods.deposit();
   }
 
-
-  async withdraw(pid, amount) {
-    const masterchefContract = this.getMasterchefContract();
-    masterchefContract.methods.withdraw(pid, amount).send();
+  async reqBankWithdraw(bankAbi, bankAddress, amount){
+    const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
+    return bankContract.methods.withdraw(amount);
   }
-
 
   async getBnbPrice(){
     const wbnbContract = this.getErc20Contract(addressWbnb);
@@ -145,7 +146,7 @@ class Web3Class {
 
 
   async getTotalSupplyBnb(){
-    const bfbnbContract = new this.web3.eth.Contract(abiBank, addressBfBNB);
+    const bfbnbContract = new this.web3.eth.Contract(abiBankBnb, addressBfBNB);
     const weis = await bfbnbContract.methods.totalBNB().call();
     return Calculator.getAmoutFromWeis(weis);
   }

@@ -6,14 +6,28 @@
 
 import { addressBfBNB } from '../data/addresses/addresses';
 import { Bnb, Eth, Busd } from '../assets/images/bigfoot/icons-coins/_index'
+import { Usdc, Usdt, ThreeNrv } from '../assets/images/bigfoot/icons-assets/_index'
+import { addressBusd, addressUsdt, addressUsdc, address3nrvLp } from 'data/addresses/addresses';
+
+import { abiBankBnb, abiBankUsd} from 'data/abis/abis';
 
 
 const lendingOptions = [
   {
     address: addressBfBNB,
     title: "bfBNB",
-    currency: "BNB",
-    icon: Bnb,
+    referenceCurrency: "BNB",
+    assets: [
+      {
+        code: "BNB",
+        icon: Bnb,
+        address: null, //native token
+        isNativeToken: true
+      }
+    ],
+    bankIcon: Bnb,
+    bankAbi: abiBankBnb,
+    bankAddress: addressBfBNB,
     apy: "",
     supply: "",
     borrow: "",
@@ -24,8 +38,17 @@ const lendingOptions = [
   {
     address: '',
     title: "bfETH",
-    currency: "ETH",
-    icon: Eth,
+    referenceCurrency: "ETH",
+    assets: [
+      {
+        code: "ETH",
+        icon: null,
+        address: null,
+      }
+    ],
+    bankIcon: Eth,
+    bankAbi: null,
+    bankAddress: null,
     apy: "",
     supply: "",
     borrow: "",
@@ -37,17 +60,39 @@ const lendingOptions = [
   },
   {
     address: '',
-    title: "bfBUSD",
-    currency: "BUSD",
-    icon: Busd,
+    title: "bfUSD",
+    referenceCurrency: "$",
+    assets: [
+      {
+        code: "BUSD",
+        icon: Busd,
+        address: addressBusd,
+      },
+      {
+        code: "USDT",
+        icon: Usdt,
+        address: addressUsdt,
+      },
+      {
+        code: "USDC",
+        icon: Usdc,
+        address: addressUsdc,
+      },
+      {
+        code: "3NRV-LP",
+        icon: ThreeNrv,
+        address: address3nrvLp,
+      },
+    ],
+    bankIcon: Busd,
+    bankAbi: abiBankUsd,
+    bankAddress: null, //@todo
     apy: "",
     supply: "",
     borrow: "",
     utilization: "",
     bigfootBalance: 0,
     bigfootChefBalance: 0,
-
-    isComingSoon: true,
   },
 ];
 

@@ -138,7 +138,11 @@ class Web3Class {
 
   async reqBankWithdraw(bankAbi, bankAddress, amount, option){
     const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
-    return bankContract.methods.withdraw(amount, option);
+    if(option === undefined){ //passing undefined as an argument would fail
+      return bankContract.methods.withdraw(amount);
+    }else{
+      return bankContract.methods.withdraw(amount, option);
+    }
   }
 
 

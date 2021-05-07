@@ -27,6 +27,7 @@ import lendingOptions from 'data/lendingOptions'
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from "helpers/bigfoot/Formatter"
+import ApprovalModal from "components/BigFoot/ApprovalModal";
 
 
 const Earn = () => {
@@ -38,6 +39,7 @@ const Earn = () => {
 
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
+  const [ assetToApprove, setAssetToApprove ] = useState(null);
   const [formData, setFormData] = useState({
     chosenOption: '', // lending option chosen by the user
     action: '', // supply,withdraw
@@ -170,6 +172,14 @@ const Earn = () => {
     }
   }
 
+  const toggleApprovalModal = (assetDetails) => {
+    if (assetToApprove) {
+      setAssetToApprove(null);
+    } else {
+      setAssetToApprove(assetDetails);
+    }
+  }
+
   const updateAssetAmounts = (assetCode, value) => {
     let newFormData = {...formData};
     newFormData.assetAmounts[assetCode] = value;
@@ -205,30 +215,64 @@ const Earn = () => {
 
   const sendTransaction = async (option) => {
 
-    // Validation
+    /* Validation */
     if( Object.values(formData.assetAmounts).every( amount => !amount ) ){
       toast.warn("Please enter a valid amount")
       return;
     }
 
-    // Prep. amount/s in the correct format
-    let amount;
-    if(option.assets.length === 1){ 
-      // single asset --> amount will be provided as a plain variable
-      const assetCode = option.assets[0].code;
-      amount = Calculator.getWeiStrFromAmount(formData.assetAmounts[assetCode]);
-    }else{ 
-      // multiple asset --> amount will be provided as an array
-      // note: the expected order of the assets is given by the smart contract
-      // (ex., bfUSD bank expects an array with [ busdAmount, usdtAmount, usdcAmount, 3nrv-lpAmount])
-      amount = Object.values(formData.assetAmounts).map( value => Calculator.getWeiStrFromAmount(value) );
+    /* Prep. amount/s in the correct format */
+    let amounts;
+    if(formData.action === 'supply'){
+      if(option.assets.length === 1){ 
+        // single asset --> amount will be provided as a plain variable
+        const assetCode = option.assets[0].code;
+        amounts = Calculator.getWeiStrFromAmount(formData.assetAmounts[assetCode]);
+      }else{ 
+        // multiple asset --> amount will be provided as an array
+        // note: the expected order of the assets is given by the smart contract
+        // (ex., bfUSD bank expects an array with [ busdAmount, usdtAmount, usdcAmount, 3nrv-lpAmount])
+        amounts = formData.chosenOption.assets.map( asset => {
+          const assetAmount = formData.assetAmounts[asset.code] || 0;
+          return Calculator.getWeiStrFromAmount(assetAmount);
+        });
+      }
+    } else if (formData.action === 'withdraw') {
+      const assetCode = formData.chosenOption.title;
+      amounts = Calculator.getWeiStrFromAmount(formData.assetAmounts[assetCode]);
     }
 
-    // Submit tx
+
+    /* Check approvals */
+    for(const asset of option.assets){
+      if( asset.address && formData.assetAmounts[asset.code] > 0 ){ //note: skips if address null (native token)
+        const isApproved = await web3Instance.checkApproval(asset.address, option.bankAddress);
+        if(!isApproved){
+          setAssetToApprove(asset); //if user supplies vault asset & that asset is not approved, request approval
+          return; //exit
+        }
+      }
+    }
+    setAssetToApprove(null); //all assets approved
+
+
+
+    /* Submit tx */
     if(formData.action === 'supply'){
       // SUPPLY
-      const depositRequest = await web3Instance.reqBankDeposit(option.bankAbi, option.bankAddress);
-      depositRequest.send({ from: userAddress, value: amount })
+
+      let depositRequest;
+      let payload;
+
+      if (formData.chosenOption.title === "bfBNB"){ //payable function --> amount is provided in .send()
+        depositRequest = await web3Instance.reqPayableBankDeposit(option.bankAbi, option.bankAddress);
+        payload = { from: userAddress, value: amounts };
+      } else { //non-payable --> amount is provided in .deposit()
+        depositRequest = await web3Instance.reqNonPayableBankDeposit(option.bankAbi, option.bankAddress, amounts);
+        payload = { from: userAddress };
+      }
+
+      depositRequest.send(payload)
         .on('transactionHash', function (hash) {
           togglemodal()
           toast.info(`Supply in process. ${hash}`)
@@ -246,7 +290,20 @@ const Earn = () => {
         });
     } else if (formData.action === 'withdraw') {
       // WITHDRAW
-      const withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAbi, option.bankAddress, amount);
+      let withdrawRequest;
+      if (formData.chosenOption.title === "bfUSD"){  //banks with multiple options to withdraw
+        const bfUsdWithdrawOptions = {
+          BUSD: 0,
+          USDT: 1,
+          USDC: 2,
+          "3NRV-LP": 3
+        }
+        const withdrawOption = bfUsdWithdrawOptions[formData.withdrawalChosenAsset];
+        withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAbi, option.bankAddress, amounts, withdrawOption);
+      } else { //banks allowing to withdraw in a single asset
+        withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAbi, option.bankAddress, amounts);
+      }
+
       withdrawRequest.send({ from: userAddress })
         .on('transactionHash', function (hash) {
           togglemodal()
@@ -589,6 +646,11 @@ const Earn = () => {
                     </ModalBody>
                   </div>
                 </Modal>
+
+                { assetToApprove && 
+                  <ApprovalModal assetToApprove={assetToApprove} bigfootAddress={formData.chosenOption.bankAddress} toggleApprovalModal={toggleApprovalModal} />
+                }
+
               </Card>
             </Col>
           </Row>

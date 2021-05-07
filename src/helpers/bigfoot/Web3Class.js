@@ -121,15 +121,26 @@ class Web3Class {
     return bfVaultContract.methods.claimRewards(positionId);
   }
 
-  async reqBankDeposit(bankAbi, bankAddress){
+
+  //payable function --> amount will be provided in .send()
+  async reqPayableBankDeposit(bankAbi, bankAddress){
     const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
     return bankContract.methods.deposit();
   }
 
-  async reqBankWithdraw(bankAbi, bankAddress, amount){
+
+  //non-payable --> amount is provided in .deposit()
+  async reqNonPayableBankDeposit(bankAbi, bankAddress, amountsArrWeis){
     const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
-    return bankContract.methods.withdraw(amount);
+    return bankContract.methods.deposit(amountsArrWeis);
   }
+
+
+  async reqBankWithdraw(bankAbi, bankAddress, amount, option){
+    const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
+    return bankContract.methods.withdraw(amount, option);
+  }
+
 
   async getBnbPrice(){
     const wbnbContract = this.getErc20Contract(addressWbnb);

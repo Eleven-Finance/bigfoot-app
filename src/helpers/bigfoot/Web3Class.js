@@ -3,8 +3,8 @@ import BigNumber from "bignumber.js";
 
 import Calculator from './Calculator';
 
-import { abiMasterChef, abiERC20, abiBankBnb, abiVault, abiFactory, lpAbi, abiBigfootVault } from '../../data/abis/abis';
-import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory } from '../../data/addresses/addresses';
+import { abiMasterChef, abiERC20, abiBankBnb, abiVault, abiFactory, lpAbi, abiBigfootVault, abiNerveStorage, abiBankUsd } from '../../data/abis/abis';
+import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(wallet) {
@@ -19,6 +19,10 @@ class Web3Class {
 
   getBfbnbBankContract() {
     return new this.web3.eth.Contract(abiBankBnb, addressBfBNB);
+  }
+
+  getBfusdBankContract() {
+    return new this.web3.eth.Contract(abiBankUsd, addressBfUSD);
   }
 
   getSpecificBankContract(bankAbi, bankAddress) {
@@ -45,6 +49,9 @@ class Web3Class {
     return new this.web3.eth.Contract(lpAbi, token);
   }
 
+  getNerveStorageContract() {
+    return new this.web3.eth.Contract(abiNerveStorage, address3nrvStorage);
+  }
 
   async reqApproval(tokenAddress, spender, amount = this.maxUint){
     const erc20 = this.getErc20Contract(tokenAddress);
@@ -131,6 +138,27 @@ class Web3Class {
     const busdInR = await busdContract.methods.balanceOf(addressPancakeWbnbBusdLp).call();
     const bnbPrice = busdInR / wbnbInR;
     return bnbPrice;
+  }
+
+
+  async getNerveSingleAssetValueFromBfusd(amount, assetCode){
+    const ids = {
+      BUSD: 0,
+      USDT: 1,
+      USDC: 2,
+    }
+    const nerveContract = this.getNerveStorageContract();
+    const amountWeis = Calculator.getWeiStrFromAmount(amount);
+    const result = await nerveContract.methods.calculateRemoveLiquidityOneToken(this.userAddress, amountWeis, ids[assetCode]).call();
+    return Calculator.getAmoutFromWeis(result);
+  }
+
+
+  async getRatio3poolPerBfusd(){
+    const bfusdContract = this.getBfusdBankContract();
+    const total3Pool = await bfusdContract.methods.total3Pool().call();
+    const totalSupply = await bfusdContract.methods.totalSupply().call();
+    return total3Pool / totalSupply;
   }
 
 

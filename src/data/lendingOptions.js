@@ -4,7 +4,7 @@
 //
 
 
-import { addressBfBNB } from '../data/addresses/addresses';
+import { addressBfBNB, addressBfUSD } from '../data/addresses/addresses';
 import { Bnb, Eth, Busd } from '../assets/images/bigfoot/icons-coins/_index'
 import { Usdc, Usdt, ThreeNrv } from '../assets/images/bigfoot/icons-assets/_index'
 import { addressBusd, addressUsdt, addressUsdc, address3nrvLp } from 'data/addresses/addresses';
@@ -36,30 +36,7 @@ const lendingOptions = [
     bigfootChefBalance: 0,
   },
   {
-    address: '',
-    title: "bfETH",
-    referenceCurrency: "ETH",
-    assets: [
-      {
-        code: "ETH",
-        icon: null,
-        address: null,
-      }
-    ],
-    bankIcon: Eth,
-    bankAbi: null,
-    bankAddress: null,
-    apy: "",
-    supply: "",
-    borrow: "",
-    utilization: "",
-    bigfootBalance: 0,
-    bigfootChefBalance: 0,
-
-    isComingSoon: true,
-  },
-  {
-    address: '',
+    address: addressBfUSD,
     title: "bfUSD",
     referenceCurrency: "$",
     assets: [
@@ -86,13 +63,36 @@ const lendingOptions = [
     ],
     bankIcon: Busd,
     bankAbi: abiBankUsd,
-    bankAddress: null, //@todo
+    bankAddress: addressBfUSD, 
     apy: "",
     supply: "",
     borrow: "",
     utilization: "",
     bigfootBalance: 0,
     bigfootChefBalance: 0,
+  },
+  {
+    address: '',
+    title: "bfETH",
+    referenceCurrency: "ETH",
+    assets: [
+      {
+        code: "ETH",
+        icon: null,
+        address: null,
+      }
+    ],
+    bankIcon: Eth,
+    bankAbi: null,
+    bankAddress: null,
+    apy: "",
+    supply: "",
+    borrow: "",
+    utilization: "",
+    bigfootBalance: 0,
+    bigfootChefBalance: 0,
+
+    isComingSoon: true,
   },
 ];
 

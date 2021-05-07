@@ -17,6 +17,7 @@ import {
   Form,
   FormGroup,
   InputGroup,
+  ButtonGroup,
 } from "reactstrap"
 
 import { toast } from 'react-toastify';
@@ -40,17 +41,20 @@ const Earn = () => {
   const [formData, setFormData] = useState({
     chosenOption: '', // lending option chosen by the user
     action: '', // supply,withdraw
-    assetSupply: {},
+    assetAmounts: {},
     assetBalance: {},
+    withdrawalChosenAsset: null,
   });
   const [bnbPrice, setBnbPrice] = useState(0);
+  const [nerveSingleAssetValues, setNerveSingleAssetValues] = useState({});
   const [walletBalance, setWalletBalance] = useState(0);
   const [userSupplyBalance, setUserSupplyBalance] = useState(0);
 
   useEffect( async () => {
     if(wallet.account) {
-      const price = await web3Instance.getBnbPrice();
-      setBnbPrice(price);
+      //get BNB price
+      const priceBnb = await web3Instance.getBnbPrice();
+      setBnbPrice(priceBnb);
     }
   }, [wallet]);
 
@@ -71,6 +75,14 @@ const Earn = () => {
     }
   }, [wallet]);
 
+  useEffect( async () => {
+    if(wallet.account) {
+      if(formData.chosenOption?.title==="bfUSD"){ //temp (currently only multi-asset bank)
+        updateNerveSingleAssetValues();
+      }
+    }
+  }, [formData]);
+
 
   const updateWalletBalance = () => {
     const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
@@ -89,13 +101,36 @@ const Earn = () => {
     options.forEach( async(option) => {
       let newOptions = JSON.parse(JSON.stringify(options));
       const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
-      if(option.title==="bfBNB"){ //temp hack, until the rest of lending options are defined
+      if(option.title==="bfBNB"){ //temp hack, until the rest of lending options are defined //
         currentOption.bankStats = await web3Instance.getBankStats();
       }
       setOptions(newOptions);
     });
   }
 
+  const updateNerveSingleAssetValues = async () => {
+    const amount = formData.assetAmounts["bfUSD"];
+
+    if( isNaN(amount) || amount == 0){
+      setNerveSingleAssetValues({
+        BUSD: 0,
+        USDT: 0,
+        USDC: 0
+      });  
+    } else {
+      const ratio = await web3Instance.getRatio3poolPerBfusd();
+      const resultBusd = await web3Instance.getNerveSingleAssetValueFromBfusd(amount, "BUSD");
+      const resultUsdt = await web3Instance.getNerveSingleAssetValueFromBfusd(amount, "USDT");
+      const resultUsdc = await web3Instance.getNerveSingleAssetValueFromBfusd(amount, "USDC");
+      const result3nrvLps = amount * ratio;
+      setNerveSingleAssetValues({
+        BUSD: resultBusd * ratio,
+        USDT: resultUsdt * ratio,
+        USDC: resultUsdc * ratio,
+        "3NRV-LP": result3nrvLps
+      });
+    }
+  }
 
   const togglemodal = async (chosenOption = null, action = '') => {
 
@@ -109,8 +144,9 @@ const Earn = () => {
       setFormData({
         chosenOption: chosenOption,
         action: action,
-        assetSupply: {},
-        assetBalance: {}
+        assetAmounts: {},
+        assetBalance: {},
+        withdrawalChosenAsset: null
       });
       setisModalOpen(false);
     } else { //open...
@@ -120,23 +156,29 @@ const Earn = () => {
           balances[asset.code] = await web3Instance.getUserBalance(asset.address);
         }
       } else if (action === 'withdraw') {
-        //@todo: get balance for each asset
-        // balances = await web3Instance.getUserBalance(chosenOption.address);
+        balances[chosenOption.title] = await web3Instance.getUserBalance(chosenOption.address);
       }
 
       setFormData({
         chosenOption: chosenOption,
         action: action,
-        assetSupply: {},
-        assetBalance: balances
+        assetAmounts: {},
+        assetBalance: balances,
+        withdrawalChosenAsset: chosenOption.assets[0].code,
       });
       setisModalOpen(true);
     }
   }
 
-  const updateAssetSupply = (assetCode, value) => {
+  const updateAssetAmounts = (assetCode, value) => {
     let newFormData = {...formData};
-    newFormData.assetSupply[assetCode] = value;
+    newFormData.assetAmounts[assetCode] = value;
+    setFormData(newFormData);
+  }
+
+  const updateWithdrawalChosenAsset = (assetCode) => {
+    let newFormData = {...formData};
+    newFormData.withdrawalChosenAsset = assetCode;
     setFormData(newFormData);
   }
 
@@ -157,14 +199,14 @@ const Earn = () => {
       newAmount = balance;  
     }
 
-    updateAssetSupply(assetCode, newAmount);
+    updateAssetAmounts(assetCode, newAmount);
   }
 
 
   const sendTransaction = async (option) => {
 
     // Validation
-    if( Object.values(formData.assetSupply).every( amount => !amount ) ){
+    if( Object.values(formData.assetAmounts).every( amount => !amount ) ){
       toast.warn("Please enter a valid amount")
       return;
     }
@@ -174,12 +216,12 @@ const Earn = () => {
     if(option.assets.length === 1){ 
       // single asset --> amount will be provided as a plain variable
       const assetCode = option.assets[0].code;
-      amount = Calculator.getWeiStrFromAmount(formData.assetSupply[assetCode]);
+      amount = Calculator.getWeiStrFromAmount(formData.assetAmounts[assetCode]);
     }else{ 
       // multiple asset --> amount will be provided as an array
       // note: the expected order of the assets is given by the smart contract
       // (ex., bfUSD bank expects an array with [ busdAmount, usdtAmount, usdcAmount, 3nrv-lpAmount])
-      amount = Object.values(formData.assetSupply).map( value => Calculator.getWeiStrFromAmount(value) );
+      amount = Object.values(formData.assetAmounts).map( value => Calculator.getWeiStrFromAmount(value) );
     }
 
     // Submit tx
@@ -253,8 +295,8 @@ const Earn = () => {
                         className="form-control"
                         min={0}
                         step={0.000001}
-                        value={formData.assetSupply[asset.code] ?? 0}
-                        onChange={(e) => updateAssetSupply(asset.code, e.target.value)} />
+                        value={formData.assetAmounts[asset.code] ?? 0}
+                        onChange={(e) => updateAssetAmounts(asset.code, e.target.value)} />
                     </InputGroup>
                   </Col>
                   <Col lg="6" className="max-balance-wrapper text-end">
@@ -287,7 +329,7 @@ const Earn = () => {
                   <Label className="input-group-text">
                     <div className="avatar-xs me-3">
                       <span className={"avatar-title rounded-circle bg-transparent"} >
-                        <img src={icon.default} />
+                        <img src={selectedOption.bankIcon.default} />
                       </span>
                     </div>
                     {title}
@@ -297,24 +339,57 @@ const Earn = () => {
                     className="form-control" 
                     min={0}
                     step={0.000001}
-                    value={formData.amount}
-                    onChange={(e) => updateAmount(e.target.value)}/>
+                    value={formData.assetAmounts[selectedOption.title] ?? 0}
+                    onChange={(e) => updateAssetAmounts(selectedOption.title, e.target.value)} />
                 </InputGroup>
               </Col>
               <Col sm="6" lg="4" className="max-balance-wrapper text-end">
                 <span className="me-3">
-                  Balance: {formData.userBalance}
+                  Balance: {formData.assetBalance[selectedOption.title]}
               </span>
                 <Button
                   outline
                   color="primary"
-                  onClick={ setMax }
+                  onClick={ () => setMax(selectedOption.title) }
                 >
                   MAX
                 </Button>
               </Col>
             </Row>
           </FormGroup>
+
+          <p className="mt-4">Choose how you want to get your {selectedOption.title}:</p>
+
+          <div className="btn-group btn-group-toggle mb-4" data-toggle="buttons">
+            { assets.map( asset => {
+              let amount;
+              let value;
+              let display;
+
+              if(selectedOption.title==="bfBNB"){
+                amount = 0;
+                value = Formatter.formatAmount(parseFloat(amount), 4)
+                display = '';
+              }else if(selectedOption.title==="bfUSD"){
+                amount = nerveSingleAssetValues[asset.code] || 0;
+                value = Formatter.formatAmount(parseFloat(amount), 2)
+                display = `${value}`;
+              }
+
+              return (
+                <label key={asset.code} className="btn btn-secondary active">
+                  <input 
+                    type="radio" 
+                    value={asset.code}
+                    checked={ formData.withdrawalChosenAsset === asset.code }
+                    onChange={ () => updateWithdrawalChosenAsset(asset.code) } />
+                  <br /><strong>{asset.code}</strong>
+                  <br />{display}
+                </label>
+                )
+              })
+            }
+          </div>
         </React.Fragment>
       );
     }

@@ -104,7 +104,7 @@ const Earn = () => {
     options.forEach( async(option) => {
       if(["bfBNB", "bfUSD"].includes(option.title)){ //temp hack, until the rest of lending options are defined 
         const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
-        currentOption.bankStats = await web3Instance.getBankStats(option.bankAbi, option.bankAddress);
+        currentOption.bankStats = await web3Instance.getBankStats(option.bankAddress);
       }
     });
     setOptions(newOptions);
@@ -265,10 +265,10 @@ const Earn = () => {
       let payload;
 
       if (formData.chosenOption.title === "bfBNB"){ //payable function --> amount is provided in .send()
-        depositRequest = await web3Instance.reqPayableBankDeposit(option.bankAbi, option.bankAddress);
+        depositRequest = await web3Instance.reqPayableBankDeposit(option.bankAddress);
         payload = { from: userAddress, value: amounts };
       } else { //non-payable --> amount is provided in .deposit()
-        depositRequest = await web3Instance.reqNonPayableBankDeposit(option.bankAbi, option.bankAddress, amounts);
+        depositRequest = await web3Instance.reqNonPayableBankDeposit(option.bankAddress, amounts);
         payload = { from: userAddress };
       }
 
@@ -299,9 +299,9 @@ const Earn = () => {
           "3NRV-LP": 3
         }
         const withdrawOption = bfUsdWithdrawOptions[formData.withdrawalChosenAsset];
-        withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAbi, option.bankAddress, amounts, withdrawOption);
+        withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAddress, amounts, withdrawOption);
       } else { //banks allowing to withdraw in a single asset
-        withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAbi, option.bankAddress, amounts);
+        withdrawRequest = await web3Instance.reqBankWithdraw(option.bankAddress, amounts);
       }
 
       withdrawRequest.send({ from: userAddress })

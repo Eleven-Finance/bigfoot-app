@@ -26,7 +26,6 @@ const lendingOptions = [
       }
     ],
     bankIcon: Bnb,
-    bankAbi: abiBankBnb,
     bankAddress: addressBfBNB,
     apy: "",
     supply: "",
@@ -62,7 +61,6 @@ const lendingOptions = [
       },
     ],
     bankIcon: Busd,
-    bankAbi: abiBankUsd,
     bankAddress: addressBfUSD, 
     apy: "",
     supply: "",
@@ -83,7 +81,6 @@ const lendingOptions = [
       }
     ],
     bankIcon: Eth,
-    bankAbi: null,
     bankAddress: null,
     apy: "",
     supply: "",

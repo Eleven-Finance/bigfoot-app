@@ -23,7 +23,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 
 // import FarmsUpperInfo from './FarmsUpperInfo'
 import farmOptions from '../../data/farmOptions'
-import { addressMasterChef } from '../../data/addresses/addresses';
+import { addressMasterChef, addressBfBNB } from '../../data/addresses/addresses';
 import Web3Class from '../../helpers/bigfoot/Web3Class'
 import Calculator from '../../helpers/bigfoot/Calculator'
 import Formatter from '../../helpers/bigfoot/Formatter'
@@ -64,27 +64,29 @@ const Farms = () => {
 
   const updateAllFarms = () => {
     farms.forEach(async (farm) => {
+
+      if( !farm.address || !farm.pid ){
+        return;
+      }
+
       let newFarms = JSON.parse(JSON.stringify(farms))
       const currentFarm = newFarms.find(thatFarm => thatFarm.title === farm.title);
 
       //update farm approval
-      if (farm.address) {
-        const approval = await web3Instance.checkApproval(farm.address, addressMasterChef);
-        if (approval) {
-          currentFarm.isAuthorized = true;
-        }
+      const approval = await web3Instance.checkApproval(farm.address, addressMasterChef);
+      if (approval) {
+        currentFarm.isAuthorized = true;
       }
 
       //update pending rewards
-      if (farm.pid) {
-        const rewards = await web3Instance.getPendingEle(farm.pid);
-        if (parseFloat(rewards) > 0) {
-          currentFarm.pendingRewards = rewards;
-        }
+      const rewards = await web3Instance.getPendingEle(farm.pid);
+      if (parseFloat(rewards) > 0) {
+        currentFarm.pendingRewards = rewards;
       }
+      
 
       //update stats
-      const bankStats = await web3Instance.getBankStats();
+      const bankStats = await web3Instance.getBankStats(farm.address);
       currentFarm.lendApy = bankStats.apy;
       currentFarm.eleApr = farmStats?.[farm.statsKey]?.farm?.aprl;
       if(currentFarm.lendApy && currentFarm.eleApr){

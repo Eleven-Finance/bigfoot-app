@@ -100,14 +100,14 @@ const Earn = () => {
   }
 
   const updateAllOptions = () => {
+    let newOptions = JSON.parse(JSON.stringify(options));
     options.forEach( async(option) => {
-      let newOptions = JSON.parse(JSON.stringify(options));
-      const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
-      if(option.title==="bfBNB"){ //temp hack, until the rest of lending options are defined //
-        currentOption.bankStats = await web3Instance.getBankStats();
+      if(["bfBNB", "bfUSD"].includes(option.title)){ //temp hack, until the rest of lending options are defined 
+        const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
+        currentOption.bankStats = await web3Instance.getBankStats(option.bankAbi, option.bankAddress);
       }
-      setOptions(newOptions);
     });
+    setOptions(newOptions);
   }
 
   const updateNerveSingleAssetValues = async () => {
@@ -553,41 +553,54 @@ const Earn = () => {
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalSupply)} ${option.referenceCurrency}` }
+                                { option.isComingSoon ? "" : 
+                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((option.bankStats?.totalSupply * option.bankStats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(option.bankStats?.totalSupply)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.totalSupply * bnbPrice), 0)})` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.totalBorrow)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.totalBorrow * bnbPrice), 0)})` }
+                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
+                                  `($${Formatter.formatAmount((option.bankStats?.totalSupply * option.bankStats?.referenceAssetValueInUsd), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.bankStats?.utilization ? `${option.bankStats?.utilization.toFixed(2)} %` : ' %' 
+                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((option.bankStats?.totalBorrow * option.bankStats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(option.bankStats?.totalBorrow)} ${option.referenceCurrency}` }
+                              </h5>
+                              <div className="text-muted">
+                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" :  
+                                  `($${Formatter.formatAmount((option.bankStats?.totalBorrow * option.bankStats?.referenceAssetValueInUsd), 0)})` }
+                              </div>
+                            </td>
+                            <td>
+                              <h5 className="font-size-14 mb-1">
+                                { option.isComingSoon ? "" : 
+                                  option.bankStats?.utilization === undefined ?  ' %' :
+                                  `${option.bankStats?.utilization.toFixed(2)} %` 
                                 }
                               </h5>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootBalance)} ${option.referenceCurrency}` }
+                                { option.isComingSoon ? "" : 
+                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((option.bankStats?.bigfootBalance * option.bankStats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(option.bankStats?.bigfootBalance)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount((option.bankStats?.bigfootBalance * bnbPrice), 0)})` }
+                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
+                                  `($${Formatter.formatAmount((option.bankStats?.bigfootBalance * option.bankStats?.referenceAssetValueInUsd), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
-                                {option.isComingSoon ? "" : `${Formatter.formatAmount(option.bankStats?.bigfootChefBalance)} ${option.referenceCurrency}` }
+                                { option.isComingSoon ? "" : 
+                                  option.bankStats?.bigfootChefBalance === -1 ? "--" :
+                                  `${Formatter.formatAmount(option.bankStats?.bigfootChefBalance)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
-                                {option.isComingSoon ? "" : `($${Formatter.formatAmount(option.bankStats?.bigfootChefBalance * bnbPrice)})` }
+                                { option.isComingSoon || option.bankStats?.bigfootChefBalance === -1  ? "" : 
+                                  `($${Formatter.formatAmount(option.bankStats?.bigfootChefBalance * option.bankStats?.referenceAssetValueInUsd)})` }
                               </div>
                             </td>
                             <td style={{ width: "120px" }}>

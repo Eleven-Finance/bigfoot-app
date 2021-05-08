@@ -146,6 +146,15 @@ class Web3Class {
   }
 
 
+  async getBankReferenceAssetValueInUsd(bankAddress){
+    if(bankAddress===addressBfBNB){
+      return await this.getBnbPrice();
+    } else if(bankAddress===addressBfUSD) {
+      return await this.getNerveSingleAssetValueFromBfusd(1, "BUSD"); //using BUSD as reference
+    }
+  }
+
+
   async getBnbPrice(){
     const wbnbContract = this.getErc20Contract(addressWbnb);
     const busdContract = this.getErc20Contract(addressBusd);
@@ -188,14 +197,38 @@ class Web3Class {
   }
 
 
-  async getTotalSupplyBnb(){
-    const bfbnbContract = new this.web3.eth.Contract(abiBankBnb, addressBfBNB);
-    const weis = await bfbnbContract.methods.totalBNB().call();
+  async getBankTotalValue(bankAbi, bankAddress){
+    const bankContract = new this.web3.eth.Contract(bankAbi, bankAddress);
+    let weis = 0;
+    if(bankAddress===addressBfBNB){
+      weis = await bankContract.methods.totalBNB().call();
+    } else if(bankAddress===addressBfUSD) {
+      weis = await bankContract.methods.total3Pool().call();
+    }
     return Calculator.getAmoutFromWeis(weis);
   }
 
+  
+  //getBigFootBalance(): 
+  //returns user balance in the bigfoot contract (not chef contract) of a specific bank, in the bank main currency (eg. BNB, 3NRV-LP...)
+  async getBigFootBalance(bankAbi, bankAddress) {
+    const userBalance = await this.getUserBalance(bankAddress);
+    const balanceInCurr = await this.convertBfsToBankCurrency(bankAbi, bankAddress, userBalance);
+    return Calculator.getWeiStrFromAmount(balanceInCurr);
+  } 
 
-  async getBankStats(){
+
+  async getChefBalance(bankAbi, bankAddress) {
+    if(bankAddress===addressBfBNB){
+      const bfbnbStaked = await this.getStakedCoins(79); // bfbnb farm id: 79
+      const bfbnbStakedInCurr = await this.convertBfsToBankCurrency(bankAbi, bankAddress, bfbnbStaked);
+      return Calculator.getWeiStrFromAmount(bfbnbStakedInCurr);
+    } else if(bankAddress===addressBfUSD) {
+      return -1; //ChefBalance does not apply (ie. there's no farm)
+    }
+  }
+
+  async getBankStats(bankAbi, bankAddress){
     let totalSupply;
     let totalBorrow = 0;
     let utilization;
@@ -203,14 +236,17 @@ class Web3Class {
     let bigfootBalance;
     let bigfootChefBalance;
 
-    const bfbnbContract = this.getBfbnbBankContract();
+    const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
+
+    //Bank reference asset value in USD: value of the main currency of this bank (eg. BNB, 3NRV-LP...), in usd
+    const referenceAssetValueInUsd = await this.getBankReferenceAssetValueInUsd(bankAddress);
 
     //Total Supply
-    const totalBnb = await this.getTotalSupplyBnb();
-    totalSupply = parseFloat(totalBnb);
+    const totalValue = await this.getBankTotalValue(bankAbi, bankAddress);
+    totalSupply = parseFloat(totalValue);
 
     //Total Borrow
-    totalBorrow = await bfbnbContract.methods.glbDebtVal().call();
+    totalBorrow = await bankContract.methods.glbDebtVal().call();
     totalBorrow = Calculator.getAmoutFromWeis(totalBorrow);
     totalBorrow = parseFloat(totalBorrow);
     
@@ -229,14 +265,14 @@ class Web3Class {
     }
 
     //Bigfoot Balance
-    const bigfoot = await this.getBigFootBalance();
+    const bigfoot = await this.getBigFootBalance(bankAbi, bankAddress);
     bigfootBalance = parseFloat(bigfoot);
     
     //Bigfoot Chef Balance
-    const chef = await this.getChefBalance();
+    const chef = await this.getChefBalance(bankAbi, bankAddress);
     bigfootChefBalance = parseFloat(chef);
 
-    return { totalSupply, totalBorrow, utilization, apy, bigfootBalance, bigfootChefBalance};
+    return { referenceAssetValueInUsd, totalSupply, totalBorrow, utilization, apy, bigfootBalance, bigfootChefBalance};
   }
 
 
@@ -248,11 +284,11 @@ class Web3Class {
   }
 
 
-  async convertBfbnbToBnb(amount) {
-    const bfbnbContract = this.getBfbnbBankContract();
-    const totalbnb = await bfbnbContract.methods.totalBNB().call();
-    const totalshares = await bfbnbContract.methods.totalSupply().call();
-    return amount * totalbnb / totalshares;
+  async convertBfsToBankCurrency(bankAbi, bankAddress, amount) {
+    const bankContract = this.getSpecificBankContract(bankAbi, bankAddress);
+    const totalValue = await this.getBankTotalValue(bankAbi, bankAddress);
+    const totalshares = await bankContract.methods.totalSupply().call();
+    return amount * totalValue / totalshares;
   }
 
 
@@ -272,20 +308,6 @@ class Web3Class {
       const price = await getAssetPriceInCoin(token, addressWbnb);
       return price * pps;
     }
-  }
-
-
-  async getBigFootBalance() {
-    const userBalanceBfbnb = await this.getUserBalance(addressBfBNB);
-    const userBalanceBfbnbInBnb = await this.convertBfbnbToBnb(userBalanceBfbnb);
-    return userBalanceBfbnbInBnb;
-  } 
-
-
-  async getChefBalance() {
-    const bfbnbStaked = await this.getStakedCoins(79); // bfbnb farm id: 79
-    const bfbnbStakedInBnb = await this.convertBfbnbToBnb(bfbnbStaked);
-    return bfbnbStakedInBnb;
   }
 
   

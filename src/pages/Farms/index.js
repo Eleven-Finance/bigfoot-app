@@ -27,6 +27,7 @@ import { addressMasterChef, addressBfBNB } from '../../data/addresses/addresses'
 import Web3Class from '../../helpers/bigfoot/Web3Class'
 import Calculator from '../../helpers/bigfoot/Calculator'
 import Formatter from '../../helpers/bigfoot/Formatter'
+import useApiStats from 'hooks/useApiStats';
 import './Farms.scss'
 
 const Farms = () => {
@@ -36,6 +37,8 @@ const Farms = () => {
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
 
+  const { isLoadingApiStats, apiStats } = useApiStats();
+
   const [farms, setFarms] = useState(farmOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,22 +47,12 @@ const Farms = () => {
     amount: 0,
     userBalance: 0,
   });
-  const [farmStats, setFarmStats] = useState();
-
-  useEffect( () => {
-    fetch( process.env.REACT_APP_API_URL )
-      .then(res => res.json())
-      .then(json => {
-        setFarmStats(json)
-      })
-      .catch( error => console.log('Error fetching data from api. ', error) )
-  }, []);
 
   useEffect( () => {
     if(wallet.account) {
       updateAllFarms();
     }
-  }, [wallet, farmStats]);
+  }, [wallet, apiStats]);
 
 
   const updateAllFarms = () => {
@@ -88,7 +81,7 @@ const Farms = () => {
       //update stats
       const bankStats = await web3Instance.getBankStats(farm.address);
       currentFarm.lendApy = bankStats.apy;
-      currentFarm.eleApr = farmStats?.[farm.statsKey]?.farm?.aprl;
+      currentFarm.eleApr = apiStats?.[farm.statsKey]?.farm?.aprl;
       if(currentFarm.lendApy && currentFarm.eleApr){
         currentFarm.totalApy = currentFarm.lendApy + currentFarm.eleApr;
       }

@@ -24,11 +24,12 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 import lendingOptions from 'data/lendingOptions'
+import farmOptions from 'data/farmOptions'
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from "helpers/bigfoot/Formatter"
 import ApprovalModal from "components/BigFoot/ApprovalModal";
-
+import useApiStats from 'hooks/useApiStats';
 
 const Earn = () => {
 
@@ -36,6 +37,8 @@ const Earn = () => {
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
+
+  const { isLoadingApiStats, apiStats } = useApiStats();
 
   const [options, setOptions] = useState(lendingOptions);
   const [isModalOpen, setisModalOpen] = useState(false);
@@ -75,7 +78,7 @@ const Earn = () => {
     if(wallet.account) {
       updateAllOptions();
     }
-  }, [wallet]);
+  }, [wallet, apiStats]);
 
   useEffect( async () => {
     if(wallet.account) {
@@ -104,7 +107,16 @@ const Earn = () => {
     options.forEach( async(option) => {
       if(["bfBNB", "bfUSD"].includes(option.title)){ //temp hack, until the rest of lending options are defined 
         const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
+        
+        //get bank stats
         currentOption.bankStats = await web3Instance.getBankStats(option.bankAddress);
+        
+        //calc totalApy
+        const farmDetails = farmOptions.find( farm => farm.address === currentOption.address );
+        const eleApr = apiStats?.[farmDetails?.statsKey]?.farm?.aprl;
+        if (currentOption.bankStats.apy && eleApr) {
+          currentOption.totalApy = currentOption.bankStats.apy + eleApr;
+        }
       }
     });
     setOptions(newOptions);
@@ -548,7 +560,7 @@ const Earn = () => {
                             </th>
                             <td>
                               <div>
-                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(option.bankStats?.apy)} %` }
+                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(option.totalApy)} %` }
                               </div>
                             </td>
                             <td>

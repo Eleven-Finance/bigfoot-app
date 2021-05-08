@@ -9,8 +9,6 @@ import { Bnb, Eth, Busd } from '../assets/images/bigfoot/icons-coins/_index'
 import { Usdc, Usdt, ThreeNrv } from '../assets/images/bigfoot/icons-assets/_index'
 import { addressBusd, addressUsdt, addressUsdc, address3nrvLp } from 'data/addresses/addresses';
 
-import { abiBankBnb, abiBankUsd} from 'data/abis/abis';
-
 
 const lendingOptions = [
   {

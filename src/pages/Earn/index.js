@@ -54,6 +54,7 @@ const Earn = () => {
   const [nerveSingleAssetValues, setNerveSingleAssetValues] = useState({});
   const [walletBalance, setWalletBalance] = useState(0);
   const [userSupplyBalance, setUserSupplyBalance] = useState(0);
+  const [userPendingRewards, setUserPendingRewards] = useState({});
 
   useEffect( async () => {
     if(wallet.account) {
@@ -67,6 +68,7 @@ const Earn = () => {
     if(wallet.account && wallet.balance != -1 && bnbPrice) {
       updateWalletBalance();
       updateSupplyBalance();
+      updateUserPendingRewards();
     } else {
       setWalletBalance(0);
       setUserSupplyBalance(0);
@@ -110,6 +112,14 @@ const Earn = () => {
       }
     });
     setUserSupplyBalance( totalUserBalanceUsd );
+  }
+
+  const updateUserPendingRewards = async () => {
+    const pendingRewards = {};
+    options.forEach( async option => {
+      pendingRewards[option.title] = await web3Instance.getPendingRewadsBank(option.address);
+    });
+    setUserPendingRewards(pendingRewards);
   }
 
   const updateAllOptions = () => {
@@ -474,7 +484,7 @@ const Earn = () => {
     }
   }
 
-  const renderButtons = (option) => {
+  const renderActionButtons = (option) => {
     return (
       <>
         <div className="mb-2">
@@ -497,6 +507,37 @@ const Earn = () => {
         </div>
       </>
     );
+  }
+
+  const renderRewardButtons = (option) => {
+
+    const hasFarm = (option.title === "bfBNB") ? true : false;
+    const userCanFarm = (option.bankStats?.bigfootBalance > 0) ? true : false;
+
+    if(hasFarm){
+      return(
+        <Button
+          outline
+          color="primary"
+          disabled={ !userCanFarm }
+          tag={Link} to="/farms"
+        >Deposit on farm</Button>
+      );
+    } else {
+      return(
+        <>
+          1.42 ELE<br />
+          1.42 11NRV<br />
+          <Button
+            style={{width: "100%"}}
+            className="mt-1"
+            color="primary"
+            disabled={ userCanFarm }
+            tag={Link} to="/farms"
+          >Harvest</Button>
+        </>
+      );
+    }
   }
 
   return (
@@ -552,7 +593,8 @@ const Earn = () => {
                           <th scope="col">Utilization</th>
                           <th scope="col">BigFoot Balance</th>
                           <th scope="col">BigFoot Chef</th>
-                          <th scope="col"></th>
+                          <th scope="col">Actions</th>
+                          <th scope="col">Rewards</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -626,7 +668,10 @@ const Earn = () => {
                               </div>
                             </td>
                             <td style={{ width: "120px" }}>
-                              {option.isComingSoon ? "Coming Soon" : renderButtons(option) }
+                              {option.isComingSoon ? "Coming Soon" : renderActionButtons(option) }
+                            </td>
+                            <td style={{ width: "120px" }}>
+                              {option.isComingSoon ? "" : renderRewardButtons(option) }
                             </td>
                           </tr>
                         ))}

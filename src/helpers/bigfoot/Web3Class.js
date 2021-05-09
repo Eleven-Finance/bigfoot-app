@@ -106,13 +106,21 @@ class Web3Class {
     return stakedCoins;
   }
 
+  async getPendingRewadsBank(bankAddress){
+    if(bankAddress===addressBfUSD) {
+      return { ele: 10, nrv: 20 }; //@todo
+    } else {
+      return null; // banks with no rewards
+    }
+  }
 
-  async getPendingEle(pid) {
+  async getPendingRewadsFarm(pid) {
     const masterchefContract = this.getMasterchefContract();
     const pendingEle = await masterchefContract.methods.pendingEleven(pid, this.userAddress).call();
     return pendingEle;
   }
 
+  
   // async getPendingE11(positionId, bigfootAddress) {
   //   const bfVaultContract = this.getBigfootVaultContract(bigfootAddress);
   //   const pendingE11 = await bfVaultContract.methods.pendingE11(positionId).call();

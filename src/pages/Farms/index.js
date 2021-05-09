@@ -305,22 +305,7 @@ const Farms = () => {
   }
 
   const renderButtons = (farm) => {
-    if (farm.isComingSoon){
-      return(
-        <Row className="coming-soon-buttons">
-          <Col sm="12">
-            <Button
-              block
-              outline
-              disabled={true}
-            >
-              Coming soon
-            </Button>
-          </Col>
-        </Row>
-      );
-    }
-    else if (wallet.account && farm.isAuthorized) {
+    if (wallet.account && farm.isAuthorized) {
       return (
         <Row>
           <Col sm="6" className="mb-2">
@@ -381,80 +366,82 @@ const Farms = () => {
 
           <Row className="equal-height">
             { farms.map( farm => {
-              return (
-                <Col key={farm.title} md="4">
-                  <Card className="farm-card">
-                    <CardBody>
+              if(!farm.isDisabled){
+                return (
+                  <Col key={farm.title} md="4">
+                    <Card className="farm-card">
+                      <CardBody>
 
-                      <h4 className="card-title">
-                        <span className={"avatar-title rounded-circle bg-transparent font-size-18 me-2"} >
-                          <img src={farm.farmIcon.default} />
-                        </span>
-                        {farm.title}
-                      </h4>
+                        <h4 className="card-title">
+                          <span className={"avatar-title rounded-circle bg-transparent font-size-18 me-2"} >
+                            <img src={farm.farmIcon.default} />
+                          </span>
+                          {farm.title}
+                        </h4>
 
-                      <p className="text-muted">
-                        Accepting 
-                        {farm.currencies.map( (currency, index) => {
-                            return index===0? ` ${currency.code}` : `, ${currency.code}` 
-                          })
-                        }
-                      </p>
-
-                      <div className="farm-icon d-flex align-items-center">
-                        <div className="avatar-xs avatar-multi mt-2">
-                          {farm.currencies.map((currency) => {
-                            return (
-                              <span key={currency.code} className={"avatar-title rounded-circle bg-transparent"} >
-                                <img src={currency.icon.default} />
-                              </span>
-                            );
-                          })
+                        <p className="text-muted">
+                          Accepting 
+                          {farm.currencies.map( (currency, index) => {
+                              return index===0? ` ${currency.code}` : `, ${currency.code}` 
+                            })
                           }
+                        </p>
+
+                        <div className="farm-icon d-flex align-items-center">
+                          <div className="avatar-xs avatar-multi mt-2">
+                            {farm.currencies.map((currency) => {
+                              return (
+                                <span key={currency.code} className={"avatar-title rounded-circle bg-transparent"} >
+                                  <img src={currency.icon.default} />
+                                </span>
+                              );
+                            })
+                            }
+                          </div>
                         </div>
-                      </div>
 
-                      <Row className="farm-stats">
-                        <Col sm="12" className="d-flex justify-content-between align-items-end">
-                          <span className="mb-2">APY</span>
-                          <span className="farm-stats-value">
-                            {
-                              farm.statsKey === 'BFBNB' ?
-                              Formatter.getFormattedYield(farm.totalApy) + '%' :
-                              '--'
-                            }
-                          </span>
-                        </Col>
-                        <Col sm="12" className="d-flex justify-content-between align-items-end">
-                          <span className="mb-2">Lend APY</span>
-                          <span className="farm-stats-value">
-                            {
-                              farm.statsKey === 'BFBNB' ?
-                              Formatter.getFormattedYield(farm.lendApy) + '%' :
-                              '--'
-                            }
-                          </span>
-                        </Col>
-                        <Col sm="12" className="d-flex justify-content-between align-items-end">
-                          <span className="mb-2">ELE APR</span>
-                          <span className="farm-stats-value">
-                            {
-                              farm.statsKey === 'BFBNB' ?
-                              Formatter.getFormattedYield(farm.eleApr) + '%' :
-                              '--'
-                            }
-                          </span>
-                        </Col>
-                        <Col sm="12">
-                        </Col>
-                      </Row>
+                        <Row className="farm-stats">
+                          <Col sm="12" className="d-flex justify-content-between align-items-end">
+                            <span className="mb-2">APY</span>
+                            <span className="farm-stats-value">
+                              {
+                                farm.statsKey === 'BFBNB' ?
+                                Formatter.getFormattedYield(farm.totalApy) + '%' :
+                                '--'
+                              }
+                            </span>
+                          </Col>
+                          <Col sm="12" className="d-flex justify-content-between align-items-end">
+                            <span className="mb-2">Lend APY</span>
+                            <span className="farm-stats-value">
+                              {
+                                farm.statsKey === 'BFBNB' ?
+                                Formatter.getFormattedYield(farm.lendApy) + '%' :
+                                '--'
+                              }
+                            </span>
+                          </Col>
+                          <Col sm="12" className="d-flex justify-content-between align-items-end">
+                            <span className="mb-2">ELE APR</span>
+                            <span className="farm-stats-value">
+                              {
+                                farm.statsKey === 'BFBNB' ?
+                                Formatter.getFormattedYield(farm.eleApr) + '%' :
+                                '--'
+                              }
+                            </span>
+                          </Col>
+                          <Col sm="12">
+                          </Col>
+                        </Row>
 
-                      { renderButtons(farm) }
+                        { renderButtons(farm) }
 
-                    </CardBody>
-                  </Card>
-                </Col>
-              );
+                      </CardBody>
+                    </Card>
+                  </Col>
+                );
+              }
             })}
           </Row>
 

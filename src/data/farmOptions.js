@@ -25,7 +25,7 @@ const farmOptions = [
     ],
     statsKey: "BFBNB",
 
-    isComingSoon: false,
+    isDisabled: false,
     isAuthorized: false,
     pendingRewards: "0",
   },
@@ -42,7 +42,7 @@ const farmOptions = [
     ],
     statsKey: "BFETH",
 
-    isComingSoon: true,
+    isDisabled: true,
     isAuthorized: false,
     pendingRewards: "0",
   },
@@ -59,7 +59,7 @@ const farmOptions = [
     ],
     statsKey: "BFBUSD",
 
-    isComingSoon: true,
+    isDisabled: true,
     isAuthorized: false,
     pendingRewards: "0",
   },

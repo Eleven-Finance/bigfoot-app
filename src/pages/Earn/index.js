@@ -71,7 +71,7 @@ const Earn = () => {
       setWalletBalance(0);
       setUserSupplyBalance(0);
     }
-  }, [wallet, bnbPrice]);
+  }, [wallet, options, bnbPrice]);
 
   
   useEffect( async () => {
@@ -96,9 +96,19 @@ const Earn = () => {
   }
 
   const updateSupplyBalance = async () => {
-    const bigfootBalance = await web3Instance.getBigFootBalance();
-    const chefBalance = await web3Instance.getChefBalance();
-    const totalUserBalanceUsd = ( parseFloat(bigfootBalance) + parseFloat(chefBalance) ) * bnbPrice;
+    let totalUserBalanceUsd = 0;
+    options.forEach( async (option) => {
+      if(option.address){
+        const bigfootBalanceValue = option.bankStats?.bigfootBalance * option.bankStats?.referenceAssetValueInUsd;
+        const bigfootChefBalanceValue = option.bankStats?.bigfootChefBalance * option.bankStats?.referenceAssetValueInUsd;
+        if(bigfootBalanceValue){
+          totalUserBalanceUsd += bigfootBalanceValue;
+        }
+        if(bigfootChefBalanceValue){
+          totalUserBalanceUsd += bigfootChefBalanceValue;
+        }
+      }
+    });
     setUserSupplyBalance( totalUserBalanceUsd );
   }
 
@@ -607,11 +617,11 @@ const Earn = () => {
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.bankStats?.bigfootChefBalance === -1 ? "--" :
+                                  option.bankStats?.bigfootChefBalance === null ? "--" :
                                   `${Formatter.formatAmount(option.bankStats?.bigfootChefBalance)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
-                                { option.isComingSoon || option.bankStats?.bigfootChefBalance === -1  ? "" : 
+                                { option.isComingSoon || option.bankStats?.bigfootChefBalance === null  ? "" : 
                                   `($${Formatter.formatAmount(option.bankStats?.bigfootChefBalance * option.bankStats?.referenceAssetValueInUsd)})` }
                               </div>
                             </td>

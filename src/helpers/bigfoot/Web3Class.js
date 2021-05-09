@@ -228,7 +228,7 @@ class Web3Class {
       const bfbnbStakedInCurr = await this.convertBfsToBankCurrency(bankAddress, bfbnbStaked);
       return Calculator.getWeiStrFromAmount(bfbnbStakedInCurr);
     } else if(bankAddress===addressBfUSD) {
-      return -1; //ChefBalance does not apply (ie. there's no farm)
+      return null; //ChefBalance does not apply (ie. there's no farm for this bank)
     }
   }
 

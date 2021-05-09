@@ -5,7 +5,7 @@
 
 
 import { addressBfBNB, addressBfUSD } from '../data/addresses/addresses';
-import { Bnb, Eth, Busd } from '../assets/images/bigfoot/icons-coins/_index'
+import { Bnb, Eth, Busd, Bfusd } from '../assets/images/bigfoot/icons-coins/_index'
 import { Usdc, Usdt, ThreeNrv } from '../assets/images/bigfoot/icons-assets/_index'
 import { addressBusd, addressUsdt, addressUsdc, address3nrvLp } from 'data/addresses/addresses';
 
@@ -58,7 +58,7 @@ const lendingOptions = [
         address: address3nrvLp,
       },
     ],
-    bankIcon: Busd,
+    bankIcon: Bfusd,
     bankAddress: addressBfUSD, 
     apy: "",
     supply: "",

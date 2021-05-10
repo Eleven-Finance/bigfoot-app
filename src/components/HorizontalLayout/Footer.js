@@ -2,6 +2,7 @@ import React from "react"
 import { Container, Row, Col } from "reactstrap"
 
 import {ReactComponent as IconMedium} from '../../assets/images/bigfoot/icons-social/medium.svg'
+import {ReactComponent as IconGitbook} from '../../assets/images/bigfoot/icons-social/gitbook.svg'
 
 const Footer = () => {
   return (
@@ -19,6 +20,9 @@ const Footer = () => {
                 </a>
                 <a target="_blank" href="https://elevenfinance.medium.com/">
                   <IconMedium />
+                </a>
+                <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/">
+                  <IconGitbook />
                 </a>
               </div>
               <div>

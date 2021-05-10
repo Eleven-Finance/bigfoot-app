@@ -41,6 +41,8 @@ const Earn = () => {
   const { isLoadingApiStats, apiStats } = useApiStats();
 
   const [options, setOptions] = useState(lendingOptions);
+  const [bankStats, setBankStats] = useState({});
+  const [loadingBankStats, setLoadingBankStats] = useState(false);
   const [isModalOpen, setisModalOpen] = useState(false);
   const [ assetToApprove, setAssetToApprove ] = useState(null);
   const [formData, setFormData] = useState({
@@ -62,7 +64,7 @@ const Earn = () => {
       const priceBnb = await web3Instance.getBnbPrice();
       setBnbPrice(priceBnb);
     }
-  }, [wallet]);
+  }, [wallet.account]);
 
   useEffect( async () => {
     if(wallet.account && wallet.balance != -1 && bnbPrice) {
@@ -73,14 +75,14 @@ const Earn = () => {
       setWalletBalance(0);
       setUserSupplyBalance(0);
     }
-  }, [wallet, options, bnbPrice]);
+  }, [wallet, bankStats, bnbPrice]);
 
   
   useEffect( async () => {
     if(wallet.account) {
-      updateAllOptions();
+      updateBankStats();
     }
-  }, [wallet, apiStats]);
+  }, [wallet.account, apiStats]);
 
   useEffect( async () => {
     if(wallet.account) {
@@ -100,9 +102,10 @@ const Earn = () => {
   const updateSupplyBalance = async () => {
     let totalUserBalanceUsd = 0;
     options.forEach( async (option) => {
+      const stats = bankStats[option.title];
       if(option.address){
-        const bigfootBalanceValue = option.bankStats?.bigfootBalance * option.bankStats?.referenceAssetValueInUsd;
-        const bigfootChefBalanceValue = option.bankStats?.bigfootChefBalance * option.bankStats?.referenceAssetValueInUsd;
+        const bigfootBalanceValue = stats?.bigfootBalance * stats?.referenceAssetValueInUsd;
+        const bigfootChefBalanceValue = stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd;
         if(bigfootBalanceValue){
           totalUserBalanceUsd += bigfootBalanceValue;
         }
@@ -123,24 +126,31 @@ const Earn = () => {
     setUserPendingRewards(newPendingRewards);
   }
 
-  const updateAllOptions = () => {
-    let newOptions = JSON.parse(JSON.stringify(options));
+
+  const updateBankStats = async () => {
+    setLoadingBankStats(true);
+    const newStats = {};
     options.forEach( async(option) => {
-      if(["bfBNB", "bfUSD"].includes(option.title)){ //temp hack, until the rest of lending options are defined 
-        const currentOption = newOptions.find(thatOption => thatOption.title === option.title);
-        
+      if(option.bankAddress){
+
         //get bank stats
-        currentOption.bankStats = await web3Instance.getBankStats(option.bankAddress);
+        newStats[option.title] = await web3Instance.getBankStats(option.bankAddress);
         
         //calc totalApy
-        const farmDetails = farmOptions.find( farm => farm.address === currentOption.address );
+        const farmDetails = farmOptions.find( farm => farm.address === option.bankAddress );
         const eleApr = apiStats?.[farmDetails?.statsKey]?.farm?.aprl;
-        if (currentOption.bankStats.apy && eleApr) {
-          currentOption.totalApy = currentOption.bankStats.apy + eleApr;
+
+        if (newStats[option.title].apy && eleApr) {
+          newStats[option.title].totalApy = newStats[option.title].apy + eleApr;
         }
+
+        setTimeout(() => {
+          setBankStats(newStats);
+          setLoadingBankStats(false);
+        }, 1000); //fixes stats not rerendering
+
       }
     });
-    setOptions(newOptions);
   }
 
   const updateNerveSingleAssetValues = async () => {
@@ -312,7 +322,7 @@ const Earn = () => {
         })
         .on('receipt', function (receipt) {
           updateSupplyBalance();
-          //updateAllOptions();
+          updateBankStats();
           toast.success(`Supply completed.`)
         })
         .on('error', function (error) {
@@ -344,7 +354,7 @@ const Earn = () => {
         })
         .on('receipt', function (receipt) {
           updateSupplyBalance();
-          //updateAllOptions();
+          updateBankStats();
           toast.success(`Withdraw completed.`)
         })
         .on('error', function (error) {
@@ -513,7 +523,7 @@ const Earn = () => {
   const renderRewardButtons = (option) => {
 
     const hasFarm = (option.title === "bfBNB") ? true : false;
-    const userCanFarm = (option.bankStats?.bigfootBalance > 0) ? true : false;
+    const userCanFarm = (bankStats[option.title]?.bigfootBalance > 0) ? true : false;
     const userCanHarvest = !!userPendingRewards[option.title];
 
     if(hasFarm){
@@ -577,7 +587,7 @@ const Earn = () => {
 
           <Row>
             <Col xl="12">
-              <Card>
+              <Card className={ loadingBankStats ? 'card-loading' : ''}>
                 <CardBody>
                   <h4 className="card-title">
                     <i className="mdi mdi-rocket-launch text-primary h1"/>
@@ -600,7 +610,9 @@ const Earn = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {options.map((option, key) => (
+                        {options.map((option, key) => {
+                          const stats = bankStats[option.title];
+                          return(
                           <tr key={key}>
                             <th scope="row">
                               <div className="d-flex align-items-center">
@@ -614,59 +626,59 @@ const Earn = () => {
                             </th>
                             <td>
                               <div>
-                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(option.totalApy)} %` }
+                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(stats?.totalApy)} %` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((option.bankStats?.totalSupply * option.bankStats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(option.bankStats?.totalSupply)} ${option.referenceCurrency}` }
+                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
                                 { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                  `($${Formatter.formatAmount((option.bankStats?.totalSupply * option.bankStats?.referenceAssetValueInUsd), 0)})` }
+                                  `($${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((option.bankStats?.totalBorrow * option.bankStats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(option.bankStats?.totalBorrow)} ${option.referenceCurrency}` }
+                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
                                 { option.isComingSoon || option.referenceCurrency ==='$' ? "" :  
-                                  `($${Formatter.formatAmount((option.bankStats?.totalBorrow * option.bankStats?.referenceAssetValueInUsd), 0)})` }
+                                  `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.bankStats?.utilization === undefined ?  ' %' :
-                                  `${option.bankStats?.utilization.toFixed(2)} %` 
+                                  stats?.utilization === undefined ?  ' %' :
+                                  `${stats?.utilization.toFixed(2)} %` 
                                 }
                               </h5>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((option.bankStats?.bigfootBalance * option.bankStats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(option.bankStats?.bigfootBalance)} ${option.referenceCurrency}` }
+                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
                                 { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                  `($${Formatter.formatAmount((option.bankStats?.bigfootBalance * option.bankStats?.referenceAssetValueInUsd), 0)})` }
+                                  `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)})` }
                               </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.bankStats?.bigfootChefBalance === null ? "--" :
-                                  `${Formatter.formatAmount(option.bankStats?.bigfootChefBalance)} ${option.referenceCurrency}` }
+                                  stats?.bigfootChefBalance === null ? "--" :
+                                  `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
                               </h5>
                               <div className="text-muted">
-                                { option.isComingSoon || option.bankStats?.bigfootChefBalance === null  ? "" : 
-                                  `($${Formatter.formatAmount(option.bankStats?.bigfootChefBalance * option.bankStats?.referenceAssetValueInUsd)})` }
+                                { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" : 
+                                  `($${Formatter.formatAmount(stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd)})` }
                               </div>
                             </td>
                             <td style={{ width: "120px" }}>
@@ -676,7 +688,7 @@ const Earn = () => {
                               {option.isComingSoon ? "" : renderRewardButtons(option) }
                             </td>
                           </tr>
-                        ))}
+                        )})}
                       </tbody>
                     </Table>
                   </div>

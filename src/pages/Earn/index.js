@@ -114,12 +114,13 @@ const Earn = () => {
     setUserSupplyBalance( totalUserBalanceUsd );
   }
 
-  const updateUserPendingRewards = async () => {
-    const pendingRewards = {};
+  const updateUserPendingRewards = () => {
+    const newPendingRewards = JSON.parse(JSON.stringify(userPendingRewards));
     options.forEach( async option => {
-      pendingRewards[option.title] = await web3Instance.getPendingRewadsBank(option.address);
+      newPendingRewards[option.title] = await web3Instance.getPendingRewadsBank(option.address);
     });
-    setUserPendingRewards(pendingRewards);
+
+    setUserPendingRewards(newPendingRewards);
   }
 
   const updateAllOptions = () => {
@@ -513,6 +514,7 @@ const Earn = () => {
 
     const hasFarm = (option.title === "bfBNB") ? true : false;
     const userCanFarm = (option.bankStats?.bigfootBalance > 0) ? true : false;
+    const userCanHarvest = !!userPendingRewards[option.title];
 
     if(hasFarm){
       return(
@@ -523,11 +525,11 @@ const Earn = () => {
           tag={Link} to="/farms"
         >Deposit on farm</Button>
       );
-    } else {
+    } else if(userCanHarvest) {
       return(
         <>
-          1.42 ELE<br />
-          1.42 11NRV<br />
+          { userPendingRewards[option.title].ele } ELE<br />
+          { userPendingRewards[option.title].nrv } 11NRV<br />
           <Button
             style={{width: "100%"}}
             className="mt-1"

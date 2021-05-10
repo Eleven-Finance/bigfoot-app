@@ -1,7 +1,7 @@
 //bigfoot
 export const addressMasterChef = "0x1ac6C0B955B6D7ACb61c9Bdf3EE98E0689e07B8A";
 export const addressBfBNB = "0xA96C90223e4cC69192A9ffF1BA4c8b86D02765B2";
-export const addressBfUSD = "0x0Dd5dD5e69aD22f2586f3048954898C30351c9c2";
+export const addressBfUSD = "0x58F536f402dEd90D5FAeB7BAB9ABD77A8D1c8350";
 export const addressBigfoot11Cake = "";
 export const addressBigfoot11CakeBnb = "0x7fF89d5d048DA9a090C51D3FF7eD0fC45bcFe521";
 

@@ -18,7 +18,8 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Formatter from 'helpers/bigfoot/Formatter'
 import Calculator from "helpers/bigfoot/Calculator";
-import farmPools from '../../data/farmPools'
+import farmPools from 'data/farmPools';
+import lendingOptions from 'data/lendingOptions';
 import usePositions from 'hooks/usePositions';
 import LeverageModal from "components/BigFoot/LeverageModal";
 import Icon from "components/BigFoot/Icon"
@@ -277,13 +278,16 @@ function Dashboard() {
                         <tr>
                           <th scope="col" className="text-center">Pair</th>
                           <th scope="col">Type</th>
+                          <th scope="col">Bank</th>
                           <th scope="col">APR</th>
                           <th scope="col">Details</th>
                           <th scope="col" colSpan="2">Leverage</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {pools.map((pool, index) => (
+                        {pools.map((pool, index) => {
+                          const bank = lendingOptions.find( option => option.bankAddress != null && option.bankAddress === pool.usesBank )
+                          return(
                           <tr key={index}>
                             <th scope="row">
                               <div className="d-flex align-items-center">
@@ -309,6 +313,11 @@ function Dashboard() {
                               <h5 className="font-size-14 mb-1">
                                 {pool.title}
                               </h5>
+                            </td>
+                            <td>
+                              <div className="text-muted">
+                                {bank?.title}
+                              </div>
                             </td>
                             <td>
                               <h5 className="font-size-20 mb-1">
@@ -378,7 +387,7 @@ function Dashboard() {
                               }
                             </td>
                           </tr>
-                        ))}
+                        )})}
                       </tbody>
                     </Table>
                   </div>

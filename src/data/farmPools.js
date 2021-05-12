@@ -8,6 +8,7 @@ import { Cake } from '../assets/images/bigfoot/icons-assets/_index'
 import { Bnb } from '../assets/images/bigfoot/icons-coins/_index'
 
 import { address11Cake, address11CakeBnb, addressBigfoot11CakeBnb } from '../data/addresses/addresses'
+import { addressBfBNB, addressBfUSD } from '../data/addresses/addresses'
 
 const farmPools = [
   {
@@ -17,6 +18,7 @@ const farmPools = [
     apiKey: "CAKE",
     customIcon: Cake,
     bigfootAddress: null,
+    usesBank: null,
     deathLeverage: 10.333333333333,
     maxLeverage: 2.666666666666,
     assetType: 1,
@@ -45,6 +47,7 @@ const farmPools = [
     type: "Yield Farming",
     apiKey: "CAKE-BNB LP",
     bigfootAddress: addressBigfoot11CakeBnb,
+    usesBank: addressBfBNB,
     deathLeverage: 3.333333333333,
     maxLeverage: 2.666666666666,
     assetType: 0,

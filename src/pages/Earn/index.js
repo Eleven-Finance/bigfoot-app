@@ -391,7 +391,7 @@ const Earn = () => {
                             </th>
                             <td>
                               <div>
-                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(option.bankStats?.apy)} %` }
+                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(option.bankStats?.lendApy)} %` }
                               </div>
                             </td>
                             <td>

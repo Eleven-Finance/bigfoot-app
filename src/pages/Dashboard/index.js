@@ -39,6 +39,7 @@ function Dashboard() {
   const [userBalances, setUserBalances] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [poolStats, setPoolStats] = useState(null);
+  const [bankStats, setBankStats] = useState(null);
   const [bnbPrice, setBnbPrice] = useState(0);
 
   const initialLeverages = Object.fromEntries(pools.map( pool => {
@@ -73,11 +74,18 @@ function Dashboard() {
     }
   }, [wallet]);
 
+  useEffect( async () => {
+    if(wallet.account) {
+      const stats = await web3Instance.getBankStats();
+      setBankStats(stats);
+    }
+  }, [wallet]);
+
   useEffect( () => {
     if(poolStats){
       updatePoolStats();
     }
-  }, [poolStats, leverages]);
+  }, [bankStats, poolStats, leverages]);
 
   useEffect( ()=>{
     updateGlobalInfo();
@@ -108,12 +116,16 @@ function Dashboard() {
       const data = poolStats[currentPool.apiKey];
       
       const currentLeverage = leverages[pool.title];
-      const multiplier = (currentLeverage - 1) * 2 ;
+      const multiplier = (currentLeverage - 1) * 2;
 
       const yieldFarming = data.farm.aprd * 365 * currentLeverage;
       const eleApr = data.farm.aprl * currentLeverage;
       const tradingFee = (poolInitialValues.rates.tradingFee ?? 0) * multiplier;
-      const borrowApy = (poolInitialValues.rates.borrowApy ?? 0) * multiplier;
+
+      let borrowApy = 0;
+      if(bankStats){
+        borrowApy = bankStats.apyFactor * multiplier / 2;
+      }
 
       currentPool.rates = { yieldFarming, eleApr, tradingFee, borrowApy }
       currentPool.percentage = yieldFarming + eleApr + tradingFee + borrowApy;

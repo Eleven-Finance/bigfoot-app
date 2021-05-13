@@ -348,6 +348,9 @@ function Dashboard() {
                             <td>
                               {
                                 Object.keys(pool.rates).map((key) => {
+                                  if( key === 'tradingFee' && pool.rates[key] === 0 ){
+                                    return; // if tradingFee zero, do not display it.
+                                  }
                                   return (
                                     <Row key={key}>
                                       <Col sm="6">

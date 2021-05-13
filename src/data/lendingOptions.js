@@ -14,6 +14,7 @@ const lendingOptions = [
   {
     address: addressBfBNB,
     title: "bfBNB",
+    apiKey: "BFBNB",
     referenceCurrency: "BNB",
     assets: [
       {
@@ -35,6 +36,7 @@ const lendingOptions = [
   {
     address: addressBfUSD,
     title: "bfUSD",
+    apiKey: "BFUSD",
     referenceCurrency: "$",
     assets: [
       {

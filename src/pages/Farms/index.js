@@ -80,7 +80,7 @@ const Farms = () => {
 
       //update stats
       const bankStats = await web3Instance.getBankStats(farm.address);
-      currentFarm.lendApy = bankStats.apy;
+      currentFarm.lendApy = bankStats.lendApy;
       currentFarm.eleApr = apiStats?.[farm.statsKey]?.farm?.aprl;
       if(currentFarm.lendApy && currentFarm.eleApr){
         currentFarm.totalApy = currentFarm.lendApy + currentFarm.eleApr;

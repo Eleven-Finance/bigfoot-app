@@ -244,7 +244,8 @@ class Web3Class {
     let totalSupply;
     let totalBorrow = 0;
     let utilization;
-    let apy;
+    let apyFactor;
+    let lendApy;
     let bigfootBalance;
     let bigfootChefBalance;
 
@@ -265,16 +266,19 @@ class Web3Class {
     //Utilization
     utilization = (totalBorrow / totalSupply * 100);
 
-    //APY
+    //APY Factor
     if (utilization < 80) { // Less than 80% utilization - 0%-20% APY
-      apy = utilization * 2 / 8;
+      apyFactor = utilization * 2 / 8;
     } else if (utilization < 90) { // Between 80% and 90% - 20% APY
-      apy = 20;
+      apyFactor = 20;
     } else if (utilization < 100) { // Between 90% and 100% - 20%-200% APY
-      apy = 20 + (utilization - 9000) * 18 / 100;
+      apyFactor = 20 + (utilization - 90) * 18;
     } else { // Not possible, but just in case - 200% APY
-      apy = 200;
+      apyFactor = 200;
     }
+
+    //Lend APY
+    lendApy = apyFactor * utilization / 100;
 
     //Bigfoot Balance
     const bigfoot = await this.getBigFootBalance(bankAddress);
@@ -284,7 +288,7 @@ class Web3Class {
     const chef = await this.getChefBalance(bankAddress);
     bigfootChefBalance = parseFloat(chef);
 
-    return { referenceAssetValueInUsd, totalSupply, totalBorrow, utilization, apy, bigfootBalance, bigfootChefBalance};
+    return { referenceAssetValueInUsd, totalSupply, totalBorrow, utilization, apyFactor, lendApy, bigfootBalance, bigfootChefBalance};
   }
 
 

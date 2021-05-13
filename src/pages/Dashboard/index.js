@@ -21,6 +21,7 @@ import Calculator from "helpers/bigfoot/Calculator";
 import farmPools from 'data/farmPools';
 import lendingOptions from 'data/lendingOptions';
 import usePositions from 'hooks/usePositions';
+import useApiStats from 'hooks/useApiStats';
 import LeverageModal from "components/BigFoot/LeverageModal";
 import Icon from "components/BigFoot/Icon"
 import "./Dashboard.scss"
@@ -34,6 +35,7 @@ function Dashboard() {
   const userAddress = wallet.account;
 
   const { isLoadingPositions, allPositions, myPositions } = usePositions();
+  const { isLoadingApiStats, apiStats } = useApiStats();
 
   const [pools, setPools] = useState(farmPools);
   const [chosenPool, setChosenPool] = useState(null);
@@ -78,7 +80,7 @@ function Dashboard() {
     if(poolStats){
       updatePoolStats();
     }
-  }, [poolStats, leverages]);
+  }, [apiStats, poolStats, leverages]);
 
   useEffect( ()=>{
     updateGlobalInfo();
@@ -90,6 +92,10 @@ function Dashboard() {
     }
   }, [myPositions, bnbPrice]);
 
+  const getBankDetails = (address) => {
+    return lendingOptions.find( option => option.bankAddress != null && option.bankAddress === address );
+  }
+
   const initializePoolStats = () => {
     fetch(process.env.REACT_APP_API_URL)
       .then(res => res.json())
@@ -99,22 +105,26 @@ function Dashboard() {
       .catch(error => console.log('Error fetching data from api. ', error));
   }
 
-
   const updatePoolStats = () => {
     const newPools = JSON.parse(JSON.stringify(pools));
     pools.forEach( pool => {
 
       const poolInitialValues = farmPools.find( thatPool => thatPool.title === pool.title);
       const currentPool = newPools.find( thatPool => thatPool.title === pool.title);
+      const currentBank = getBankDetails(pool.usesBank);
       const data = poolStats[currentPool.apiKey];
       
       const currentLeverage = leverages[pool.title];
-      const multiplier = (currentLeverage - 1) * 2 ;
+      const multiplier = (currentLeverage - 1) * 2;
 
       const yieldFarming = data.farm.aprd * 365 * currentLeverage;
       const eleApr = data.farm.aprl * currentLeverage;
       const tradingFee = (poolInitialValues.rates.tradingFee ?? 0) * multiplier;
-      const borrowApy = (poolInitialValues.rates.borrowApy ?? 0) * multiplier;
+
+      let borrowApy = 0;
+      if(apiStats && currentBank){
+        borrowApy = apiStats[currentBank.apiKey].baseborrowapy * multiplier / 2;
+      }
 
       currentPool.rates = { yieldFarming, eleApr, tradingFee, borrowApy }
       currentPool.percentage = yieldFarming + eleApr + tradingFee + borrowApy;
@@ -286,7 +296,7 @@ function Dashboard() {
                       </thead>
                       <tbody>
                         {pools.map((pool, index) => {
-                          const bank = lendingOptions.find( option => option.bankAddress != null && option.bankAddress === pool.usesBank )
+                          const bank = getBankDetails(pool.usesBank);
                           return(
                           <tr key={index}>
                             <th scope="row">

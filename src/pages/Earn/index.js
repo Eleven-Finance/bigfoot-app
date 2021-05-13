@@ -140,8 +140,8 @@ const Earn = () => {
         const farmDetails = farmOptions.find( farm => farm.address === option.bankAddress );
         const eleApr = apiStats?.[farmDetails?.statsKey]?.farm?.aprl;
 
-        if (newStats[option.title].apy && eleApr) {
-          newStats[option.title].totalApy = newStats[option.title].apy + eleApr;
+        if (newStats[option.title].lendApy && eleApr) {
+          newStats[option.title].totalApy = newStats[option.title].lendApy + eleApr;
         }
 
         setTimeout(() => {

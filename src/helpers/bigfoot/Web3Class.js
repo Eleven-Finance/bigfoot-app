@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import Calculator from './Calculator';
 
 import { abiMasterChef, abiERC20, abiBankBnb, abiVault, abiFactory, lpAbi, abiBigfootVault, abiNerveStorage, abiBankUsd } from '../../data/abis/abis';
-import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressCake, address11CakeBnb, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBusd, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD } from '../../data/addresses/addresses';
+import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, addressCake, address11Cake, address11CakeBnb, address11UsdtBusd, addressBusd, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD, addressUsdtBusdWlp, addressStrategyAddUsdtBusdWlp } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(wallet) {
@@ -66,7 +66,6 @@ class Web3Class {
   async checkApproval(tokenAddress, spender) {
     const erc20 = this.getErc20Contract(tokenAddress);
     const spendAllowance = await erc20.methods.allowance(this.userAddress, spender).call();
-    const userBalance = await this.getUserBalance(tokenAddress);
     return (spendAllowance > 0);
   }
 
@@ -162,7 +161,7 @@ class Web3Class {
     if(bankAddress===addressBfBNB){
       return await this.getBnbPrice();
     } else if(bankAddress===addressBfUSD) {
-      return await this.getNerveSingleAssetValueFromBfusd(1, "BUSD"); //using BUSD as reference
+      return await this.getDollarFrom3pool(1, "BUSD"); //using BUSD as reference
     }
   }
 
@@ -177,7 +176,17 @@ class Web3Class {
   }
 
 
-  async getNerveSingleAssetValueFromBfusd(amount, assetCode){
+  async get3poolFromDollar(amount, assetCode) {
+    const amountWeis = Calculator.getWeiStrFromAmount(amount);
+    const nrvSwapContract = this.getNerveStorageContract();
+    let array = ["0","0","0"];
+    array[assetCode] = amountWeis;
+    const pool3Amount = await nrvSwapContract.methods.calculateTokenAmount(address3nrvStorage,array,true).call();
+    return Calculator.getAmoutFromWeis(pool3Amount);
+}
+
+
+  async getDollarFrom3pool(amount, assetCode){
     const ids = {
       BUSD: 0,
       USDT: 1,
@@ -308,7 +317,22 @@ class Web3Class {
   }
 
 
-  async get11xxxValue(type, vaultaddress) {
+  async getTokenValueInBankAsset(tokenAddress) {
+    if(tokenAddress===null){
+      return 1; //native token
+    } else if (tokenAddress===address11CakeBnb){
+      return await this.get11xxxValue(tokenAddress, 0);
+    } else if (tokenAddress===address11Cake){
+      return await this.get11xxxValue(tokenAddress, 1);
+    } else if (tokenAddress===address11UsdtBusd){
+      return await this.get11xxxValue(tokenAddress, 2);
+    } else if (tokenAddress===addressBusd){
+      return await this.get3poolFromDollar(1, 0);
+    }
+  }
+
+
+  async get11xxxValue(vaultaddress, type) {
     const vaultContract = this.getVaultContract(vaultaddress);
     const ppsWeis = await vaultContract.methods.getPricePerFullShare().call();
     const pps = ppsWeis / 1e18;
@@ -319,45 +343,71 @@ class Web3Class {
       const wbnbBalanceOfLP = await wbnbContract.methods.balanceOf(token).call() * 2;
       const totallpsupply = await lpContract.methods.totalSupply().call();
       return wbnbBalanceOfLP / totallpsupply * pps;
-    }
-    if (type == 1) {//single asset paired with bnb
+    } else if (type == 1) {//single asset paired with bnb
       const price = await getAssetPriceInCoin(token, addressWbnb);
       return price * pps;
+    } else if (type == 2) {//
+      const lpContract = this.getLpContract(token);
+      const busdContract = this.getErc20Contract(addressBusd);
+      const busdBalanceOfLP = await busdContract.methods.balanceOf(token).call() * 2;
+      const totallpsupply = await lpContract.methods.totalSupply().call();
+      const assetValue = busdBalanceOfLP / totallpsupply * pps;
+      const nerveSwapContract = this.getNerveStorageContract();
+      const result = await this.get3poolFromDollar(assetValue, 0);
+      return result;
     }
+
   }
 
-  
+
   //reqOpenOrAdjustPosition(): adjust an existing position (positionId) or open a new position (if positionId==0)
-  async reqOpenOrAdjustPosition(positionId, bigfootVaultAddress, leverage, valueVaultAsset, amountVault = 0, amountBnb = 0) {
+  async reqOpenOrAdjustPosition(positionId, bigfootVaultAddress, bankAddress, leverage, amountVault, currencyValues, currencySupply, totalProvidedValue) {
     let stratInfo;
     let bigfootInfo;
-    
-    const amountVaultWeis = Calculator.getWeiStrFromAmount(amountVault);
-    const amountBnbWeis = Calculator.getWeiStrFromAmount(amountBnb);
-    
-    const bfbnbContract = this.getBfbnbBankContract();
+    let req;
+
+    const bfContract = this.getSpecificBankContract(bankAddress);
+
+    const currencySupplyWeis = Object.fromEntries(Object.keys(currencySupply).map(key => {
+      const weis = (currencySupply[key]) ? Calculator.getWeiStrFromAmount(currencySupply[key]) : 0;
+      return [key, weis];
+    }));
+    const amountVaultWeis = Calculator.getWeiStrFromAmount(amountVault);    
+    const totalValueWeis = Calculator.getWeiStrFromAmount(totalProvidedValue);
+
+    //calc loan (when adjusting an existing position, loan = 0)
+    const loan = (positionId === 0) ? new BigNumber(totalValueWeis * (leverage - 1)).toString() : 0;
 
     switch(bigfootVaultAddress){
       case addressBigfoot11Cake:
         stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
         bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyZapperAddSingleAsset, amountVaultWeis, stratInfo]);
+        req = null; //coming soon
         break;
       case addressBigfoot11CakeBnb:
         stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
         bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyZapperAdd, amountVaultWeis, stratInfo]);
+        req = bfContract.methods.work(positionId, bigfootVaultAddress, loan, totalValueWeis, bigfootInfo);
+        break;
+      case addressBigfoot11UsdtBusd:
+        stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressUsdtBusdWlp, "0"]);
+        bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyAddUsdtBusdWlp, amountVaultWeis, stratInfo]); 
+
+        const weisBusd = currencySupplyWeis['BUSD'] || 0;
+        const weisUsdt = 0;
+        const weisUsdc = 0;
+        const weis3pool = 0;
+
+        const amountsArr = [ weisBusd, weisUsdt, weisUsdc, weis3pool ];
+        
+        req = bfContract.methods.work(positionId, bigfootVaultAddress, loan, totalValueWeis, amountsArr, bigfootInfo );
         break;
     }
 
-    const vaultValue = valueVaultAsset * amountVaultWeis;
-    const totalValue = new BigNumber(vaultValue).plus(new BigNumber(amountBnbWeis)).toString();
-    
-    //calc loan (when adjusting an existing position, loan = 0)
-    const loan = (positionId === 0) ? new BigNumber(totalValue * (leverage - 1)).toString() : 0;
-
-    return bfbnbContract.methods.work(positionId, bigfootVaultAddress, loan, totalValue, bigfootInfo);
+    return req;
   }
 
-
+  
   async reqClosePosition(positionUint, bigfootVaultAddress){
     const bfbnbContract = this.getBfbnbBankContract();
     const stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);

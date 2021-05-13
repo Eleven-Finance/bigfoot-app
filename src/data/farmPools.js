@@ -21,7 +21,6 @@ const farmPools = [
     usesBank: null,
     deathLeverage: 10.333333333333,
     maxLeverage: 2.666666666666,
-    assetType: 1,
     currencies: [
       {
         code: "11CAKE",
@@ -50,7 +49,6 @@ const farmPools = [
     usesBank: addressBfBNB,
     deathLeverage: 3.333333333333,
     maxLeverage: 2.666666666666,
-    assetType: 0,
     currencies: [
       {
         code: "11CAKEBNB",

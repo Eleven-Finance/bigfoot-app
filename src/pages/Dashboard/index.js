@@ -123,7 +123,7 @@ function Dashboard() {
 
       let borrowApy = 0;
       if(apiStats && currentBank){
-        borrowApy = apiStats[currentBank.apiKey].baseborrowapy * multiplier / 2;
+        borrowApy = apiStats[currentBank.apiKey].baseborrowapy * multiplier / 2 * (-1);
       }
 
       currentPool.rates = { yieldFarming, eleApr, tradingFee, borrowApy }

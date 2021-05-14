@@ -32,7 +32,7 @@ import ApprovalModal from "components/BigFoot/ApprovalModal";
 import useApiStats from 'hooks/useApiStats';
 
 const Earn = () => {
-  console.log('test pr');
+
   //wallet & web3
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
@@ -120,7 +120,7 @@ const Earn = () => {
   const updateUserPendingRewards = () => {
     const newPendingRewards = JSON.parse(JSON.stringify(userPendingRewards));
     options.forEach( async option => {
-      newPendingRewards[option.title] = await web3Instance.getPendingRewadsBank(option.address);
+      newPendingRewards[option.title] = await web3Instance.getPendingRewardsBank(option.address);
     });
 
     setUserPendingRewards(newPendingRewards);
@@ -520,12 +520,31 @@ const Earn = () => {
     );
   }
 
-  const renderRewardButtons = (option) => {
+  //Generic Harvest
+  const harvest = async (bankAddress,title) => {
+    const claim = await web3Instance.reqClaimRewards(bankAddress)
+    //console.log(bankAddress,title,userAddress);
+    claim.send({ from:userAddress }) 
+    .on('transactionHash', function (hash) {
+      //togglemodal()
+      toast.info(`${title} withdraw in process. ${hash}`)
+    })
+    .on('receipt', function (receipt) {
+      //updateAllFarms();
+      toast.success(`${title} withdraw completed.`)
+    })
+    .on('error', function (error) {
+      toast.warn(`${title} withdraw failed. ${error?.message}`)
+    })
+    .catch( error => {
+      console.log(`${title} withdraw error. ${error?.message}`)
+    });
+  }
+  const renderRewardButtons = (option)  => {
 
     const hasFarm = (option.title === "bfBNB") ? true : false;
     const userCanFarm = (bankStats[option.title]?.bigfootBalance > 0) ? true : false;
     const userCanHarvest = !!userPendingRewards[option.title];
-
     if(hasFarm){
       return(
         <Button
@@ -544,8 +563,8 @@ const Earn = () => {
             style={{width: "100%"}}
             className="mt-1"
             color="primary"
-            disabled={ userCanFarm }
-            tag={Link} to="/farms"
+            disabled={ !userCanFarm }
+            onClick={async() => harvest(option.bankAddress,option.title)}
           >Harvest</Button>
         </>
       );

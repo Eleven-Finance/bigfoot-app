@@ -106,11 +106,20 @@ class Web3Class {
     return stakedCoins;
   }
 
-  async getPendingRewadsBank(bankAddress){
-    if(bankAddress===addressBfUSD) {
-      return { ele: 10, nrv: 20 }; //@todo
-    } else {
-      return null; // banks with no rewards
+  //get all the generated staking values.
+  async getPendingRewardsBank(bankAddress){
+    const pendingRewards = {};
+    switch (bankAddress) {
+      case addressBfUSD:
+        const bank = this.getBfusdBankContract()
+        pendingRewards.ele = await bank.methods.pendingEle(this.userAddress).call();
+        pendingRewards.nrv = await bank.methods.pending11Nrv(this.userAddress).call();
+        return pendingRewards;
+        break;
+    
+      default:
+        return null;
+        break;
     }
   }
 
@@ -157,6 +166,10 @@ class Web3Class {
     }
   }
 
+  async reqClaimRewards(bankAddress){
+    const bankContract = this.getSpecificBankContract(bankAddress);
+    return bankContract.methods.claimRewards();
+  }
 
   async getBankReferenceAssetValueInUsd(bankAddress){
     if(bankAddress===addressBfBNB){

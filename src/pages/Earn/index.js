@@ -164,9 +164,9 @@ const Earn = () => {
       });  
     } else {
       const ratio = await web3Instance.getRatio3poolPerBfusd();
-      const resultBusd = await web3Instance.getNerveSingleAssetValueFromBfusd(amount, "BUSD");
-      const resultUsdt = await web3Instance.getNerveSingleAssetValueFromBfusd(amount, "USDT");
-      const resultUsdc = await web3Instance.getNerveSingleAssetValueFromBfusd(amount, "USDC");
+      const resultBusd = await web3Instance.getDollarFrom3pool(amount, "BUSD");
+      const resultUsdt = await web3Instance.getDollarFrom3pool(amount, "USDT");
+      const resultUsdc = await web3Instance.getDollarFrom3pool(amount, "USDC");
       const result3nrvLps = amount * ratio;
       setNerveSingleAssetValues({
         BUSD: resultBusd * ratio,

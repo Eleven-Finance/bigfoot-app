@@ -123,7 +123,7 @@ function Dashboard() {
 
       let borrowApy = 0;
       if(apiStats && currentBank){
-        borrowApy = apiStats[currentBank.apiKey].baseborrowapy * multiplier / 2;
+        borrowApy = apiStats[currentBank.apiKey].baseborrowapy * multiplier / 2 * (-1);
       }
 
       currentPool.rates = { yieldFarming, eleApr, tradingFee, borrowApy }
@@ -348,6 +348,9 @@ function Dashboard() {
                             <td>
                               {
                                 Object.keys(pool.rates).map((key) => {
+                                  if( key === 'tradingFee' && pool.rates[key] === 0 ){
+                                    return; // if tradingFee zero, do not display it.
+                                  }
                                   return (
                                     <Row key={key}>
                                       <Col sm="6">

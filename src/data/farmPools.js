@@ -4,10 +4,11 @@
 //  -- a specific icon can be defined through the property "customIcon" (if "customIcon" is not defined, then the icons are generated from the values in "currencies.icon")
 //
 
-import { Cake } from '../assets/images/bigfoot/icons-assets/_index'
-import { Bnb } from '../assets/images/bigfoot/icons-coins/_index'
+import { Cake, Usdt } from '../assets/images/bigfoot/icons-assets/_index'
+import { Bnb, Busd } from '../assets/images/bigfoot/icons-coins/_index'
 
-import { address11Cake, address11CakeBnb, addressBigfoot11CakeBnb } from '../data/addresses/addresses'
+import { address11Cake, address11CakeBnb, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, address11UsdtBusd } from '../data/addresses/addresses'
+import { addressBusd } from '../data/addresses/addresses'
 import { addressBfBNB, addressBfUSD } from '../data/addresses/addresses'
 
 const farmPools = [
@@ -65,6 +66,35 @@ const farmPools = [
       yieldFarming: 0,
       eleApr: 0,
       tradingFee: 13.87,
+      borrowApy: 0,
+    },
+    percentage: 0,
+    percentageOut: 0,
+  },
+  {
+    title: "11USDT-BUSD",
+    type: "Yield Farming",
+    apiKey: "USDT-BUSD WLP",
+    bigfootAddress: addressBigfoot11UsdtBusd,
+    usesBank: addressBfUSD,
+    deathLeverage: 6.5,
+    maxLeverage: 6,
+    currencies: [
+      {
+        code: "11USDTBUSD",
+        icon: Usdt,
+        address: address11UsdtBusd,
+      },
+      {
+        code: "BUSD",
+        icon: Busd,
+        address: addressBusd,
+      },
+    ],
+    rates: {
+      yieldFarming: 0,
+      eleApr: 0,
+      tradingFee: 0, //wex (no trading fee)
       borrowApy: 0,
     },
     percentage: 0,

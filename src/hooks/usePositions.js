@@ -3,6 +3,7 @@ import { useWallet } from '@binance-chain/bsc-use-wallet'
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Calculator from 'helpers/bigfoot/Calculator';
 import farmPools from 'data/farmPools'
+import lendingOptions from 'data/lendingOptions'
 
 function usePositions(props) {
 
@@ -23,8 +24,18 @@ function usePositions(props) {
 
 
   const updatePositions = async () => {
+
     //get all positions
-    let all = await web3Instance.getAllPositions();
+    let all = await Promise.all(lendingOptions.map( async (bank) => {
+      if(bank.bankAddress){
+        return await web3Instance.getAllPositions(bank.bankAddress);
+      } else {
+        return [];
+      }
+    }));
+    
+    //merge positions from all banks in a single array
+    all = [].concat(...all);
 
     //discard closed positions & positions opened in old farms
     all = all.filter( position => {

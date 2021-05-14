@@ -36,11 +36,12 @@ class Calculator {
 
   static getPositionDetails(position){
     const pool = farmPools.find( pool => pool.bigfootAddress === position.positionData.bigfoot );
+    const bankAddress = pool.usesBank;
     const collateral = this.getPositionCollateral(position);
     const currentLeverage = this.getCurrentLeverage(position);
     const deathLeverage = pool?.deathLeverage;
     const debtRatio = currentLeverage / deathLeverage * 100;
-    return {pool, collateral, currentLeverage, deathLeverage, debtRatio};
+    return {pool, bankAddress, collateral, currentLeverage, deathLeverage, debtRatio};
   }
 
 

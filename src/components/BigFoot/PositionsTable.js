@@ -12,6 +12,7 @@ import Web3Class from 'helpers/bigfoot/Web3Class'
 import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from 'helpers/bigfoot/Formatter';
 import farmPools from 'data/farmPools'
+import lendingOptions from 'data/lendingOptions'
 import Icon from "./Icon"
 import LeverageModal from './LeverageModal';
 
@@ -56,22 +57,19 @@ function PositionsTable(props) {
   const [chosenPosition, setChosenPosition] = useState(null);
   const [chosenPool, setChosenPool] = useState(null);
   const [userBalances, setUserBalances] = useState({});
-  const [bnbPrice, setBnbPrice] = useState(0);
+  const [priceList, setPriceList] = useState({});
   const [rewards, setRewards] = useState();
 
 
   useEffect( async () => {
     if(wallet.account) {
-      //set user balances
+
       const allBalances = web3Instance.getUserBalancesForPools(farmPools);
       setUserBalances(allBalances);
-    
-      //get bnb price
-      const price = await web3Instance.getBnbPrice();
-      setBnbPrice(price);
+      
+      updatePriceList();
     }
   }, [wallet]);
-
 
   useEffect( async () => {
     if(!showAll){ //only 'my-positions'
@@ -84,6 +82,21 @@ function PositionsTable(props) {
     }
   }, [positions]);
 
+  
+  const updatePriceList = async () => {
+    let banksAddressesArr = lendingOptions.map( option => option.bankAddress);
+    banksAddressesArr = banksAddressesArr.filter( addr => addr != null );
+
+    const prices = await Promise.all(banksAddressesArr.map( address => web3Instance.getBankReferenceAssetValueInUsd(address)));
+
+    const pricesObj = {};
+    banksAddressesArr.forEach( (address, index) => {
+      const bankTitle = lendingOptions.find( option => option.address === address).title;
+      pricesObj[bankTitle] = prices[index];
+    });
+
+    setPriceList(pricesObj);
+  }
 
   const togglemodal = (position, pool) => {
 
@@ -213,7 +226,8 @@ function PositionsTable(props) {
       <Table className="table table-nowrap align-middle text-center mb-0">
         <thead>
           <tr>
-            <th scope="col">#</th>
+            <th scope="col">Bank</th>
+            <th scope="col">#id</th>
             <th scope="col">Farm Pool</th>
             <th scope="col">Collateral Value</th>
             <th scope="col">Current Leverage</th>
@@ -224,13 +238,19 @@ function PositionsTable(props) {
         </thead>
         <tbody>
           {positions.map(position => {
+            const bank = lendingOptions.find( option => option.bankAddress === position.bankAddress );
             return (
               <tr key={position.positionId}>
-                <th scope="row">
+                <td>
+                  <h5 className="font-size-14 mb-1">
+                    {bank.title}
+                  </h5>
+                </td>
+                <td>
                   <h5 className="font-size-14 mb-1">
                     #{position.positionId}
                   </h5>
-                </th>
+                </td>
                 <td>
                   <div className="d-flex align-items-center">
                     {renderPoolInfo(position.pool)}
@@ -238,7 +258,7 @@ function PositionsTable(props) {
                 </td>
                 <td>
                   <h5 className="font-size-14 mb-1">
-                    $ {Formatter.formatAmount(position.collateral * bnbPrice)}
+                    $ {Formatter.formatAmount(position.collateral * priceList[bank.title], 0)}
                   </h5>
                 </td>
                 <td>

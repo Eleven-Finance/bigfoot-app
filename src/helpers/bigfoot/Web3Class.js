@@ -423,15 +423,15 @@ class Web3Class {
   }
 
   
-  async getAllPositions(){
-    const bfbnbContract = this.getBfbnbBankContract();
-    const nextPositionID = await bfbnbContract.methods.nextPositionID().call();
+  async getAllPositions(bankAddress){
+    const bankContract = this.getSpecificBankContract(bankAddress);
+    const nextPositionID = await bankContract.methods.nextPositionID().call();
 
     const promises = []; //notice: will store an array of arrays of promises
     for(let i=1; i<nextPositionID; i++){
       promises.push([
-        bfbnbContract.methods.positions(i).call(),
-        bfbnbContract.methods.positionInfo(i).call()
+        bankContract.methods.positions(i).call(),
+        bankContract.methods.positionInfo(i).call()
       ]);
     }
 

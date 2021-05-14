@@ -555,10 +555,12 @@ const Earn = () => {
         >Deposit on farm</Button>
       );
     } else if (userCanHarvest) {
+      const rewardsELE = Calculator.getAmoutFromWeis(userPendingRewards[option.title].ele);
+      const rewardsNRV = Calculator.getAmoutFromWeis(userPendingRewards[option.title].nrv);
       return (
         <>
-          { Calculator.getAmoutFromWeis(userPendingRewards[option.title].ele) } ELE<br />
-          { Calculator.getAmoutFromWeis(userPendingRewards[option.title].nrv) } 11NRV<br />
+          { Formatter.formatAmount( parseFloat(rewardsELE), 6) } ELE<br />
+          { Formatter.formatAmount( parseFloat(rewardsNRV), 6) } 11NRV<br />
           <Button
             style={{ width: "100%" }}
             className="mt-1"

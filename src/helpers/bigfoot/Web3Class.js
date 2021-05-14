@@ -306,7 +306,7 @@ class Web3Class {
     
     //Bigfoot Chef Balance
     const chef = await this.getChefBalance(bankAddress);
-    bigfootChefBalance = parseFloat(chef);
+    bigfootChefBalance = parseFloat(chef) || null; //null if there isn't a chef contract
 
     return { referenceAssetValueInUsd, totalSupply, totalBorrow, utilization, apyFactor, lendApy, bigfootBalance, bigfootChefBalance};
   }

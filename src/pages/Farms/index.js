@@ -81,7 +81,7 @@ const Farms = () => {
       //update stats
       const bankStats = await web3Instance.getBankStats(farm.address);
       currentFarm.lendApy = bankStats.lendApy;
-      currentFarm.eleApr = apiStats?.[farm.statsKey]?.farm?.aprl;
+      currentFarm.eleApr = apiStats?.[farm.apiKey]?.farm?.aprl;
       if(currentFarm.lendApy && currentFarm.eleApr){
         currentFarm.totalApy = currentFarm.lendApy + currentFarm.eleApr;
       }
@@ -405,7 +405,7 @@ const Farms = () => {
                             <span className="mb-2">APY</span>
                             <span className="farm-stats-value">
                               {
-                                farm.statsKey === 'BFBNB' ?
+                                farm.apiKey === 'BFBNB' ?
                                 Formatter.getFormattedYield(farm.totalApy) + '%' :
                                 '--'
                               }
@@ -415,7 +415,7 @@ const Farms = () => {
                             <span className="mb-2">Lend APY</span>
                             <span className="farm-stats-value">
                               {
-                                farm.statsKey === 'BFBNB' ?
+                                farm.apiKey === 'BFBNB' ?
                                 Formatter.getFormattedYield(farm.lendApy) + '%' :
                                 '--'
                               }
@@ -425,7 +425,7 @@ const Farms = () => {
                             <span className="mb-2">ELE APR</span>
                             <span className="farm-stats-value">
                               {
-                                farm.statsKey === 'BFBNB' ?
+                                farm.apiKey === 'BFBNB' ?
                                 Formatter.getFormattedYield(farm.eleApr) + '%' :
                                 '--'
                               }

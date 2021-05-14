@@ -23,7 +23,7 @@ const farmOptions = [
         icon: bfBNB
       },
     ],
-    statsKey: "BFBNB",
+    apiKey: "BFBNB",
 
     isDisabled: false,
     isAuthorized: false,
@@ -40,7 +40,7 @@ const farmOptions = [
         icon: bfETH
       },
     ],
-    statsKey: "BFETH",
+    apiKey: "BFETH",
 
     isDisabled: true,
     isAuthorized: false,
@@ -57,7 +57,7 @@ const farmOptions = [
         icon: bfBUSD
       },
     ],
-    statsKey: "BFBUSD",
+    apiKey: "BFBUSD",
 
     isDisabled: true,
     isAuthorized: false,

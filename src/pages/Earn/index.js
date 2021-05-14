@@ -137,11 +137,14 @@ const Earn = () => {
         newStats[option.title] = await web3Instance.getBankStats(option.bankAddress);
         
         //calc totalApy
-        const farmDetails = farmOptions.find( farm => farm.address === option.bankAddress );
-        const eleApr = apiStats?.[farmDetails?.statsKey]?.farm?.aprl;
-
-        if (newStats[option.title].lendApy && eleApr) {
-          newStats[option.title].totalApy = newStats[option.title].lendApy + eleApr;
+        const bigfootFarm = farmOptions.find( farm => farm.address === option.bankAddress );
+        if(bigfootFarm){ //if there's a bigfoot farm --> totalApy = lendApy + eleApr
+          const eleApr = apiStats?.[bigfootFarm?.apiKey]?.farm?.aprl;
+          if (newStats[option.title].lendApy && eleApr) {
+            newStats[option.title].totalApy = newStats[option.title].lendApy + eleApr;
+          }
+        } else { // if there's no farm, get totalApy from the API
+          newStats[option.title].totalApy = apiStats?.[option.apiKey]?.farm?.apy;
         }
 
         setTimeout(() => {

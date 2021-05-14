@@ -520,57 +520,68 @@ const Earn = () => {
     );
   }
 
-  //Generic Harvest
-  const harvest = async (bankAddress,title) => {
-    const claim = await web3Instance.reqClaimRewards(bankAddress)
-    //console.log(bankAddress,title,userAddress);
-    claim.send({ from:userAddress }) 
-    .on('transactionHash', function (hash) {
-      //togglemodal()
-      toast.info(`${title} withdraw in process. ${hash}`)
-    })
-    .on('receipt', function (receipt) {
-      //updateAllFarms();
-      toast.success(`${title} withdraw completed.`)
-    })
-    .on('error', function (error) {
-      toast.warn(`${title} withdraw failed. ${error?.message}`)
-    })
-    .catch( error => {
-      console.log(`${title} withdraw error. ${error?.message}`)
-    });
-  }
-  const renderRewardButtons = (option)  => {
 
-    const hasFarm = (option.title === "bfBNB") ? true : false;
+  const requestHarvest = async (bankAddress) => {
+    const claim = await web3Instance.reqClaimRewards(bankAddress)
+    claim.send({ from: userAddress })
+      .on('transactionHash', function (hash) {
+        toast.info(`Harvest in process. ${hash}`)
+      })
+      .on('receipt', function (receipt) {
+        toast.success(`Harvest completed.`)
+      })
+      .on('error', function (error) {
+        toast.warn(`Harvest failed. ${error?.message}`)
+      })
+      .catch(error => {
+        console.log(`Harvest error. ${error?.message}`)
+      });
+
+  }
+
+
+  const renderRewardButtons = (option) => {
+    const bankHasFarm = (option.title === "bfBNB") ? true : false;
     const userCanFarm = (bankStats[option.title]?.bigfootBalance > 0) ? true : false;
     const userCanHarvest = !!userPendingRewards[option.title];
-    if(hasFarm){
-      return(
+    
+    if (bankHasFarm) {
+      return (
         <Button
           outline
           color="primary"
-          disabled={ !userCanFarm }
+          disabled={!userCanFarm}
           tag={Link} to="/farms"
         >Deposit on farm</Button>
       );
-    } else if(userCanHarvest) {
-      return(
+    } else if (userCanHarvest) {
+      return (
         <>
-          { userPendingRewards[option.title].ele } ELE<br />
-          { userPendingRewards[option.title].nrv } 11NRV<br />
+          { Calculator.getAmoutFromWeis(userPendingRewards[option.title].ele) } ELE<br />
+          { Calculator.getAmoutFromWeis(userPendingRewards[option.title].nrv) } 11NRV<br />
           <Button
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
             className="mt-1"
             color="primary"
-            disabled={ !userCanFarm }
-            onClick={async() => harvest(option.bankAddress,option.title)}
+            onClick={ () => requestHarvest(option.bankAddress)}
+          >Harvest</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button
+            outline
+            style={{ width: "100%" }}
+            className="mt-1"
+            color="primary"
+            disabled
           >Harvest</Button>
         </>
       );
     }
   }
-
+  
   return (
     <React.Fragment>
       <div className="page-content">

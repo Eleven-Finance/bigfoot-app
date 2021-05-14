@@ -113,13 +113,11 @@ class Web3Class {
         const bank = this.getBfusdBankContract()
         pendingRewards.ele = await bank.methods.pendingEle(this.userAddress).call();
         pendingRewards.nrv = await bank.methods.pending11Nrv(this.userAddress).call();
-        return pendingRewards;
-        break;
-    
+        break;    
       default:
-        return null;
         break;
     }
+    return pendingRewards;
   }
 
   async getPendingRewadsFarm(pid) {

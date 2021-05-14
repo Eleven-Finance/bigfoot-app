@@ -32,7 +32,7 @@ import ApprovalModal from "components/BigFoot/ApprovalModal";
 import useApiStats from 'hooks/useApiStats';
 
 const Earn = () => {
-
+  console.log('test pr');
   //wallet & web3
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);

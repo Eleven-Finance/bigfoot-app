@@ -21,12 +21,14 @@ import "react-rangeslider/lib/index.css"
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
+import lendingOptions from 'data/lendingOptions';
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Calculator from 'helpers/bigfoot/Calculator'
 import { addressBigfoot11CakeBnb } from 'data/addresses/addresses';
-import Icon from './Icon';
+import ApprovalModal from "components/BigFoot/ApprovalModal";
+import Icon from 'components/BigFoot/Icon';
 
-
+import { addressBfBNB } from 'data/addresses/addresses'
 
 function LeverageModal(props) {
 
@@ -42,21 +44,17 @@ function LeverageModal(props) {
     pool.currencies.map(currency => [currency.code, 0])
   );
 
-  const [ isApprovalModalOpen, setIsApprovalModalOpen ] = useState(false);
+  const [ assetToApprove, setAssetToApprove ] = useState(null);
+  const [ contractToApprove, setContractToApprove ] = useState(null);
   const [ borrowFactor, setBorrowFactor ] = useState( initialLeverage ?? 2);
   const [ currencySupply, setCurrencySupply ] = useState(initialSupply);
-  const [ currencyValues, setCurrencyValues ] = useState();
+  const [ currencyValues, setCurrencyValues ] = useState(null);
 
   useEffect( async () => {
     if(wallet.account) {
       //get the value for all assets of current pool
       const arr = await Promise.all(pool.currencies.map( async (currency) => {
-        let assetValue;
-        if(currency.address){
-          assetValue = await web3Instance.get11xxxValue(pool.assetType, currency.address);
-        }else{
-          assetValue = 1; //native token
-        }
+        const assetValue = await web3Instance.getTokenValueInBankAsset(currency.address);
         return [currency.code, assetValue];
       }));
 
@@ -120,27 +118,14 @@ function LeverageModal(props) {
   }
 
 
-  const toggleApprovalModal = () => {
-    setIsApprovalModalOpen(!isApprovalModalOpen);
-  }
-
-
-  const requestBigFootApproval = async () => {
-    const request = await web3Instance.reqApproval(pool.currencies[0].address, pool.bigfootAddress);
-    request.send({ from: userAddress })
-      .on('transactionHash', function (hash) {
-        toast.info(`BigFoot authorization in process. ${hash}`)
-      })
-      .on('receipt', function (receipt) {
-        setIsApprovalModalOpen(false);
-        toast.success(`BigFoot authorization accepted.`)
-      })
-      .on('error', function (error) {
-        toast.warn(`BigFoot authorization failed. ${error?.message}`)
-      })
-      .catch((error) => {
-        console.log(`BigFoot authorization error. ${error?.message}`)
-      });
+  const toggleApprovalModal = (assetDetails, contractDetails) => {
+    if (assetToApprove) {
+      setAssetToApprove(null);
+      setContractToApprove(null);
+    } else {
+      setAssetToApprove(assetDetails);
+      setContractToApprove(contractDetails);
+    }
   }
 
 
@@ -149,28 +134,66 @@ function LeverageModal(props) {
     // VALIDATION
     if( Object.values(currencySupply).every( amount => !amount ) ){
       toast.warn("Please enter a valid amount")
-      return;
+      return; //EXIT
     }
 
-    const isApproved = await web3Instance.checkApproval(pool.currencies[0].address, addressBigfoot11CakeBnb);
-    const amountVault = currencySupply[pool.currencies[0].code] || 0;
-    const valueVaultAsset = currencyValues[pool.currencies[0].code] || 0;
-    
-    const amountBnb = currencySupply[pool.currencies[1].code] || 0;
-    const amountBnbWeis = Calculator.getWeiStrFromAmount(amountBnb);
+    const bank = lendingOptions.find( bank => bank.address === pool.usesBank );
+    const minValue = bank.requiredValueToOpenPosition;
+    const bankCurrency = bank.referenceCurrency;
 
-    const requiredValueToOpenPosition = 0.11; //minumum value in BNB, required to open a new position
-    const totalProvidedValueInBnb = (amountVault * valueVaultAsset) + (amountBnb * 1);
+    /* Check approvals */
+    for( const [index, currency] of pool.currencies.entries() ){
+      if( currency.address && currencySupply[currency.code] > 0 ){ //note: skips if address null (native token)
+
+        //spenderAddress: for now, we're assuming...
+        // - first currency has to be approved against bigfoot contract
+        // - all other currencies in the array have to be approved against bank contract
+        const spenderAddress = (index === 0) ? pool.bigfootAddress : bank.address;
+
+        const isApproved = await web3Instance.checkApproval(currency.address, spenderAddress);
+
+        if(!isApproved){
+          //if user supplies vault asset & that asset is not approved, request approval
+          setAssetToApprove(currency); 
+          setContractToApprove(spenderAddress); 
+          return; //EXIT
+        }
+      }
+    }
+
+    //all assets approved
+    setAssetToApprove(null); 
+    setContractToApprove(null); 
+
+
+    /* Check currencyValues (depends on the blockchain) */
+    if (currencyValues === null) {
+      return;
+    }
+    
+    const amountVault = currencySupply[pool.currencies[0].code] || 0;
+
+    let bnbBankAmountWeis; //needs to be provided for pools on the BNB bank
+    if(pool.usesBank === addressBfBNB){
+      const bnbBankAmount = currencySupply['BNB'] || 0;
+      bnbBankAmountWeis = Calculator.getWeiStrFromAmount(bnbBankAmount);
+    } else {
+      bnbBankAmountWeis = "0";
+    }
+    
+    let totalProvidedValue = 0;
+    for(const key in currencySupply){
+      totalProvidedValue += currencySupply[key] * currencyValues[key];
+    }    
 
     const positionId = currentPosition?.positionId || 0; //set to 0 if starting a new position
-
-    if (positionId === 0 && totalProvidedValueInBnb < requiredValueToOpenPosition) {
-      toast.warn(`Min. value required to open new positions is ${requiredValueToOpenPosition}BNB (or the equivalent in other assets)`);
-    } else if ( amountVault != 0 && !isApproved ) {
-      setIsApprovalModalOpen(true); //if user supplies vault asset & that asset is not approved, request approval
+    
+    if (positionId === 0 && totalProvidedValue < minValue) {
+      toast.warn(`Min. value required to open new positions is ${minValue}${bankCurrency} (or the equivalent in other assets)`);
     } else {
-      const request = await web3Instance.reqOpenOrAdjustPosition(positionId, pool.bigfootAddress, borrowFactor, valueVaultAsset, amountVault, amountBnb);
-      request.send({from: userAddress, value: amountBnbWeis})
+      // const request = await web3Instance.reqOpenOrAdjustPosition(positionId, pool.bigfootAddress, borrowFactor, valueVaultAsset, amountVault, amountBnb);
+      const request = await web3Instance.reqOpenOrAdjustPosition(positionId, pool.bigfootAddress, pool.usesBank, borrowFactor, amountVault, currencyValues, currencySupply, totalProvidedValue);
+      request.send({from: userAddress, value: bnbBankAmountWeis})
         .on('transactionHash', function (hash) {
           toast.info(`Position request in process. ${hash}`)
         })
@@ -302,46 +325,9 @@ function LeverageModal(props) {
       </div>
     </Modal>
     
-
-    <Modal
-      id="approvalModal"
-      isOpen={isApprovalModalOpen}
-      role="dialog"
-      size="mg"
-      autoFocus={true}
-      centered={true}
-      toggle={toggleApprovalModal}
-    >
-      <div className="modal-content">
-        <ModalHeader toggle={toggleApprovalModal}>
-          Confirm approval: {pool.currencies[0].code}
-        </ModalHeader>
-        <ModalBody>
-          <div
-            className="wizard clearfix text-center"
-          >
-            <p>
-              <Icon icon={pool.currencies[0].icon} />
-            </p>
-            <p>
-              Approve your {pool.currencies[0].code} to be spent by BigFoot contract. 
-            </p>
-            <div className="actions clearfix">
-              <ul role="menu" aria-label="Pagination">
-                <li className={"next"} >
-                  <Link
-                    to="#"
-                    onClick={requestBigFootApproval}
-                  >
-                    Approve
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </ModalBody>
-      </div>
-    </Modal>
+    { assetToApprove && contractToApprove &&
+      <ApprovalModal assetToApprove={assetToApprove} bigfootAddress={contractToApprove} toggleApprovalModal={toggleApprovalModal} />
+    }
     
     </>
   )

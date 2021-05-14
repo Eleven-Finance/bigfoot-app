@@ -10,10 +10,12 @@ export const addressBigfoot11CakeBnb = "0x7fF89d5d048DA9a090C51D3FF7eD0fC45bcFe5
 export const addressStrategyZapperAddSingleAsset = "";
 export const addressStrategyZapperAdd = "0xCb84813806225D629dFb9C651A3d600955135998";
 export const addressStrategyLiquidation11xxxBnb = "0x2d679e20A5E2461E6ADCa390DCD30c583F85B5b1";
+export const addressStrategyAddUsdtBusdWlp = "0x10D05DA695bfD85E187bA3901dcDaFC6359bbd27";
 
 //eleven
 export const address11Cake = "0xE050ACc68c778b6F7F63bDfeCDEc576FcC6D2274";
 export const address11CakeBnb = "0x58D25A7e34eE8fA7A070510e6D2E0096Ed62c828";
+export const address11UsdtBusd = "0x1a489ee9ccd2f062f86361fb7af9dac9293864bc";
 
 //pancake
 export const addressPancakeWbnbBusdLp = "0x1B96B92314C44b159149f7E0303511fB2Fc4774f";	
@@ -28,4 +30,7 @@ export const addressUsdc = "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d";
 //nerve
 export const address3nrvLp = "0xf2511b5e4fb0e5e2d123004b672ba14850478c14";
 export const address3nrvStorage = "0x1B3771a66ee31180906972580adE9b81AFc5fCDc";
+
+//wault
+export const addressUsdtBusdWlp = "0x9Ce20a5169A3CD64A98C2C200aA995A2d8c8830e";
 

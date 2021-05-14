@@ -16,6 +16,7 @@ const lendingOptions = [
     title: "bfBNB",
     apiKey: "BFBNB",
     referenceCurrency: "BNB",
+    requiredValueToOpenPosition: 0.11,  //minumum value in BNB, required to open a new position
     assets: [
       {
         code: "BNB",
@@ -38,6 +39,7 @@ const lendingOptions = [
     title: "bfUSD",
     apiKey: "BFUSD",
     referenceCurrency: "$",
+    requiredValueToOpenPosition: 500,  //minumum value (in Dollars), required to open a new position
     assets: [
       {
         code: "BUSD",
@@ -72,6 +74,7 @@ const lendingOptions = [
   {
     address: '',
     title: "bfETH",
+    apiKey: "",
     referenceCurrency: "ETH",
     assets: [
       {

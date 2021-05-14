@@ -134,8 +134,8 @@ function PositionsTable(props) {
       });
   }
 
-  const requestClose = async (positionId, bigfootAddress) => {
-    const request = await web3Instance.reqClosePosition(positionId, bigfootAddress);
+  const requestClose = async (bankAddress, positionId, bigfootAddress) => {
+    const request = await web3Instance.reqClosePosition(bankAddress, positionId, bigfootAddress);
     request.send({ from: userAddress })
       .on('transactionHash', function (hash) {
         toast.info(`Request to close position in process. ${hash}`)
@@ -151,8 +151,8 @@ function PositionsTable(props) {
       });
   }
 
-  const requestLiquidation = async (positionId) => {
-    const request = await web3Instance.reqLiquidatePosition(positionId);
+  const requestLiquidation = async (bankAddress, positionId) => {
+    const request = await web3Instance.reqLiquidatePosition(bankAddress, positionId);
     request.send({ from: userAddress })
       .on('transactionHash', function (hash) {
         toast.info(`Request to liquidate position in process. ${hash}`)
@@ -177,7 +177,7 @@ function PositionsTable(props) {
           outline={ debtRatio < 100 }
           color={ debtRatio < 100 ? "secondary" : "primary" } 
           onClick={() => {
-            requestLiquidation(position.positionId)
+            requestLiquidation(position.bankAddress, position.positionId)
           }}
         >
           Liquidate
@@ -202,7 +202,7 @@ function PositionsTable(props) {
             outline={true}
             color={"primary"}
             onClick={() => {
-              requestClose(position.positionId, pool.bigfootAddress)
+              requestClose(position.bankAddress, position.positionId, pool.bigfootAddress)
             }}
           >
             Close

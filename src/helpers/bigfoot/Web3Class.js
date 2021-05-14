@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import Calculator from './Calculator';
 
 import { abiMasterChef, abiERC20, abiBankBnb, abiVault, abiFactory, lpAbi, abiBigfootVault, abiNerveStorage, abiBankUsd } from '../../data/abis/abis';
-import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, addressCake, address11Cake, address11CakeBnb, address11UsdtBusd, addressBusd, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD, addressUsdtBusdWlp, addressStrategyAddUsdtBusdWlp } from '../../data/addresses/addresses';
+import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressStrategyLiquidation11xxxUsdtBusdWex, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, addressCake, address11Cake, address11CakeBnb, address11UsdtBusd, addressBusd, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD, addressUsdtBusdWlp, addressStrategyAddUsdtBusdWlp } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(wallet) {
@@ -419,18 +419,36 @@ class Web3Class {
   }
 
   
-  async reqClosePosition(positionUint, bigfootVaultAddress){
-    const bfbnbContract = this.getBfbnbBankContract();
-    const stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
-    const bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyLiquidation11xxxBnb, 0, stratInfo]);
+  async reqClosePosition(bankAddress, positionUint, bigfootVaultAddress){
+    let stratInfo;
+    let bigfootInfo;
+    let req;
 
-    return bfbnbContract.methods.work(positionUint, bigfootVaultAddress, 0, "9999999999999999999999999999", bigfootInfo);
+    const bfContract = this.getSpecificBankContract(bankAddress);
+
+    switch(bigfootVaultAddress){
+      case addressBigfoot11Cake:
+        break;
+      case addressBigfoot11CakeBnb:
+        stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);
+        bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyLiquidation11xxxBnb, 0, stratInfo]);
+        req = bfContract.methods.work(positionUint, bigfootVaultAddress, 0, "9999999999999999999999999999", bigfootInfo);
+        break;
+      case addressBigfoot11UsdtBusd:
+        stratInfo = await this.web3.eth.abi.encodeParameters(["uint"], ["0"]);
+        bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyLiquidation11xxxUsdtBusdWex, 0, stratInfo]); 
+        const amounts = ["0", "0", "0", "0"];
+        req = bfContract.methods.work(positionUint, bigfootVaultAddress, 0, "9999999999999999999999999999", amounts, bigfootInfo);
+        break;
+    }
+
+    return req;
   }
 
 
-  async reqLiquidatePosition(positionUint){
-    const bfbnbContract = this.getBfbnbBankContract();
-    return bfbnbContract.methods.kill(positionUint);
+  async reqLiquidatePosition(bankAddress, positionUint){
+    const bfContract = this.getSpecificBankContract(bankAddress);
+    return bfContract.methods.kill(positionUint);
   }
 
   

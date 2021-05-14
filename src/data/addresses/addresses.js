@@ -9,8 +9,9 @@ export const addressBigfoot11UsdtBusd = "0xA44f7E9236c074A8FE883D1ADD943CF001235
 //strategies
 export const addressStrategyZapperAddSingleAsset = "";
 export const addressStrategyZapperAdd = "0xCb84813806225D629dFb9C651A3d600955135998";
-export const addressStrategyLiquidation11xxxBnb = "0x2d679e20A5E2461E6ADCa390DCD30c583F85B5b1";
 export const addressStrategyAddUsdtBusdWlp = "0x10D05DA695bfD85E187bA3901dcDaFC6359bbd27";
+export const addressStrategyLiquidation11xxxBnb = "0x2d679e20A5E2461E6ADCa390DCD30c583F85B5b1";
+export const addressStrategyLiquidation11xxxUsdtBusdWex = "0x6A86DF83e6D81F53B9995758eD3202b68C32fa9D";
 
 //eleven
 export const address11Cake = "0xE050ACc68c778b6F7F63bDfeCDEc576FcC6D2274";

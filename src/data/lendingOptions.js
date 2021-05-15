@@ -39,7 +39,7 @@ const lendingOptions = [
     title: "bfUSD",
     apiKey: "BFUSD",
     referenceCurrency: "$",
-    requiredValueToOpenPosition: 500,  //minumum value (in Dollars), required to open a new position
+    requiredValueToOpenPosition: 1000,  //minumum value (in Dollars), required to open a new position
     assets: [
       {
         code: "BUSD",

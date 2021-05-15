@@ -191,7 +191,6 @@ function LeverageModal(props) {
     if (positionId === 0 && totalProvidedValue < minValue) {
       toast.warn(`Min. value required to open new positions is ${minValue}${bankCurrency} (or the equivalent in other assets)`);
     } else {
-      // const request = await web3Instance.reqOpenOrAdjustPosition(positionId, pool.bigfootAddress, borrowFactor, valueVaultAsset, amountVault, amountBnb);
       const request = await web3Instance.reqOpenOrAdjustPosition(positionId, pool.bigfootAddress, pool.usesBank, borrowFactor, amountVault, currencyValues, currencySupply, totalProvidedValue);
       request.send({from: userAddress, value: bnbBankAmountWeis})
         .on('transactionHash', function (hash) {

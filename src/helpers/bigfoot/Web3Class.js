@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import Calculator from './Calculator';
 
 import { abiMasterChef, abiERC20, abiBankBnb, abiVault, abiFactory, lpAbi, abiBigfootVault, abiNerveStorage, abiBankUsd } from '../../data/abis/abis';
-import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressStrategyLiquidation11xxxUsdtBusdWex, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, addressCake, address11Cake, address11CakeBnb, address11UsdtBusd, addressBusd, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD, addressUsdtBusdWlp, addressStrategyAddUsdtBusdWlp } from '../../data/addresses/addresses';
+import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressStrategyLiquidation11xxxUsdtBusdWex, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, addressCake, address11Cake, address11CakeBnb, address11UsdtBusd, addressBusd, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD, addressUsdtBusdWlp, addressStrategyAddUsdtBusdWlp, addressStrategyDummy } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(wallet) {
@@ -401,8 +401,13 @@ class Web3Class {
         req = bfContract.methods.work(positionId, bigfootVaultAddress, loan, totalValueWeis, bigfootInfo);
         break;
       case addressBigfoot11UsdtBusd:
+        let customStrategy = addressStrategyAddUsdtBusdWlp;
+        if(positionId !== 0 && currencySupply.BUSD == 0){ // adjust position passing 11xxx
+          customStrategy = addressStrategyDummy;
+        }
+        
         stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressUsdtBusdWlp, "0"]);
-        bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [addressStrategyAddUsdtBusdWlp, amountVaultWeis, stratInfo]); 
+        bigfootInfo = await this.web3.eth.abi.encodeParameters(["address", "uint", "bytes"], [customStrategy, amountVaultWeis, stratInfo]); 
 
         const weisBusd = currencySupplyWeis['BUSD'] || 0;
         const weisUsdt = 0;

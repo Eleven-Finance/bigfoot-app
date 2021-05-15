@@ -14,7 +14,7 @@ import { addressBfBNB, addressBfUSD } from '../data/addresses/addresses'
 const farmPools = [
   {
     isComingSoon: true,
-    title: "11CAKE",
+    title: "CAKE",
     type: "Yield Farming",
     apiKey: "CAKE",
     customIcon: Cake,
@@ -43,7 +43,7 @@ const farmPools = [
     percentageOut: 0,
   },
   {
-    title: "11CAKEBNB",
+    title: "CAKE-BNB LP",
     type: "Yield Farming",
     apiKey: "CAKE-BNB LP",
     bigfootAddress: addressBigfoot11CakeBnb,
@@ -72,7 +72,7 @@ const farmPools = [
     percentageOut: 0,
   },
   {
-    title: "11USDT-BUSD",
+    title: "USDT-BUSD WLP",
     type: "Yield Farming",
     apiKey: "USDT-BUSD WLP",
     bigfootAddress: addressBigfoot11UsdtBusd,

@@ -390,6 +390,14 @@ function Dashboard() {
                                 >
                                   Stay Tuned
                                 </Link> :
+                                pool.title === "USDT-BUSD WLP" ?
+                                <Link
+                                  to="#"
+                                  className="btn btn-primary btn-sm w-xs"
+                                >
+                                  Starting in 20min.
+                              </Link>
+                                :
                                 <Link
                                   to="#"
                                   className="btn btn-primary btn-sm w-xs"

@@ -477,15 +477,18 @@ const Earn = () => {
               }
 
               return (
-                <label key={asset.code} className="btn btn-secondary active">
-                  <input 
-                    type="radio" 
-                    value={asset.code}
-                    checked={ formData.withdrawalChosenAsset === asset.code }
-                    onChange={ () => updateWithdrawalChosenAsset(asset.code) } />
-                  <br /><strong>{asset.code}</strong>
-                  <br />{display}
-                </label>
+                <div className="ms-1">
+                  <label key={asset.code} style={{minWidth:'80px'}} className={formData.withdrawalChosenAsset === asset.code && "btn btn-secondary active image-withdraw-earn" || "btn btn-secondary active"}>
+                  <img src={asset.icon.default} className="icon-withdraw-earn" />
+                    <input 
+                      type="radio" 
+                      value={asset.code}
+                      checked={ formData.withdrawalChosenAsset === asset.code }
+                      onChange={ () =>  updateWithdrawalChosenAsset(asset.code) }/>
+                    <br /><strong>{asset.code}</strong>
+                    <br />{display}
+                  </label>
+                </div>
                 )
               })
             }

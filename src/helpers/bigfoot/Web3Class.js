@@ -387,8 +387,8 @@ class Web3Class {
     const totalValueWeis = Calculator.getWeiStrFromAmount(totalProvidedValue);
 
     //calc loan (when adjusting an existing position, loan = 0)
-    const loan = (positionId === 0) ? new BigNumber(totalValueWeis * (leverage - 1)) : 0;
-
+    const loan = (positionId === 0) ? Calculator.getWeiStrFromAmount(totalProvidedValue * (leverage - 1)) : 0;
+    
     switch(bigfootVaultAddress){
       case addressBigfoot11Cake:
         stratInfo = await this.web3.eth.abi.encodeParameters(["address", "uint"], [addressCake, "0"]);

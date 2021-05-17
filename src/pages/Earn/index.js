@@ -67,7 +67,7 @@ const Earn = () => {
   }, [wallet.account]);
 
   useEffect( async () => {
-    if(wallet.account && wallet.balance != -1 && bnbPrice) {
+    if(wallet.account && wallet.balance && bnbPrice) {
       updateWalletBalance();
       updateSupplyBalance();
       updateUserPendingRewards();

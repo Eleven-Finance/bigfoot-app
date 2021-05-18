@@ -139,8 +139,8 @@ function Dashboard() {
     let borrow = 0;
 
     allPositions.forEach( position => {
-      collateral += Calculator.getPositionCollateral(position) * bnbPrice;
-      borrow += Calculator.getPositionDebt(position) * bnbPrice;
+      collateral += Calculator.getPositionCollateral(position);
+      borrow += Calculator.getPositionDebt(position);
     });
 
     setGlobalInfo({

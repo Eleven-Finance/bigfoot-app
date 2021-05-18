@@ -67,7 +67,7 @@ const Earn = () => {
   }, [wallet.account]);
 
   useEffect( async () => {
-    if(wallet.account && wallet.balance != -1 && bnbPrice) {
+    if(wallet.account && wallet.balance && bnbPrice) {
       updateWalletBalance();
       updateSupplyBalance();
       updateUserPendingRewards();
@@ -574,7 +574,7 @@ const Earn = () => {
   const renderRewardButtons = (option) => {
     const bankHasFarm = (option.title === "bfBNB") ? true : false;
     const userCanFarm = (bankStats[option.title]?.bigfootBalance > 0) ? true : false;
-    const userCanHarvest = !!userPendingRewards[option.title];
+    const userCanHarvest = userPendingRewards[option.title] && Object.values(userPendingRewards[option.title]).some( amount => amount > 0);
     
     if (bankHasFarm) {
       return (

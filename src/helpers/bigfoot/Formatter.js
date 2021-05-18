@@ -12,7 +12,9 @@ class Formatter {
     if (1 / amount === -Infinity){ //detect -0
       return '';
     }
-    return amount.toLocaleString('en-US', { maximumFractionDigits: decimals })
+    
+    amount = parseFloat(amount);
+    return amount.toLocaleString('en-US', { maximumFractionDigits: decimals });
   }
 
   

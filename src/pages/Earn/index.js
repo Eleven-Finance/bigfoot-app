@@ -488,7 +488,7 @@ const Earn = () => {
 
           <p className="mt-4">Choose how you want to get your {selectedOption.title}:</p>
 
-          <div className="btn-group btn-group-toggle mb-4" data-toggle="buttons">
+          <div className="btn-group btn-group-toggle mb-4 children-img-responsive" data-toggle="buttons">
             { assets.map( asset => {
               let amount;
               let value;

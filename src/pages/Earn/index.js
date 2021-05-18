@@ -53,7 +53,7 @@ const Earn = () => {
     withdrawalChosenAsset: null,
   });
   const [bnbPrice, setBnbPrice] = useState(0);
-  const [nerveSingleAssetValues, setNerveSingleAssetValues] = useState({});
+  const [nerveSingleAssetValues, setSingleAssetValues] = useState({});
   const [walletBalance, setWalletBalance] = useState(0);
   const [userSupplyBalance, setUserSupplyBalance] = useState(0);
   const [userPendingRewards, setUserPendingRewards] = useState({});
@@ -86,9 +86,7 @@ const Earn = () => {
 
   useEffect( async () => {
     if(wallet.account) {
-      if(formData.chosenOption?.title==="bfUSD"){ //temp (currently only multi-asset bank)
-        updateNerveSingleAssetValues();
-      }
+      updateSingleAssetValues(formData.chosenOption?.bankAddress,formData.chosenOption?.title);
     }
   }, [formData]);
 
@@ -156,28 +154,55 @@ const Earn = () => {
     });
   }
 
-  const updateNerveSingleAssetValues = async () => {
-    const amount = formData.assetAmounts["bfUSD"];
 
-    if( isNaN(amount) || amount == 0){
-      setNerveSingleAssetValues({
-        BUSD: 0,
-        USDT: 0,
-        USDC: 0
-      });  
-    } else {
-      const ratio = await web3Instance.getRatio3poolPerBfusd();
-      const resultBusd = await web3Instance.getDollarFrom3pool(amount, "BUSD");
-      const resultUsdt = await web3Instance.getDollarFrom3pool(amount, "USDT");
-      const resultUsdc = await web3Instance.getDollarFrom3pool(amount, "USDC");
-      const result3nrvLps = amount * ratio;
-      setNerveSingleAssetValues({
-        BUSD: resultBusd * ratio,
-        USDT: resultUsdt * ratio,
-        USDC: resultUsdc * ratio,
-        "3NRV-LP": result3nrvLps
-      });
+  const updateSingleAssetValues = async (bankAddress,coinName) => {
+    const amount = formData.assetAmounts[coinName];
+    switch (coinName) {
+      case 'bfBNB':
+        if( isNaN(amount) || amount == 0){
+          setSingleAssetValues({
+            BNB: 0,
+          });  
+        }else {
+         // const ratio = await web3Instance.getRatio3poolPerBfusd();
+          const amountWeis = Calculator.getWeiStrFromAmount(amount) 
+          const amountBNB = await web3Instance.convertBfsToBankCurrency(bankAddress, amountWeis);
+          // const amountBNB = Calculator.getAmoutFromWeis(amountBNBWeis)
+          // console.log(amountBNBWeis);
+          // console.log(amountBNB);
+          // const resultBNB= amount * await web3Instance.getBnbPrice();
+          // console.log(ratio)
+          setSingleAssetValues({
+            BNB: amountBNB
+          });
+        }
+        break;
+      case 'bfUSD':
+        if( isNaN(amount) || amount == 0){
+          setSingleAssetValues({
+            BUSD: 0,
+            USDT: 0,
+            USDC: 0
+          });  
+        } else {
+          const ratio = await web3Instance.getRatio3poolPerBfusd();
+          const resultBusd = await web3Instance.getDollarFrom3pool(amount, "BUSD");
+          const resultUsdt = await web3Instance.getDollarFrom3pool(amount, "USDT");
+          const resultUsdc = await web3Instance.getDollarFrom3pool(amount, "USDC");
+          const result3nrvLps = amount * ratio;
+          setSingleAssetValues({
+            BUSD: resultBusd * ratio,
+            USDT: resultUsdt * ratio,
+            USDC: resultUsdc * ratio,
+            "3NRV-LP": result3nrvLps
+          });
+        }  
+        break;
+  
+      default:
+        break;
     }
+    
   }
 
   const togglemodal = async (chosenOption = null, action = '') => {
@@ -470,9 +495,9 @@ const Earn = () => {
               let display;
 
               if(selectedOption.title==="bfBNB"){
-                amount = 0;
+                amount = nerveSingleAssetValues[asset.code] || 0;;
                 value = Formatter.formatAmount(parseFloat(amount), 4)
-                display = '';
+                display = `${value}`;
               }else if(selectedOption.title==="bfUSD"){
                 amount = nerveSingleAssetValues[asset.code] || 0;
                 value = Formatter.formatAmount(parseFloat(amount), 2)

@@ -471,11 +471,11 @@ const Earn = () => {
 
               if(selectedOption.title==="bfBNB"){
                 amount = 0;
-                value = Formatter.formatAmount(parseFloat(amount), 4)
+                value = Formatter.formatAmount(amount, 4)
                 display = '';
               }else if(selectedOption.title==="bfUSD"){
                 amount = nerveSingleAssetValues[asset.code] || 0;
-                value = Formatter.formatAmount(parseFloat(amount), 2)
+                value = Formatter.formatAmount(amount, 2)
                 display = `${value}`;
               }
 
@@ -565,8 +565,8 @@ const Earn = () => {
       const rewardsNRV = Calculator.getAmoutFromWeis(userPendingRewards[option.title].nrv);
       return (
         <>
-          { Formatter.formatAmount( parseFloat(rewardsELE), 6) } ELE<br />
-          { Formatter.formatAmount( parseFloat(rewardsNRV), 6) } 11NRV<br />
+          { Formatter.formatAmount(rewardsELE, 6) } ELE<br />
+          { Formatter.formatAmount(rewardsNRV, 6) } 11NRV<br />
           <Button
             style={{ width: "100%" }}
             className="mt-1"

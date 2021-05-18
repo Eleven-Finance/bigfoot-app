@@ -9,6 +9,9 @@ class Formatter {
     if(amount===undefined || isNaN(amount)){
       return '';
     }
+    if (1 / amount === -Infinity){ //detect -0
+      return '';
+    }
     return amount.toLocaleString('en-US', { maximumFractionDigits: decimals })
   }
 

@@ -22,6 +22,7 @@ import farmPools from 'data/farmPools';
 import lendingOptions from 'data/lendingOptions';
 import usePositions from 'hooks/usePositions';
 import useApiStats from 'hooks/useApiStats';
+import usePriceList from 'hooks/usePriceList';
 import LeverageModal from "components/BigFoot/LeverageModal";
 import Icon from "components/BigFoot/Icon"
 import "./Dashboard.scss"
@@ -36,6 +37,7 @@ function Dashboard() {
 
   const { isLoadingPositions, allPositions, myPositions } = usePositions();
   const { isLoadingApiStats, apiStats } = useApiStats();
+  const { priceList, isLoadingPriceList } = usePriceList();
 
   const [pools, setPools] = useState(farmPools);
   const [chosenPool, setChosenPool] = useState(null);
@@ -139,8 +141,12 @@ function Dashboard() {
     let borrow = 0;
 
     allPositions.forEach( position => {
-      collateral += Calculator.getPositionCollateral(position);
-      borrow += Calculator.getPositionDebt(position);
+      const {bankAddress} = Calculator.getPositionDetails(position);
+      const bankTitle = getBankDetails(bankAddress).title;
+      const bankAssetValue = priceList[bankTitle];
+
+      collateral += Calculator.getPositionCollateral(position) * bankAssetValue;
+      borrow += Calculator.getPositionDebt(position) * bankAssetValue;
     });
 
     setGlobalInfo({

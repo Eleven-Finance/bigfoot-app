@@ -9,12 +9,12 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 import Web3Class from 'helpers/bigfoot/Web3Class'
-import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from 'helpers/bigfoot/Formatter';
 import farmPools from 'data/farmPools'
 import lendingOptions from 'data/lendingOptions'
 import Icon from "./Icon"
 import LeverageModal from './LeverageModal';
+import usePriceList from 'hooks/usePriceList';
 
 
 const renderPoolInfo = (pool) => {
@@ -53,21 +53,19 @@ function PositionsTable(props) {
 
   const {positions, updatePositions, showAll} = props;
 
+  const { priceList, isLoadingPriceList } = usePriceList();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chosenPosition, setChosenPosition] = useState(null);
   const [chosenPool, setChosenPool] = useState(null);
   const [userBalances, setUserBalances] = useState({});
-  const [priceList, setPriceList] = useState({});
   const [rewards, setRewards] = useState();
 
 
   useEffect( async () => {
     if(wallet.account) {
-
       const allBalances = web3Instance.getUserBalancesForPools(farmPools);
       setUserBalances(allBalances);
-      
-      updatePriceList();
     }
   }, [wallet]);
 
@@ -82,21 +80,6 @@ function PositionsTable(props) {
     }
   }, [positions]);
 
-  
-  const updatePriceList = async () => {
-    let banksAddressesArr = lendingOptions.map( option => option.bankAddress);
-    banksAddressesArr = banksAddressesArr.filter( addr => addr != null );
-
-    const prices = await Promise.all(banksAddressesArr.map( address => web3Instance.getBankReferenceAssetValueInUsd(address)));
-
-    const pricesObj = {};
-    banksAddressesArr.forEach( (address, index) => {
-      const bankTitle = lendingOptions.find( option => option.address === address).title;
-      pricesObj[bankTitle] = prices[index];
-    });
-
-    setPriceList(pricesObj);
-  }
 
   const togglemodal = (position, pool) => {
 

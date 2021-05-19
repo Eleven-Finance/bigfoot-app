@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useWallet } from '@binance-chain/bsc-use-wallet'
-import {
-  Button,
-  Table,
-} from "reactstrap"
+import {Button,Table} from "reactstrap"
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
@@ -15,7 +12,7 @@ import farmPools from 'data/farmPools'
 import lendingOptions from 'data/lendingOptions'
 import Icon from "./Icon"
 import LeverageModal from './LeverageModal';
-
+import Tooltip from '@material-ui/core/Tooltip';
 
 const renderPoolInfo = (pool) => {
   let icons;
@@ -59,7 +56,16 @@ function PositionsTable(props) {
   const [userBalances, setUserBalances] = useState({});
   const [priceList, setPriceList] = useState({});
   const [rewards, setRewards] = useState();
+  const [open, setOpen] = React.useState(false);
 
+  //Tooltip handle open and close:
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   useEffect( async () => {
     if(wallet.account) {
@@ -229,7 +235,7 @@ function PositionsTable(props) {
             <th scope="col">Bank</th>
             <th scope="col">#id</th>
             <th scope="col">Farm Pool</th>
-            <th scope="col">Collateral Value</th>
+            <th scope="col">Position Size</th>
             <th scope="col">Current Leverage</th>
             <th scope="col">Death Leverage</th>
             <th scope="col">Debt Ratio</th>
@@ -239,6 +245,12 @@ function PositionsTable(props) {
         <tbody>
           {positions.map(position => {
             const bank = lendingOptions.find( option => option.bankAddress === position.bankAddress );
+            const {totalSize: totalSizeWeis} = Calculator.extractPositionInfo(position);
+            const totalSize = Calculator.getAmoutFromWeis(totalSizeWeis);
+            const totalSizeValue = totalSize * priceList[bank.title];
+            const collateralText = `Collateral Value: $ ${Formatter.formatAmount(position.collateral * priceList[bank.title], 0)}`
+            const positionSizeText =  `Position Size: $ ${Formatter.formatAmount(totalSizeValue, 0)}`
+
             return (
               <tr key={position.positionId}>
                 <td>
@@ -256,10 +268,13 @@ function PositionsTable(props) {
                     {renderPoolInfo(position.pool)}
                   </div>
                 </td>
-                <td>
-                  <h5 className="font-size-14 mb-1">
-                    $ {Formatter.formatAmount(position.collateral * priceList[bank.title], 0)}
-                  </h5>
+                <td class="flex-container space-between">
+                  <div>
+                    $ {Formatter.formatAmount(totalSizeValue, 0) }
+                    <Tooltip title={<React.Fragment> <h5>{collateralText}</h5><h5>{positionSizeText}</h5> </React.Fragment> }>
+                      <i style={{marginLeft:'3px'}} id="TooltipRight" className="mdi mdi-information-outline"/>  
+                    </Tooltip>
+                  </div>
                 </td>
                 <td>
                   <h5 className="font-size-14 mb-1">

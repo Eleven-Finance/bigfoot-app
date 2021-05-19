@@ -256,8 +256,17 @@ function PositionsTable(props) {
                 <td class="flex-container space-between">
                   <div>
                     $ {Formatter.formatAmount(totalSizeValue, 0) }
-                    <Tooltip title={<React.Fragment> <h5>{collateralText}</h5><h5>{positionSizeText}</h5> </React.Fragment> }>
-                      <i style={{marginLeft:'3px'}} id="TooltipRight" className="mdi mdi-information-outline"/>  
+                    <Tooltip 
+                      placement='right' 
+                      arrow 
+                      title={
+                        <>
+                          <h5>{collateralText}</h5>
+                          <h5>{positionSizeText}</h5> 
+                        </>
+                      }
+                    >
+                      <i style={{marginLeft:'3px'}} id="TooltipRight" className="tooltip-trigger mdi mdi-information-outline"/>  
                     </Tooltip>
                   </div>
                 </td>

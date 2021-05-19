@@ -6,8 +6,9 @@
 //partials
 @import './variables.scss';
 
-//other imports
-@import './toasts.scss';
+//ui elements
+@import './elements/toasts.scss';
+@import './elements/tooltips.scss';
 
 
 
@@ -42,7 +43,7 @@
 
 /* Cards */
 .card {
-    background-color: #2a3042bf;
+    background-color: $intenseBlue;
     &.card-loading{
         &::after{
             content: '';

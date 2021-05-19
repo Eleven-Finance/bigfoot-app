@@ -223,3 +223,21 @@ body {
     margin-bottom:2px;
     width: 32px;
 }
+.children-img-responsive{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: stretch;
+    padding: 0;
+
+}
+.text-left{
+    text-align: left;
+}
+
+@media (max-width: 767px) {
+    .children-img-responsive{
+        justify-content: center;
+    }
+}

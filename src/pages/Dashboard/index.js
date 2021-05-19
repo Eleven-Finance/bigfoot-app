@@ -203,9 +203,18 @@ function Dashboard() {
                     <i className="mdi mdi-lock text-primary h1" />
                       Total Value Locked
                     </h4>
-                  <Row>
+                  <Row className="text-center">
                     <Col sm="12">
-                      <p className="total-value text-center">$ {Formatter.formatAmount(poolStats?.totalvaluelocked, 0)}</p>
+                      <p>
+                        <span className="font-size-16">BigFoot:</span><br />
+                        <span className="total-value">$ {Formatter.formatAmount(poolStats?.tvlbf, 0)}</span>
+                      </p>
+                    </Col>
+                    <Col sm="12">
+                      <p>
+                        <span className="font-size-16">Eleven Finance:</span><br />
+                        <span className="total-value-eleven">$ {Formatter.formatAmount(poolStats?.totalvaluelocked, 0)}</span>
+                      </p>
                     </Col>
                   </Row>
                 </CardBody>

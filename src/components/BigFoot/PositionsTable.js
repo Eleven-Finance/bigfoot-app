@@ -36,7 +36,9 @@ const renderPoolInfo = (pool) => {
       <span className="avatar-xs avatar-multi" style={{minWidth: "3rem"}}>
         {icons}
       </span>
-      <span>{pool.title}</span>
+      <span style={{minWidth: "7rem"}}>
+        {pool.title}
+      </span>
     </>
   );
 }

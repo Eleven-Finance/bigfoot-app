@@ -100,12 +100,13 @@ const Earn = () => {
     let counter = 0;
     options.filter( option => option.bankAddress ).map( (option) => {
       option.assets.map(async (asset) => {
-        let totalInDollar = 0;
-        let balance = await web3Instance.getUserBalance(asset.address);
-        if(balance > 0){
-          totalInDollar = balance * await web3Instance.getBankReferenceAssetValueInUsd(option.bankAddress);
+        let valueInBankReferenceAsset = 0;
+        let amount = await web3Instance.getUserBalance(asset.address);
+        if(amount > 0){
+          valueInBankReferenceAsset = parseFloat(amount * await web3Instance.getTokenValueInBankAsset(asset.address));
         }
-        newUserBalance[counter] = {title:option.title,code: asset.code,address:asset.address,value: balance,totalInUsd: totalInDollar};
+        console.log("valueInBankReferenceAsset",valueInBankReferenceAsset);
+        newUserBalance[counter] = {title:option.title, code: asset.code, address:asset.address, amount,valueInBankReferenceAsset};
         counter++;
       });
     });
@@ -684,96 +685,96 @@ const Earn = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {options.map((option, key) => {
-                          const stats = bankStats[option.title];
-                          let balanceValue = 0;
-                          userBalance.map((balance) => {
-                            if(balance.title == option.title){
-                              if(balance.title == 'bfUSD'){
-                                balanceValue += parseFloat(balance.value);
-                              }else{
-                                balanceValue = balance.value;
+                        { options.map((option, key) => {
+
+                            const stats = bankStats[option.title];
+                            
+                            let balanceValue = 0;
+                            userBalance.map((balance) => {
+                              if(balance.title == option.title){
+                                  balanceValue += balance.valueInBankReferenceAsset;
                               }
-                              
-                            }
-                          })
-                          return(
-                          <tr key={key}>
-                            <th scope="row">
-                              <div className="d-flex align-items-center">
-                                <div className="avatar-xs me-3">
-                                  <span className={"avatar-title rounded-circle bg-transparent"} >
-                                    <img src={option.bankIcon.default} />
-                                  </span>
+                            })
+                            
+                            return(
+                            <tr key={key}>
+                              <th scope="row">
+                                <div className="d-flex align-items-center">
+                                  <div className="avatar-xs me-3">
+                                    <span className={"avatar-title rounded-circle bg-transparent"} >
+                                      <img src={option.bankIcon.default} />
+                                    </span>
+                                  </div>
+                                  <span>{option.title}</span>
                                 </div>
-                                <span>{option.title}</span>
-                              </div>
-                            </th>
-                            <td>
-                              <div>
-                                <span>{option.referenceCurrency + " " + balanceValue }</span>
-                              </div>
-                            </td>
-                            <td>
-                              <div>
-                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(stats?.totalApy)} %` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                  `($${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)})` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  stats?.utilization === undefined ?  ' %' :
-                                  `${stats?.utilization.toFixed(2)} %` 
-                                }
-                                
-                              </h5>
-                              <div> 
-                                { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency}` 
-                                }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                  `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)})` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  stats?.bigfootChefBalance === null ? "--" :
-                                  `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" : 
-                                  `($${Formatter.formatAmount(stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd)})` }
-                              </div>
-                            </td>
-                            <td style={{ width: "120px" }}>
-                              {option.isComingSoon ? "Coming Soon" : renderActionButtons(option) }
-                            </td>
-                            <td style={{ width: "120px" }}>
-                              {option.isComingSoon ? "" : renderRewardButtons(option) }
-                            </td>
-                          </tr>
+                              </th>
+                              <td>
+                                <div>
+                                  <span>{ option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount(balanceValue, 0)}` :
+                                    `${Formatter.formatAmount(balanceValue)} ${option.referenceCurrency}` }</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div>
+                                  {option.isComingSoon ? "" : `${Formatter.getFormattedYield(stats?.totalApy)} %` }
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
+                                    `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
+                                </h5>
+                                <div className="text-muted">
+                                  { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
+                                    `($${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)})` }
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    stats?.utilization === undefined ?  ' %' :
+                                    `${stats?.utilization.toFixed(2)} %` 
+                                  }
+                                  
+                                </h5>
+                                <div className="text-muted"> 
+                                  { option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` :
+                                    `(${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency})` 
+                                  }
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)}` :
+                                    `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
+                                </h5>
+                                <div className="text-muted">
+                                  { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
+                                    `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)})` }
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    stats?.bigfootChefBalance === null ? "--" :
+                                    `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
+                                </h5>
+                                <div className="text-muted">
+                                  { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" : 
+                                    `($${Formatter.formatAmount(stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd)})` }
+                                </div>
+                              </td>
+                              <td style={{ width: "120px" }}>
+                                {option.isComingSoon ? "Coming Soon" : renderActionButtons(option) }
+                              </td>
+                              <td style={{ width: "120px" }}>
+                                {option.isComingSoon ? "" : renderRewardButtons(option) }
+                              </td>
+                            </tr>
                         )})}
                       </tbody>
                     </Table>

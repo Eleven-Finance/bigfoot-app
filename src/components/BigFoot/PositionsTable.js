@@ -12,6 +12,8 @@ import farmPools from 'data/farmPools'
 import lendingOptions from 'data/lendingOptions'
 import Icon from "./Icon"
 import LeverageModal from './LeverageModal';
+import usePriceList from 'hooks/usePriceList';
+
 import Tooltip from '@material-ui/core/Tooltip';
 
 const renderPoolInfo = (pool) => {
@@ -34,7 +36,9 @@ const renderPoolInfo = (pool) => {
       <span className="avatar-xs avatar-multi" style={{minWidth: "3rem"}}>
         {icons}
       </span>
-      <span>{pool.title}</span>
+      <span style={{minWidth: "7rem"}}>
+        {pool.title}
+      </span>
     </>
   );
 }
@@ -50,11 +54,12 @@ function PositionsTable(props) {
 
   const {positions, updatePositions, showAll} = props;
 
+  const { priceList, isLoadingPriceList } = usePriceList();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chosenPosition, setChosenPosition] = useState(null);
   const [chosenPool, setChosenPool] = useState(null);
   const [userBalances, setUserBalances] = useState({});
-  const [priceList, setPriceList] = useState({});
   const [rewards, setRewards] = useState();
   const [open, setOpen] = React.useState(false);
 
@@ -69,11 +74,8 @@ function PositionsTable(props) {
 
   useEffect( async () => {
     if(wallet.account) {
-
       const allBalances = web3Instance.getUserBalancesForPools(farmPools);
       setUserBalances(allBalances);
-      
-      updatePriceList();
     }
   }, [wallet]);
 
@@ -88,21 +90,6 @@ function PositionsTable(props) {
     }
   }, [positions]);
 
-  
-  const updatePriceList = async () => {
-    let banksAddressesArr = lendingOptions.map( option => option.bankAddress);
-    banksAddressesArr = banksAddressesArr.filter( addr => addr != null );
-
-    const prices = await Promise.all(banksAddressesArr.map( address => web3Instance.getBankReferenceAssetValueInUsd(address)));
-
-    const pricesObj = {};
-    banksAddressesArr.forEach( (address, index) => {
-      const bankTitle = lendingOptions.find( option => option.address === address).title;
-      pricesObj[bankTitle] = prices[index];
-    });
-
-    setPriceList(pricesObj);
-  }
 
   const togglemodal = (position, pool) => {
 
@@ -271,8 +258,17 @@ function PositionsTable(props) {
                 <td class="flex-container space-between">
                   <div>
                     $ {Formatter.formatAmount(totalSizeValue, 0) }
-                    <Tooltip title={<React.Fragment> <h5>{collateralText}</h5><h5>{positionSizeText}</h5> </React.Fragment> }>
-                      <i style={{marginLeft:'3px'}} id="TooltipRight" className="mdi mdi-information-outline"/>  
+                    <Tooltip 
+                      placement='right' 
+                      arrow 
+                      title={
+                        <>
+                          <h5>{collateralText}</h5>
+                          <h5>{positionSizeText}</h5> 
+                        </>
+                      }
+                    >
+                      <i style={{marginLeft:'3px'}} id="TooltipRight" className="tooltip-trigger mdi mdi-information-outline"/>  
                     </Tooltip>
                   </div>
                 </td>

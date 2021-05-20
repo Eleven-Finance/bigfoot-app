@@ -1,0 +1,13 @@
+.tooltip-trigger {
+  cursor: pointer;
+}
+
+[class^='MuiTooltip-tooltip'] {
+  background: $blueBigFoot !important;
+  padding-top: 0.8rem !important;
+  padding-bottom: 0.4rem !important;
+  > * {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+  }
+}

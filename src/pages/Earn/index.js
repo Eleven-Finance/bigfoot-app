@@ -54,7 +54,7 @@ const Earn = () => {
     withdrawalChosenAsset: null,
   });
   const [bnbPrice, setBnbPrice] = useState(0);
-  const [nerveSingleAssetValues, setSingleAssetValues] = useState({});
+  const [singleAssetValues, setSingleAssetValues] = useState({}); //
   const [walletBalance, setWalletBalance] = useState(0);
   const [userSupplyBalance, setUserSupplyBalance] = useState(0);
   const [userPendingRewards, setUserPendingRewards] = useState({});
@@ -175,7 +175,7 @@ const Earn = () => {
   }
 
 
-  const updateSingleAssetValues = async (bankAddress,coinName) => {
+  const updateSingleAssetValues = async (bankAddress, coinName) => {
     const amount = formData.assetAmounts[coinName];
     switch (coinName) {
       case 'bfBNB':
@@ -183,15 +183,9 @@ const Earn = () => {
           setSingleAssetValues({
             BNB: 0,
           });  
-        }else {
-         // const ratio = await web3Instance.getRatio3poolPerBfusd();
+        } else {
           const amountWeis = Calculator.getWeiStrFromAmount(amount) 
           const amountBNB = await web3Instance.convertBfsToBankCurrency(bankAddress, amountWeis);
-          // const amountBNB = Calculator.getAmoutFromWeis(amountBNBWeis)
-          // console.log(amountBNBWeis);
-          // console.log(amountBNB);
-          // const resultBNB= amount * await web3Instance.getBnbPrice();
-          // console.log(ratio)
           setSingleAssetValues({
             BNB: amountBNB
           });
@@ -217,9 +211,6 @@ const Earn = () => {
             "3NRV-LP": result3nrvLps
           });
         }  
-        break;
-  
-      default:
         break;
     }
     
@@ -515,12 +506,12 @@ const Earn = () => {
               let display;
 
               if(selectedOption.title==="bfBNB"){
-                amount = nerveSingleAssetValues[asset.code] || 0;;
-                value = Formatter.formatAmount(parseFloat(amount), 4)
+                amount = singleAssetValues[asset.code] || 0;;
+                value = Formatter.formatAmount(amount, 4)
                 display = `${value}`;
               }else if(selectedOption.title==="bfUSD"){
-                amount = nerveSingleAssetValues[asset.code] || 0;
-                value = Formatter.formatAmount(parseFloat(amount), 2)
+                amount = singleAssetValues[asset.code] || 0;
+                value = Formatter.formatAmount(amount, 2)
                 display = `${value}`;
               }
 
@@ -610,8 +601,8 @@ const Earn = () => {
       const rewardsNRV = Calculator.getAmoutFromWeis(userPendingRewards[option.title].nrv);
       return (
         <>
-          { Formatter.formatAmount( parseFloat(rewardsELE), 6) } ELE<br />
-          { Formatter.formatAmount( parseFloat(rewardsNRV), 6) } 11NRV<br />
+          { Formatter.formatAmount(rewardsELE, 6) } ELE<br />
+          { Formatter.formatAmount(rewardsNRV, 6) } 11NRV<br />
           <Button
             style={{ width: "100%" }}
             className="mt-1"

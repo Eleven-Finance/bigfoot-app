@@ -9,7 +9,7 @@ export const addressBigfoot11UsdtBusd = "0x97E1227D1d0072d9eCf72065e60B64F883dA7
 //strategies
 export const addressStrategyZapperAddSingleAsset = "";
 export const addressStrategyZapperAdd = "0xCb84813806225D629dFb9C651A3d600955135998";
-export const addressStrategyAddUsdtBusdWlp = "0x10D05DA695bfD85E187bA3901dcDaFC6359bbd27";
+export const addressStrategyAddUsdtBusdWlp = "0x5d1F6f28847a1699a9Ab3d2AA9Cb94543f40C797";
 export const addressStrategyLiquidation11xxxBnb = "0x2d679e20A5E2461E6ADCa390DCD30c583F85B5b1";
 export const addressStrategyLiquidation11xxxUsdtBusdWex = "0x6A86DF83e6D81F53B9995758eD3202b68C32fa9D";
 export const addressStrategyDummy = "0xc8b6d2F8FBd8B16ce2f3AeFE41b46E2f6f59267F";

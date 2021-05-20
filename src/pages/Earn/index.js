@@ -30,6 +30,7 @@ import Calculator from 'helpers/bigfoot/Calculator'
 import Formatter from "helpers/bigfoot/Formatter"
 import ApprovalModal from "components/BigFoot/ApprovalModal";
 import useApiStats from 'hooks/useApiStats';
+import { map } from "lodash";
 
 const Earn = () => {
 
@@ -57,12 +58,14 @@ const Earn = () => {
   const [walletBalance, setWalletBalance] = useState(0);
   const [userSupplyBalance, setUserSupplyBalance] = useState(0);
   const [userPendingRewards, setUserPendingRewards] = useState({});
+  const [userBalance, setUserBalance] = useState([]);
 
   useEffect( async () => {
     if(wallet.account) {
       //get BNB price
       const priceBnb = await web3Instance.getBnbPrice();
       setBnbPrice(priceBnb);
+      updateUserBalance();
     }
   }, [wallet.account]);
 
@@ -79,6 +82,7 @@ const Earn = () => {
 
   
   useEffect( async () => {
+
     if(wallet.account) {
       updateBankStats();
     }
@@ -91,6 +95,22 @@ const Earn = () => {
   }, [formData]);
 
 
+  const updateUserBalance = () => {
+    const newUserBalance = JSON.parse(JSON.stringify(userBalance));
+    let counter = 0;
+    options.filter( option => option.bankAddress ).map( (option) => {
+      option.assets.map(async (asset) => {
+        let totalInDollar = 0;
+        let balance = await web3Instance.getUserBalance(asset.address);
+        if(balance > 0){
+          totalInDollar = balance * await web3Instance.getBankReferenceAssetValueInUsd(option.bankAddress);
+        }
+        newUserBalance[counter] = {title:option.title,code: asset.code,address:asset.address,value: balance,totalInUsd: totalInDollar};
+        counter++;
+      });
+    });
+    setUserBalance(newUserBalance);
+  }
   const updateWalletBalance = () => {
     const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
     const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
@@ -614,7 +634,7 @@ const Earn = () => {
       );
     }
   }
-  
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -662,9 +682,9 @@ const Earn = () => {
                       <thead>
                         <tr>
                           <th scope="col"></th>
+                          <th scope="col">Balance</th>
                           <th scope="col">APY</th>
                           <th scope="col">Total Supply</th>
-                          <th scope="col">Total Borrow</th>
                           <th scope="col">Utilization</th>
                           <th scope="col">BigFoot Balance</th>
                           <th scope="col">BigFoot Chef</th>
@@ -675,6 +695,17 @@ const Earn = () => {
                       <tbody>
                         {options.map((option, key) => {
                           const stats = bankStats[option.title];
+                          let balanceValue = 0;
+                          userBalance.map((balance) => {
+                            if(balance.title == option.title){
+                              if(balance.title == 'bfUSD'){
+                                balanceValue += parseFloat(balance.value);
+                              }else{
+                                balanceValue = balance.value;
+                              }
+                              
+                            }
+                          })
                           return(
                           <tr key={key}>
                             <th scope="row">
@@ -687,6 +718,11 @@ const Earn = () => {
                                 <span>{option.title}</span>
                               </div>
                             </th>
+                            <td>
+                              <div>
+                                <span>{option.referenceCurrency + " " + balanceValue }</span>
+                              </div>
+                            </td>
                             <td>
                               <div>
                                 {option.isComingSoon ? "" : `${Formatter.getFormattedYield(stats?.totalApy)} %` }
@@ -706,21 +742,17 @@ const Earn = () => {
                             <td>
                               <h5 className="font-size-14 mb-1">
                                 { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" :  
-                                  `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
                                   stats?.utilization === undefined ?  ' %' :
                                   `${stats?.utilization.toFixed(2)} %` 
                                 }
+                                
                               </h5>
+                              <div> 
+                                { option.isComingSoon ? "" : 
+                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency}` 
+                                }
+                              </div>
                             </td>
                             <td>
                               <h5 className="font-size-14 mb-1">

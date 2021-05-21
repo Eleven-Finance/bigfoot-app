@@ -19,7 +19,7 @@ class Formatter {
 
   
   static getFormattedYield(amount, precision = 2) {
-    if (amount === undefined) {
+    if (amount === undefined || isNaN(amount)) {
       return '--'; // while loading
     }
 

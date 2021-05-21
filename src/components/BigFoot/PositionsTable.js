@@ -61,16 +61,6 @@ function PositionsTable(props) {
   const [chosenPool, setChosenPool] = useState(null);
   const [userBalances, setUserBalances] = useState({});
   const [rewards, setRewards] = useState();
-  const [open, setOpen] = React.useState(false);
-
-  //Tooltip handle open and close:
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
 
   useEffect( async () => {
     if(wallet.account) {
@@ -268,7 +258,7 @@ function PositionsTable(props) {
                         </>
                       }
                     >
-                      <i style={{marginLeft:'3px'}} id="TooltipRight" className="tooltip-trigger mdi mdi-information-outline"/>  
+                      <i style={{marginLeft:'0.3rem'}} className="tooltip-trigger mdi mdi-information-outline"/>  
                     </Tooltip>
                   </div>
                 </td>

@@ -20,6 +20,8 @@ import {
   ButtonGroup,
 } from "reactstrap"
 
+import Tooltip from '@material-ui/core/Tooltip';
+
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
@@ -132,18 +134,27 @@ const Earn = () => {
       if(option.bankAddress){
 
         //get bank stats
-        newStats[option.title] = await web3Instance.getBankStats(option.bankAddress);
+        let data = await web3Instance.getBankStats(option.bankAddress);
         
-        //calc totalApy
-        const bigfootFarm = farmOptions.find( farm => farm.address === option.bankAddress );
-        if(bigfootFarm){ //if there's a bigfoot farm --> totalApy = lendApy + eleApr
-          const eleApr = apiStats?.[bigfootFarm?.apiKey]?.farm?.aprl;
-          if (newStats[option.title].lendApy && eleApr) {
-            newStats[option.title].totalApy = newStats[option.title].lendApy + eleApr;
-          }
-        } else { // if there's no farm, get totalApy from the API
-          newStats[option.title].totalApy = apiStats?.[option.apiKey]?.farm?.apy;
+        //calc yields
+        const yieldsObj = {};
+        yieldsObj["Lend APY"] = data.lendApy;
+        yieldsObj["ELE APR"] = apiStats?.[option.apiKey]?.farm?.aprl;
+
+        if (option.title === "bfUSD") {
+          yieldsObj["11NRV"] = apiStats?.["3NRV LP"]?.vault?.apy * (1 - data.utilization/100);
         }
+        
+        data.yields = yieldsObj;
+        data.totalApy = Object.values(yieldsObj).reduce( (accumulator, value) => {
+          if(parseFloat(value)){
+            return accumulator + value;
+          } else {
+            return accumulator;
+          }
+        });
+
+        newStats[option.title] = data;
 
         setTimeout(() => {
           setBankStats(newStats);
@@ -385,6 +396,48 @@ const Earn = () => {
     }
   }
 
+  const renderTotalApy = (stats) => {
+    if( !stats ){
+      return '--'
+    } else {
+      return (
+        <>
+          {Formatter.getFormattedYield(stats?.totalApy)} %
+          <Tooltip
+            placement='right'
+            arrow
+            title={
+              <ul>
+                {/* yields */}
+                {Object.entries(stats?.yields).map( ([key, value]) => {
+                  if(key === "11NRV"){ //includes disclaimer msg
+                    return(
+                      <li>
+                        <h5 key={key}>
+                          {key}: {Formatter.getFormattedYield(value)} %*
+                        </h5>
+                        <h6>* 2/3 vest in 6 months</h6>
+                      </li>
+                    );
+                  } else {
+                    return(
+                      <li>
+                        <h5 key={key}>
+                          {key}: {Formatter.getFormattedYield(value)}%
+                        </h5>
+                      </li>
+                    );
+                  }
+                })}
+              </ul>
+            }
+          >
+            <i style={{marginLeft:'0.3rem'}} className="tooltip-trigger mdi mdi-information-outline" />
+          </Tooltip>
+        </>
+      );
+    }
+  }
 
   const renderFormContent = () => {
 
@@ -680,7 +733,7 @@ const Earn = () => {
                             </th>
                             <td>
                               <div>
-                                {option.isComingSoon ? "" : `${Formatter.getFormattedYield(stats?.totalApy)} %` }
+                                { option.isComingSoon ? "" : renderTotalApy(stats) }
                               </div>
                             </td>
                             <td>

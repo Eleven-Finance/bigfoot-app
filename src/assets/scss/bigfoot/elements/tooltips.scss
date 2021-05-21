@@ -2,8 +2,12 @@
   cursor: pointer;
 }
 
+[class^='MuiTooltip-popper'] {
+  opacity: 1 !important;
+}
 [class^='MuiTooltip-tooltip'] {
   background: $blueBigFoot !important;
+  box-shadow: 1px 1px 2px 1px #000 !important;
   padding-top: 0.8rem !important;
   padding-bottom: 0.4rem !important;
   > * {

@@ -749,12 +749,12 @@ const Earn = () => {
                               <td>
                                 <h5 className="font-size-14 mb-1">
                                   { option.isComingSoon ? "" : 
-                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)}` :
+                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))}` :
                                     `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
                                 </h5>
                                 <div className="text-muted">
                                   { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                    `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd), 0)})` }
+                                    `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))})` }
                                 </div>
                               </td>
                               <td>

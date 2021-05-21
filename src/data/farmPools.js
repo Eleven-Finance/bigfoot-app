@@ -36,7 +36,6 @@ const farmPools = [
     ],
     rates: {
       yieldFarming: 0,
-      eleApr: 0,
       borrowApy: 0,
     },
     percentage: 0,
@@ -64,7 +63,6 @@ const farmPools = [
     ],
     rates: {
       yieldFarming: 0,
-      eleApr: 0,
       tradingFee: 13.87,
       borrowApy: 0,
     },
@@ -93,7 +91,6 @@ const farmPools = [
     ],
     rates: {
       yieldFarming: 0,
-      eleApr: 0,
       tradingFee: 0, //wex (no trading fee)
       borrowApy: 0,
     },

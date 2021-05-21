@@ -120,7 +120,6 @@ function Dashboard() {
       const multiplier = (currentLeverage - 1) * 2;
 
       const yieldFarming = data.farm.aprd * 365 * currentLeverage;
-      const eleApr = data.farm.aprl * currentLeverage;
       const tradingFee = (poolInitialValues.rates.tradingFee ?? 0) * multiplier;
 
       let borrowApy = 0;
@@ -128,8 +127,8 @@ function Dashboard() {
         borrowApy = apiStats[currentBank.apiKey].baseborrowapy * multiplier / 2 * (-1);
       }
 
-      currentPool.rates = { yieldFarming, eleApr, tradingFee, borrowApy }
-      currentPool.percentage = yieldFarming + eleApr + tradingFee + borrowApy;
+      currentPool.rates = { yieldFarming, tradingFee, borrowApy }
+      currentPool.percentage = yieldFarming + tradingFee + borrowApy;
       currentPool.percentageOut = data.farm.aprd * 365;
     });
     setPools(newPools);
@@ -370,7 +369,6 @@ function Dashboard() {
                                     <Row key={key}>
                                       <Col sm="6">
                                         {key === 'yieldFarming' && 'Yield Farming'}
-                                        {key === 'eleApr' && 'ELE APR'}
                                         {key === 'tradingFee' && 'Trading Fee'}
                                         {key === 'borrowApy' && 'Borrow APY'}
                                       </Col>

@@ -17,7 +17,6 @@ import {
   Form,
   FormGroup,
   InputGroup,
-  ButtonGroup,
 } from "reactstrap"
 
 import Tooltip from '@material-ui/core/Tooltip';
@@ -42,11 +41,11 @@ const Earn = () => {
 
   const { isLoadingApiStats, apiStats } = useApiStats();
 
-  const [options, setOptions] = useState(lendingOptions);
+  const options = lendingOptions;
   const [bankStats, setBankStats] = useState({});
   const [loadingBankStats, setLoadingBankStats] = useState(false);
   const [isModalOpen, setisModalOpen] = useState(false);
-  const [ assetToApprove, setAssetToApprove ] = useState(null);
+  const [ assetsToApprove, setAssetsToApprove ] = useState([]);
   const [formData, setFormData] = useState({
     chosenOption: '', // lending option chosen by the user
     action: '', // supply,withdraw
@@ -79,7 +78,6 @@ const Earn = () => {
     }
   }, [wallet, bankStats, bnbPrice]);
 
-  
   useEffect( async () => {
     if(wallet.account) {
       updateBankStats();
@@ -91,7 +89,6 @@ const Earn = () => {
       updateSingleAssetValues(formData.chosenOption?.bankAddress,formData.chosenOption?.title);
     }
   }, [formData]);
-
 
   const updateWalletBalance = () => {
     const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
@@ -125,7 +122,6 @@ const Earn = () => {
 
     setUserPendingRewards(newPendingRewards);
   }
-
 
   const updateBankStats = async () => {
     setLoadingBankStats(true);
@@ -164,7 +160,6 @@ const Earn = () => {
       }
     });
   }
-
 
   const updateSingleAssetValues = async (bankAddress, coinName) => {
     const amount = formData.assetAmounts[coinName];
@@ -245,11 +240,9 @@ const Earn = () => {
     }
   }
 
-  const toggleApprovalModal = (assetDetails) => {
-    if (assetToApprove) {
-      setAssetToApprove(null);
-    } else {
-      setAssetToApprove(assetDetails);
+  const toggleApprovalModal = () => {
+    if (assetsToApprove) {
+      setAssetsToApprove([]);
     }
   }
 
@@ -285,9 +278,7 @@ const Earn = () => {
     updateAssetAmounts(assetCode, newAmount);
   }
 
-
   const sendTransaction = async (option) => {
-
     /* Validation */
     if( Object.values(formData.assetAmounts).every( amount => !amount ) ){
       toast.warn("Please enter a valid amount")
@@ -315,19 +306,21 @@ const Earn = () => {
       amounts = Calculator.getWeiStrFromAmount(formData.assetAmounts[assetCode]);
     }
 
-
     /* Check approvals */
-    for(const asset of option.assets){
-      if( asset.address && formData.assetAmounts[asset.code] > 0 ){ //note: skips if address null (native token)
+    let count = 0;
+    for(const asset of option.assets) {
+      if(asset.address && formData.assetAmounts[asset.code] > 0){ //note: skips if address null (native token)
         const isApproved = await web3Instance.checkApproval(asset.address, option.bankAddress);
-        if(!isApproved){
-          setAssetToApprove(asset); //if user supplies vault asset & that asset is not approved, request approval
-          return; //exit
+        if (!isApproved) {
+          setAssetsToApprove(prevItems => [...prevItems, asset]);
+          count += 1;
         }
       }
     }
-    setAssetToApprove(null); //all assets approved
-
+    // If have any approval pending, exit
+    if (count) {
+      return;
+    }
 
 
     /* Submit tx */
@@ -595,7 +588,6 @@ const Earn = () => {
     );
   }
 
-
   const requestHarvest = async (bankAddress) => {
     const claim = await web3Instance.reqClaimRewards(bankAddress)
     claim.send({ from: userAddress })
@@ -613,7 +605,6 @@ const Earn = () => {
       });
 
   }
-
 
   const renderRewardButtons = (option) => {
     const bankHasFarm = (option.title === "bfBNB") ? true : false;
@@ -658,12 +649,11 @@ const Earn = () => {
       );
     }
   }
-  
+
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-
           <Row>
             <Col xs="12">
               <Card>
@@ -848,10 +838,9 @@ const Earn = () => {
                   </div>
                 </Modal>
 
-                { assetToApprove && 
-                  <ApprovalModal assetToApprove={assetToApprove} bigfootAddress={formData.chosenOption.bankAddress} toggleApprovalModal={toggleApprovalModal} />
+                {assetsToApprove?.length &&
+                  <ApprovalModal assetsToApprove={assetsToApprove} bigfootAddress={formData.chosenOption.bankAddress} toggleApprovalModal={toggleApprovalModal} />
                 }
-
               </Card>
             </Col>
           </Row>

@@ -44,7 +44,7 @@ function LeverageModal(props) {
     pool.currencies.map(currency => [currency.code, 0])
   );
 
-  const [ assetToApprove, setAssetToApprove ] = useState(null);
+  const [ assetsToApprove, setAssetsToApprove ] = useState([]);
   const [ contractToApprove, setContractToApprove ] = useState(null);
   const [ borrowFactor, setBorrowFactor ] = useState( initialLeverage ?? 2);
   const [ currencySupply, setCurrencySupply ] = useState(initialSupply);
@@ -62,7 +62,6 @@ function LeverageModal(props) {
       setCurrencyValues(values);
     }
   }, [wallet]);
-
 
   const updateCurrencySupply = (currencyCode, value) => {
     const newCurrencySupply = {...currencySupply};
@@ -89,9 +88,7 @@ function LeverageModal(props) {
     updateCurrencySupply(currencyCode, amount);
   }
 
-
   const renderSlider = (pool) => {
-
     const sliderMax = Math.floor(pool.maxLeverage * 2) / 2; //round to the nearest 0.5
     const sliderLabels = {};
 
@@ -117,20 +114,18 @@ function LeverageModal(props) {
     );
   }
 
-
   const toggleApprovalModal = (assetDetails, contractDetails) => {
-    if (assetToApprove) {
-      setAssetToApprove(null);
+    if (assetsToApprove) {
+      setAssetsToApprove([]);
       setContractToApprove(null);
     } else {
-      setAssetToApprove(assetDetails);
+      setAssetsToApprove(assetDetails);
       setContractToApprove(contractDetails);
     }
   }
 
 
   const sendTransaction = async () => {
-
     // VALIDATION
     if( Object.values(currencySupply).every( amount => !amount ) ){
       toast.warn("Please enter a valid amount")
@@ -142,9 +137,9 @@ function LeverageModal(props) {
     const bankCurrency = bank.referenceCurrency;
 
     /* Check approvals */
+    let count = 0;
     for( const [index, currency] of pool.currencies.entries() ){
       if( currency.address && currencySupply[currency.code] > 0 ){ //note: skips if address null (native token)
-
         //spenderAddress: for now, we're assuming...
         // - first currency has to be approved against bigfoot contract
         // - all other currencies in the array have to be approved against bank contract
@@ -154,15 +149,19 @@ function LeverageModal(props) {
 
         if(!isApproved){
           //if user supplies vault asset & that asset is not approved, request approval
-          setAssetToApprove(currency); 
-          setContractToApprove(spenderAddress); 
-          return; //EXIT
+          setAssetsToApprove(prevItems => [...prevItems, currency]);
+          setContractToApprove(spenderAddress);
+          count += 1;
         }
       }
     }
 
+    // If have any approval pending, exit
+    if (count) {
+      return;
+    }
     //all assets approved
-    setAssetToApprove(null); 
+    setAssetsToApprove([]);
     setContractToApprove(null); 
 
 
@@ -324,8 +323,8 @@ function LeverageModal(props) {
       </div>
     </Modal>
     
-    { assetToApprove && contractToApprove &&
-      <ApprovalModal assetToApprove={assetToApprove} bigfootAddress={contractToApprove} toggleApprovalModal={toggleApprovalModal} />
+    {assetsToApprove.length && contractToApprove &&
+      <ApprovalModal assetsToApprove={assetsToApprove} bigfootAddress={contractToApprove} toggleApprovalModal={toggleApprovalModal} />
     }
     
     </>

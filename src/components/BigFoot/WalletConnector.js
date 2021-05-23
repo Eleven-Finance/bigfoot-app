@@ -11,7 +11,6 @@ import {
 
 import './WalletConnector.scss'
 import { Metamask, Binance } from '../../assets/images/bigfoot/icons-wallet/_index'
-import { getProviderDescription } from 'web3modal';
 
 const getShortAddress = (address) => {
   return address.length < 11 ?

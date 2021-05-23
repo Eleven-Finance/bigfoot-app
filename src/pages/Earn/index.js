@@ -55,33 +55,17 @@ const Earn = () => {
     assetBalance: {},
     withdrawalChosenAsset: null,
   });
-  const [bnbPrice, setBnbPrice] = useState(0);
-  const [singleAssetValues, setSingleAssetValues] = useState({}); //
-  const [walletBalance, setWalletBalance] = useState(0);
-  const [userSupplyBalance, setUserSupplyBalance] = useState(0);
+  const [singleAssetValues, setSingleAssetValues] = useState({});
   const [userPendingRewards, setUserPendingRewards] = useState({});
   const [userBalance, setUserBalance] = useState([]);
 
+  
   useEffect( async () => {
     if(wallet.account) {
-      //get BNB price
-      const priceBnb = await web3Instance.getBnbPrice();
-      setBnbPrice(priceBnb);
       updateUserBalance();
+      updateUserPendingRewards();
     }
   }, [wallet.account]);
-
-  useEffect( async () => {
-    if(wallet.account && wallet.balance && bnbPrice) {
-      updateWalletBalance();
-      updateSupplyBalance();
-      updateUserPendingRewards();
-    } else {
-      setWalletBalance(0);
-      setUserSupplyBalance(0);
-    }
-  }, [wallet, bankStats, bnbPrice]);
-
   
   useEffect( async () => {
     if(wallet.account) {
@@ -115,29 +99,6 @@ const Earn = () => {
       });
     });
     setUserBalance(newUserBalance);
-  }
-  const updateWalletBalance = () => {
-    const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
-    const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
-    setWalletBalance( walletBalanceUsd );
-  }
-
-  const updateSupplyBalance = async () => {
-    let totalUserBalanceUsd = 0;
-    options.forEach( async (option) => {
-      const stats = bankStats[option.title];
-      if(option.address){
-        const bigfootBalanceValue = stats?.bigfootBalance * stats?.referenceAssetValueInUsd;
-        const bigfootChefBalanceValue = stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd;
-        if(bigfootBalanceValue){
-          totalUserBalanceUsd += bigfootBalanceValue;
-        }
-        if(bigfootChefBalanceValue){
-          totalUserBalanceUsd += bigfootChefBalanceValue;
-        }
-      }
-    });
-    setUserSupplyBalance( totalUserBalanceUsd );
   }
 
   const updateUserPendingRewards = () => {
@@ -374,7 +335,6 @@ const Earn = () => {
           toast.info(`Supply in process. ${hash}`)
         })
         .on('receipt', function (receipt) {
-          updateSupplyBalance();
           updateBankStats();
           toast.success(`Supply completed.`)
         })
@@ -406,7 +366,6 @@ const Earn = () => {
           toast.info(`Withdraw in process. ${hash}`)
         })
         .on('receipt', function (receipt) {
-          updateSupplyBalance();
           updateBankStats();
           toast.success(`Withdraw completed.`)
         })
@@ -685,35 +644,6 @@ const Earn = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-
-          <Row>
-            <Col xs="12">
-              <Card>
-                <CardBody>
-                  <h4 className="card-title">
-                    <i className="mdi mdi-information-variant text-primary h1" />
-                    Your info
-                  </h4>
-
-                  <Row className="text-center mt-3">
-                    <Col sm="6">
-                      <div>
-                        <p className="mb-2">Wallet Balance</p>
-                        <p className="total-value">$ {Formatter.formatAmount(walletBalance)}</p>
-                      </div>
-                    </Col>
-                    <Col sm="6">
-                      <div>
-                        <p className="mb-2">Supply Balance</p>
-                        <p className="total-value">$ {Formatter.formatAmount(userSupplyBalance  )}</p>
-                      </div>
-                    </Col>
-                  </Row>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-
           <Row>
             <Col xl="12">
               <Card className={ loadingBankStats ? 'card-loading' : ''}>

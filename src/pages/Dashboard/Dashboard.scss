@@ -28,3 +28,12 @@
         margin-bottom: 4rem;
     }
 }
+
+@media (max-width: 767px) {
+    #detailsTable{
+        min-width:200px;
+    }
+    .width50{
+        width: 50% !important;
+    }
+}

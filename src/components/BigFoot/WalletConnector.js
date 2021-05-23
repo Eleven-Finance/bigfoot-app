@@ -11,6 +11,7 @@ import {
 
 import './WalletConnector.scss'
 import { Metamask, Binance } from '../../assets/images/bigfoot/icons-wallet/_index'
+import { getProviderDescription } from 'web3modal';
 
 const getShortAddress = (address) => {
   return address.length < 11 ?
@@ -35,7 +36,6 @@ const WalletConnector = () => {
     }
   }, [])
 
-  
   const connectWallet = async (connector) => {
 
     await wallet.reset(); //needed to force an update of wallet properties (wallet.account, wallet.status)
@@ -43,6 +43,7 @@ const WalletConnector = () => {
 
     switch (connector) {
       case 'injected':
+        setProvider();
         wallet.connect();
         localStorage.setItem(storageKey, 'injected')
         break;
@@ -57,6 +58,35 @@ const WalletConnector = () => {
     setisModalOpen(false);
   }
 
+  const setProvider = async () => {
+    const provider = window.ethereum;
+    const nodes = [process.env.REACT_APP_NODE_1, process.env.REACT_APP_NODE_2, process.env.REACT_APP_NODE_3]
+    if (provider) { 
+      const chainId = parseInt(process.env.REACT_APP_CHAIN_ID, 10)
+      try{
+          await provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: `0x${chainId.toString(16)}`,
+              chainName: 'Binance Smart Chain Mainnet',
+              nativeCurrency: {
+                name: 'BNB',
+                symbol: 'bnb',
+                decimals: 18,
+              },
+              rpcUrls: nodes,
+              blockExplorerUrls: ['https://bscscan.com/'],
+            },
+          ],
+        })
+      }catch(exception){
+        console.log("exception",exception);
+      }
+    } else {
+      console.error("Can't setup the BSC network on metamask because window.ethereum is undefined")
+    }
+  }
 
   const resetWallet = () => {
     wallet.reset();

@@ -33,6 +33,7 @@ import Formatter from "helpers/bigfoot/Formatter"
 import ApprovalModal from "components/BigFoot/ApprovalModal";
 import useApiStats from 'hooks/useApiStats';
 
+
 const Earn = () => {
 
   //wallet & web3
@@ -59,12 +60,14 @@ const Earn = () => {
   const [walletBalance, setWalletBalance] = useState(0);
   const [userSupplyBalance, setUserSupplyBalance] = useState(0);
   const [userPendingRewards, setUserPendingRewards] = useState({});
+  const [userBalance, setUserBalance] = useState([]);
 
   useEffect( async () => {
     if(wallet.account) {
       //get BNB price
       const priceBnb = await web3Instance.getBnbPrice();
       setBnbPrice(priceBnb);
+      updateUserBalance();
     }
   }, [wallet.account]);
 
@@ -93,6 +96,26 @@ const Earn = () => {
   }, [formData]);
 
 
+  const updateUserBalance = () => {
+    let newUserBalance = JSON.parse(JSON.stringify(userBalance));
+    options.filter( option => option.bankAddress ).forEach( (option) => {
+      option.assets.forEach(async (asset) => {
+        let valueInBankReferenceAsset = 0;
+        let amount = await web3Instance.getUserBalance(asset.address);
+        if(amount > 0){
+          valueInBankReferenceAsset = parseFloat(amount * await web3Instance.getTokenValueInBankAsset(asset.address));
+        }
+        newUserBalance.push({
+          title: option.title, 
+          code: asset.code, 
+          address: asset.address, 
+          amount,
+          valueInBankReferenceAsset
+        });
+      });
+    });
+    setUserBalance(newUserBalance);
+  }
   const updateWalletBalance = () => {
     const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
     const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
@@ -405,15 +428,14 @@ const Earn = () => {
           {Formatter.getFormattedYield(stats?.totalApy)} %
           <Tooltip
             placement='right'
-            arrow
             title={
               <ul>
                 {/* yields */}
                 {Object.entries(stats?.yields).map( ([key, value]) => {
                   if(key === "11NRV"){ //includes disclaimer msg
                     return(
-                      <li>
-                        <h5 key={key}>
+                      <li key={key}>
+                        <h5>
                           {key}: {Formatter.getFormattedYield(value)} %*
                         </h5>
                         <h6>* 2/3 vest in 6 months</h6>
@@ -421,8 +443,8 @@ const Earn = () => {
                     );
                   } else {
                     return(
-                      <li>
-                        <h5 key={key}>
+                      <li key={key}>
+                        <h5>
                           {key}: {Formatter.getFormattedYield(value)}%
                         </h5>
                       </li>
@@ -658,7 +680,7 @@ const Earn = () => {
       );
     }
   }
-  
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -706,9 +728,9 @@ const Earn = () => {
                       <thead>
                         <tr>
                           <th scope="col"></th>
+                          <th scope="col">Balance</th>
                           <th scope="col">APY</th>
                           <th scope="col">Total Supply</th>
-                          <th scope="col">Total Borrow</th>
                           <th scope="col">Utilization</th>
                           <th scope="col">BigFoot Balance</th>
                           <th scope="col">BigFoot Chef</th>
@@ -717,84 +739,96 @@ const Earn = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {options.map((option, key) => {
-                          const stats = bankStats[option.title];
-                          return(
-                          <tr key={key}>
-                            <th scope="row">
-                              <div className="d-flex align-items-center">
-                                <div className="avatar-xs me-3">
-                                  <span className={"avatar-title rounded-circle bg-transparent"} >
-                                    <img src={option.bankIcon.default} />
-                                  </span>
+                        { options.map((option, key) => {
+
+                            const stats = bankStats[option.title];
+                            
+                            let balanceValue = 0;
+                            userBalance.map((balance) => {
+                              if(balance.title == option.title){
+                                  balanceValue += balance.valueInBankReferenceAsset;
+                              }
+                            })
+                            
+                            return(
+                            <tr key={key}>
+                              <th scope="row">
+                                <div className="d-flex align-items-center">
+                                  <div className="avatar-xs me-3">
+                                    <span className={"avatar-title rounded-circle bg-transparent"} >
+                                      <img src={option.bankIcon.default} />
+                                    </span>
+                                  </div>
+                                  <span>{option.title}</span>
                                 </div>
-                                <span>{option.title}</span>
-                              </div>
-                            </th>
-                            <td>
-                              <div>
-                                { option.isComingSoon ? "" : renderTotalApy(stats) }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                  `($${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)})` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)}` :
-                                  `${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" :  
-                                  `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  stats?.utilization === undefined ?  ' %' :
-                                  `${stats?.utilization.toFixed(2)} %` 
-                                }
-                              </h5>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))}` :
-                                  `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                  `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))})` }
-                              </div>
-                            </td>
-                            <td>
-                              <h5 className="font-size-14 mb-1">
-                                { option.isComingSoon ? "" : 
-                                  stats?.bigfootChefBalance === null ? "--" :
-                                  `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
-                              </h5>
-                              <div className="text-muted">
-                                { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" : 
-                                  `($${Formatter.formatAmount(stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd)})` }
-                              </div>
-                            </td>
-                            <td style={{ width: "120px" }}>
-                              {option.isComingSoon ? "Coming Soon" : renderActionButtons(option) }
-                            </td>
-                            <td style={{ width: "120px" }}>
-                              {option.isComingSoon ? "" : renderRewardButtons(option) }
-                            </td>
-                          </tr>
+                              </th>
+                              <td>
+                                <div>
+                                  <span>{ option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount(balanceValue, 0)}` :
+                                    `${Formatter.formatAmount(balanceValue)} ${option.referenceCurrency}` }</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div>
+                                  {option.isComingSoon ? "" : renderTotalApy(stats)}
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
+                                    `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
+                                </h5>
+                                <div className="text-muted">
+                                  { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
+                                    `($${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)})` }
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    stats?.utilization === undefined ?  ' %' :
+                                    `${stats?.utilization.toFixed(2)} %` 
+                                  }
+                                  
+                                </h5>
+                                <div className="text-muted"> 
+                                  { option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` :
+                                    `(${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency})` 
+                                  }
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))}` :
+                                    `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
+                                </h5>
+                                <div className="text-muted">
+                                  { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
+                                    `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))})` }
+                                </div>
+                              </td>
+                              <td>
+                                <h5 className="font-size-14 mb-1">
+                                  { option.isComingSoon ? "" : 
+                                    stats?.bigfootChefBalance === null ? "--" :
+                                    `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
+                                </h5>
+                                <div className="text-muted">
+                                  { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" : 
+                                    `($${Formatter.formatAmount(stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd)})` }
+                                </div>
+                              </td>
+                              <td style={{ width: "120px" }}>
+                                {option.isComingSoon ? "Coming Soon" : renderActionButtons(option) }
+                              </td>
+                              <td style={{ width: "120px" }}>
+                                {option.isComingSoon ? "" : renderRewardButtons(option) }
+                              </td>
+                            </tr>
                         )})}
                       </tbody>
                     </Table>

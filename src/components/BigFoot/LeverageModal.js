@@ -212,123 +212,119 @@ function LeverageModal(props) {
 
   return (
     <>
-    <Modal
-      id="leverageModal"
-      isOpen={isOpen}
-      role="dialog"
-      size="lg"
-      autoFocus={true}
-      centered={true}
-      toggle={togglemodal}
-    >
-      <div className="modal-content">
-        <ModalHeader toggle={togglemodal}>
-          { currentPosition ?
-            `Adjust Position (Farm: ${pool.title})` :
-            `Farm: ${pool.title}`
-          }
-        </ModalHeader>
-        <ModalBody>
-          <div
-            className="wizard clearfix"
-          >
-            <div className="content clearfix">
+      <Modal
+        id="leverageModal"
+        isOpen={isOpen}
+        role="dialog"
+        size="lg"
+        autoFocus={true}
+        centered={true}
+        toggle={togglemodal}
+      >
+        <div className="modal-content">
+          <ModalHeader toggle={togglemodal}>
+            { currentPosition ?
+              `Adjust Position (Farm: ${pool.title})` :
+              `Farm: ${pool.title}`
+            }
+          </ModalHeader>
+          <ModalBody>
+            <div
+              className="wizard clearfix"
+            >
+              <div className="content clearfix">
 
-              <Form>
+                <Form>
 
-                <div className="mb-3">
-                  { currentPosition ?
-                    <p>Provide additional assets in order to pay your debt and reduce liquidation risks:</p> :
-                    <p>Choose how much you want to supply:</p>
-                  }
+                  <div className="mb-3">
+                    { currentPosition ?
+                      <p>Provide additional assets in order to pay your debt and reduce liquidation risks:</p> :
+                      <p>Choose how much you want to supply:</p>
+                    }
 
+                    {
+                      pool.currencies.map((currency, index) => {
+                        return (
+                          <FormGroup key={currency.code}>
+                            <Row className="mb-3">
+                              <Col lg="6">
+                                <InputGroup className="mb-2">
+                                  <Label className="input-group-text">
+                                    <span className="me-2">
+                                      <Icon icon={currency.icon} />
+                                    </span>
+                                    {currency.code}
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    className="form-control"
+                                    min="0"
+                                    step="0.000001"
+                                    value={currencySupply?.[currency.code] ?? 0}
+                                    onChange={(e) => updateCurrencySupply(currency.code, e.target.value)}
+                                  />
+                                </InputGroup>
+                              </Col>
+                              <Col lg="6" className="max-balance-wrapper text-end">
+                                <span className="me-3">
+                                  Balance: {userBalances[currency.code]} {currency.code}
+                                </span>
+                                <Button
+                                  outline
+                                  color="primary"
+                                  onClick={() => {
+                                    if (currency.address) {
+                                      setMax(currency.code, false);
+                                    } else {
+                                      setMax(currency.code, true);
+                                    }
+                                  }}
+                                >
+                                  MAX
+                                </Button>
+                              </Col>
+                            </Row>
+                          </FormGroup>
+                        )
+                      })
+                    }
+                  </div>
                   {
-                    pool.currencies.map((currency, index) => {
-                      return (
-                        <FormGroup key={currency.code}>
-                          <Row className="mb-3">
-                            <Col lg="6">
-                              <InputGroup className="mb-2">
-                                <Label className="input-group-text">
-                                  <span className="me-2">
-                                    <Icon icon={currency.icon} />
-                                  </span>
-                                  {currency.code}
-                                </Label>
-                                <Input
-                                  type="number"
-                                  className="form-control"
-                                  min="0"
-                                  step="0.000001"
-                                  value={currencySupply?.[currency.code] ?? 0}
-                                  onChange={(e) => updateCurrencySupply(currency.code, e.target.value)}
-                                />
-                              </InputGroup>
-                            </Col>
-                            <Col lg="6" className="max-balance-wrapper text-end">
-                              <span className="me-3">
-                                Balance: {userBalances[currency.code]} {currency.code}
-                              </span>
-                              <Button
-                                outline
-                                color="primary"
-                                onClick={() => {
-                                  if (currency.address) {
-                                    setMax(currency.code, false);
-                                  } else {
-                                    setMax(currency.code, true);
-                                  }
-                                }}
-                              >
-                                MAX
-                              </Button>
-                            </Col>
-                          </Row>
-                        </FormGroup>
-                      )
-                    })
+                    currentPosition ?
+                      <div className="text-center">
+                        <h5>Current Leverage: {Calculator.getCurrentLeverage(currentPosition).toFixed(2)}</h5>
+                        <h5>New Leverage: { currencyValues && Calculator.calcNewLeverage(currentPosition, pool, currencySupply, currencyValues).toFixed(2)}</h5>
+                      </div>
+                      :
+                      renderSlider(pool)
                   }
-                </div>
-                {
-                  currentPosition ?
-                    <div className="text-center">
-                      <h5>Current Leverage: {Calculator.getCurrentLeverage(currentPosition).toFixed(2)}</h5>
-                      <h5>New Leverage: { currencyValues && Calculator.calcNewLeverage(currentPosition, pool, currencySupply, currencyValues).toFixed(2)}</h5>
-                    </div>
-                    :
-                    renderSlider(pool)
-                }
-                
-                <br />
-                <p>
-                  Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/using-bigfoot/liquidation">here</a> to understand the risks involved.
-                </p>
 
-              </Form>
+                  <br />
+                  <p>
+                    Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/using-bigfoot/liquidation">here</a> to understand the risks involved.
+                  </p>
+
+                </Form>
+              </div>
+              <div className="actions clearfix">
+                <ul role="menu" aria-label="Pagination">
+                  <li className={"next"} >
+                    <Link
+                      to="#"
+                      onClick={ sendTransaction }
+                    >
+                      Confirm
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div className="actions clearfix">
-              <ul role="menu" aria-label="Pagination">
-                <li className={"next"} >
-                  <Link
-                    to="#"
-                    onClick={ sendTransaction }
-                  >
-                    Confirm
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </ModalBody>
-      </div>
-    </Modal>
-    
-    {assetsToApprove.length && contractToApprove &&
-      <ApprovalModal assetsToApprove={assetsToApprove} bigfootAddress={contractToApprove} toggleApprovalModal={toggleApprovalModal} />
-    }
-    
+          </ModalBody>
+        </div>
+      </Modal>
+      <ApprovalModal isOpened={assetsToApprove.length && contractToApprove} assetsToApprove={assetsToApprove} bigfootAddress={contractToApprove} toggleApprovalModal={toggleApprovalModal} />
     </>
   )
-}
+};
 
 export default LeverageModal;

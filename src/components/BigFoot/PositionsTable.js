@@ -245,12 +245,11 @@ function PositionsTable(props) {
                     {renderPoolInfo(position.pool)}
                   </div>
                 </td>
-                <td class="flex-container space-between">
+                <td className="flex-container space-between">
                   <div>
                     $ {Formatter.formatAmount(totalSizeValue, 0) }
                     <Tooltip 
                       placement='right' 
-                      arrow 
                       title={
                         <>
                           <h5>{collateralText}</h5>

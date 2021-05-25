@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import Calculator from './Calculator';
 
 import { abiMasterChef, abiERC20, abiBankBnb, abiVault, abiFactory, lpAbi, abiBigfootVault, abiNerveStorage, abiBankUsd } from '../../data/abis/abis';
-import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressStrategyLiquidation11xxxUsdtBusdWex, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, addressCake, address11Cake, address11CakeBnb, address11UsdtBusd, addressBusd, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD, addressUsdtBusdWlp, addressStrategyAddUsdtBusdWlp, addressStrategyDummy } from '../../data/addresses/addresses';
+import { addressMasterChef, addressStrategyZapperAddSingleAsset, addressStrategyZapperAdd, addressStrategyLiquidation11xxxBnb, addressStrategyLiquidation11xxxUsdtBusdWex, addressBigfoot11Cake, addressBigfoot11CakeBnb, addressBigfoot11UsdtBusd, addressCake, address11Cake, address11CakeBnb, address11UsdtBusd, addressBusd, addressUsdt, addressUsdc, addressCakeBnbLp, addressPancakeWbnbBusdLp, addressWbnb, addressBfBNB, addressFactory, address3nrvStorage, addressBfUSD, addressUsdtBusdWlp, addressStrategyAddUsdtBusdWlp, addressStrategyDummy, address3nrvLp } from '../../data/addresses/addresses';
 
 class Web3Class {
   constructor(wallet) {
@@ -329,8 +329,10 @@ class Web3Class {
 
 
   async getTokenValueInBankAsset(tokenAddress) {
-    if(tokenAddress===null){
-      return 1; //native token
+    if(tokenAddress===null){ //native token
+      return 1;
+    } else if (tokenAddress===address3nrvLp){ //bank reference assets
+      return 1;
     } else if (tokenAddress===address11CakeBnb){
       return await this.get11xxxValue(tokenAddress, 0);
     } else if (tokenAddress===address11Cake){
@@ -339,6 +341,10 @@ class Web3Class {
       return await this.get11xxxValue(tokenAddress, 2);
     } else if (tokenAddress===addressBusd){
       return await this.get3poolFromDollar(1, 0);
+    } else if (tokenAddress===addressUsdt){
+      return await this.get3poolFromDollar(1, 1);
+    } else if (tokenAddress===addressUsdc){
+      return await this.get3poolFromDollar(1, 2);
     }
   }
 

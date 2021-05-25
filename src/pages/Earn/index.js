@@ -33,7 +33,6 @@ import ApprovalModal from "components/BigFoot/ApprovalModal";
 import useApiStats from 'hooks/useApiStats';
 
 const Earn = () => {
-
   //wallet & web3
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
@@ -53,31 +52,18 @@ const Earn = () => {
     assetBalance: {},
     withdrawalChosenAsset: null,
   });
-  const [bnbPrice, setBnbPrice] = useState(0);
-  const [singleAssetValues, setSingleAssetValues] = useState({}); //
-  const [walletBalance, setWalletBalance] = useState(0);
-  const [userSupplyBalance, setUserSupplyBalance] = useState(0);
+  const [singleAssetValues, setSingleAssetValues] = useState({});
   const [userPendingRewards, setUserPendingRewards] = useState({});
+  const [userBalance, setUserBalance] = useState([]);
 
+  
   useEffect( async () => {
     if(wallet.account) {
-      //get BNB price
-      const priceBnb = await web3Instance.getBnbPrice();
-      setBnbPrice(priceBnb);
+      updateUserBalance();
+      updateUserPendingRewards();
     }
   }, [wallet.account]);
-
-  useEffect( async () => {
-    if(wallet.account && wallet.balance && bnbPrice) {
-      updateWalletBalance();
-      updateSupplyBalance();
-      updateUserPendingRewards();
-    } else {
-      setWalletBalance(0);
-      setUserSupplyBalance(0);
-    }
-  }, [wallet, bankStats, bnbPrice]);
-
+  
   useEffect( async () => {
     if(wallet.account) {
       updateBankStats();
@@ -90,28 +76,26 @@ const Earn = () => {
     }
   }, [formData]);
 
-  const updateWalletBalance = () => {
-    const walletBalance = Calculator.getAmoutFromWeis(wallet.balance);
-    const walletBalanceUsd = parseFloat(walletBalance) * bnbPrice;
-    setWalletBalance( walletBalanceUsd );
-  }
 
-  const updateSupplyBalance = async () => {
-    let totalUserBalanceUsd = 0;
-    options.forEach( async (option) => {
-      const stats = bankStats[option.title];
-      if(option.address){
-        const bigfootBalanceValue = stats?.bigfootBalance * stats?.referenceAssetValueInUsd;
-        const bigfootChefBalanceValue = stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd;
-        if(bigfootBalanceValue){
-          totalUserBalanceUsd += bigfootBalanceValue;
+  const updateUserBalance = () => {
+    let newUserBalance = JSON.parse(JSON.stringify(userBalance));
+    options.filter( option => option.bankAddress ).forEach( (option) => {
+      option.assets.forEach(async (asset) => {
+        let valueInBankReferenceAsset = 0;
+        let amount = await web3Instance.getUserBalance(asset.address);
+        if(amount > 0){
+          valueInBankReferenceAsset = parseFloat(amount * await web3Instance.getTokenValueInBankAsset(asset.address));
         }
-        if(bigfootChefBalanceValue){
-          totalUserBalanceUsd += bigfootChefBalanceValue;
-        }
-      }
+        newUserBalance.push({
+          title: option.title, 
+          code: asset.code, 
+          address: asset.address, 
+          amount,
+          valueInBankReferenceAsset
+        });
+      });
     });
-    setUserSupplyBalance( totalUserBalanceUsd );
+    setUserBalance(newUserBalance);
   }
 
   const updateUserPendingRewards = () => {
@@ -344,7 +328,6 @@ const Earn = () => {
           toast.info(`Supply in process. ${hash}`)
         })
         .on('receipt', function (receipt) {
-          updateSupplyBalance();
           updateBankStats();
           toast.success(`Supply completed.`)
         })
@@ -376,7 +359,6 @@ const Earn = () => {
           toast.info(`Withdraw in process. ${hash}`)
         })
         .on('receipt', function (receipt) {
-          updateSupplyBalance();
           updateBankStats();
           toast.success(`Withdraw completed.`)
         })
@@ -398,15 +380,14 @@ const Earn = () => {
           {Formatter.getFormattedYield(stats?.totalApy)} %
           <Tooltip
             placement='right'
-            arrow
             title={
               <ul>
                 {/* yields */}
                 {Object.entries(stats?.yields).map( ([key, value]) => {
                   if(key === "11NRV"){ //includes disclaimer msg
                     return(
-                      <li>
-                        <h5 key={key}>
+                      <li key={key}>
+                        <h5>
                           {key}: {Formatter.getFormattedYield(value)} %*
                         </h5>
                         <h6>* 2/3 vest in 6 months</h6>
@@ -414,8 +395,8 @@ const Earn = () => {
                     );
                   } else {
                     return(
-                      <li>
-                        <h5 key={key}>
+                      <li key={key}>
+                        <h5>
                           {key}: {Formatter.getFormattedYield(value)}%
                         </h5>
                       </li>
@@ -654,34 +635,6 @@ const Earn = () => {
     <div className="page-content">
       <Container fluid>
         <Row>
-          <Col xs="12">
-            <Card>
-              <CardBody>
-                <h4 className="card-title">
-                  <i className="mdi mdi-information-variant text-primary h1" />
-                  Your info
-                </h4>
-
-                <Row className="text-center mt-3">
-                  <Col sm="6">
-                    <div>
-                      <p className="mb-2">Wallet Balance</p>
-                      <p className="total-value">$ {Formatter.formatAmount(walletBalance)}</p>
-                    </div>
-                  </Col>
-                  <Col sm="6">
-                    <div>
-                      <p className="mb-2">Supply Balance</p>
-                      <p className="total-value">$ {Formatter.formatAmount(userSupplyBalance  )}</p>
-                    </div>
-                  </Col>
-                </Row>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row>
           <Col xl="12">
             <Card className={ loadingBankStats ? 'card-loading' : ''}>
               <CardBody>
@@ -693,43 +646,59 @@ const Earn = () => {
                 <div className="table-responsive">
                   <Table className="table table-nowrap align-middle text-center mb-0">
                     <thead>
-                      <tr>
-                        <th scope="col"></th>
-                        <th scope="col">APY</th>
-                        <th scope="col">Total Supply</th>
-                        <th scope="col">Total Borrow</th>
-                        <th scope="col">Utilization</th>
-                        <th scope="col">BigFoot Balance</th>
-                        <th scope="col">BigFoot Chef</th>
-                        <th scope="col">Actions</th>
-                        <th scope="col">Rewards</th>
-                      </tr>
+                    <tr>
+                      <th scope="col"></th>
+                      <th scope="col">Balance</th>
+                      <th scope="col">APY</th>
+                      <th scope="col">Total Supply</th>
+                      <th scope="col">Utilization</th>
+                      <th scope="col">BigFoot Balance</th>
+                      <th scope="col">BigFoot Chef</th>
+                      <th scope="col">Actions</th>
+                      <th scope="col">Rewards</th>
+                    </tr>
                     </thead>
                     <tbody>
-                      {options.map((option, key) => {
-                        const stats = bankStats[option.title];
-                        return(
+                    { options.map((option, key) => {
+
+                      const stats = bankStats[option.title];
+
+                      let balanceValue = 0;
+                      userBalance.map((balance) => {
+                        if(balance.title == option.title){
+                          balanceValue += balance.valueInBankReferenceAsset;
+                        }
+                      })
+
+                      return(
                         <tr key={key}>
                           <th scope="row">
                             <div className="d-flex align-items-center">
                               <div className="avatar-xs me-3">
-                                <span className={"avatar-title rounded-circle bg-transparent"} >
-                                  <img src={option.bankIcon.default} />
-                                </span>
+                                        <span className={"avatar-title rounded-circle bg-transparent"} >
+                                          <img src={option.bankIcon.default} />
+                                        </span>
                               </div>
                               <span>{option.title}</span>
                             </div>
                           </th>
                           <td>
                             <div>
-                              { option.isComingSoon ? "" : renderTotalApy(stats) }
+                                      <span>{ option.isComingSoon ? "" :
+                                        option.referenceCurrency ==='$' ? `$${Formatter.formatAmount(balanceValue, 0)}` :
+                                          `${Formatter.formatAmount(balanceValue)} ${option.referenceCurrency}` }</span>
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              {option.isComingSoon ? "" : renderTotalApy(stats)}
                             </div>
                           </td>
                           <td>
                             <h5 className="font-size-14 mb-1">
                               { option.isComingSoon ? "" :
                                 option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
-                                `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
+                                  `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
                             </h5>
                             <div className="text-muted">
                               { option.isComingSoon || option.referenceCurrency ==='$' ? "" :
@@ -739,27 +708,23 @@ const Earn = () => {
                           <td>
                             <h5 className="font-size-14 mb-1">
                               { option.isComingSoon ? "" :
-                                option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)}` :
-                                `${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency}` }
+                                stats?.utilization === undefined ?  ' %' :
+                                  `${stats?.utilization.toFixed(2)} %`
+                              }
+
                             </h5>
                             <div className="text-muted">
-                              { option.isComingSoon || option.referenceCurrency ==='$' ? "" :
-                                `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` }
+                              { option.isComingSoon ? "" :
+                                option.referenceCurrency ==='$' ? `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` :
+                                  `(${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency})`
+                              }
                             </div>
                           </td>
                           <td>
                             <h5 className="font-size-14 mb-1">
                               { option.isComingSoon ? "" :
-                                stats?.utilization === undefined ?  ' %' :
-                                `${stats?.utilization.toFixed(2)} %`
-                              }
-                            </h5>
-                          </td>
-                          <td>
-                            <h5 className="font-size-14 mb-1">
-                              { option.isComingSoon ? "" :
                                 option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))}` :
-                                `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
+                                  `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
                             </h5>
                             <div className="text-muted">
                               { option.isComingSoon || option.referenceCurrency ==='$' ? "" :
@@ -770,7 +735,7 @@ const Earn = () => {
                             <h5 className="font-size-14 mb-1">
                               { option.isComingSoon ? "" :
                                 stats?.bigfootChefBalance === null ? "--" :
-                                `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
+                                  `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
                             </h5>
                             <div className="text-muted">
                               { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" :
@@ -800,9 +765,9 @@ const Earn = () => {
               >
                 <div className="modal-content">
                   <ModalHeader toggle={() => togglemodal()}>
-                    <span className="text-capitalize">
-                      {formData.action}:
-                    </span>
+                          <span className="text-capitalize">
+                            {formData.action}:
+                          </span>
                     &nbsp;
                     {formData.chosenOption?.title}
                   </ModalHeader>
@@ -813,7 +778,7 @@ const Earn = () => {
                       <div className="content clearfix">
                         <Form>
                           { formData.chosenOption &&
-                            renderFormContent()
+                          renderFormContent()
                           }
                           <p>
                             Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/introduction/an-introduction">here</a> to understand the risks involved.
@@ -840,7 +805,6 @@ const Earn = () => {
             </Card>
           </Col>
         </Row>
-
       </Container>
     </div>
   )

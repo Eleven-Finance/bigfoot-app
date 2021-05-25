@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useWallet } from '@binance-chain/bsc-use-wallet'
 import classname from 'classnames';
 import {
@@ -13,13 +13,17 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Icon from './Icon';
 
-function ApprovalModal({ assetsToApprove, bigfootAddress, toggleApprovalModal }) {
+function ApprovalModal({ isOpened, assetsToApprove, bigfootAddress, toggleApprovalModal }) {
   const [isLoading, setIsLoading] = useState([])
   const [loaded, setIsLoaded] = useState([])
   //wallet & web3
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
   const userAddress = wallet.account;
+
+  useEffect(()=> {
+    if(loaded.length === assetsToApprove.length) toggleApprovalModal()
+  }, [loaded]);
 
   const requestBigFootApproval = async (element, i) => {
     const request = await web3Instance.reqApproval(element.address, bigfootAddress);
@@ -30,7 +34,6 @@ function ApprovalModal({ assetsToApprove, bigfootAddress, toggleApprovalModal })
         setIsLoading(prevItems => [...prevItems, element.code]);
       })
       .on('receipt', function (receipt) {
-        toggleApprovalModal(null);
         toast.success(`Authorization accepted.`)
         setIsLoading(isLoading.splice(isLoading.indexOf(element.code), 1));
         setIsLoaded(prevItems => [...prevItems, element.code]);
@@ -48,7 +51,7 @@ function ApprovalModal({ assetsToApprove, bigfootAddress, toggleApprovalModal })
   return(
     <Modal
       id="approvalModal"
-      isOpen={assetsToApprove?.length}
+      isOpen={isOpened}
       role="dialog"
       size="mg"
       autoFocus={true}

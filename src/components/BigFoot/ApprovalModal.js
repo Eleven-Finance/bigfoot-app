@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Web3Class from 'helpers/bigfoot/Web3Class'
 import Icon from './Icon';
 
-function ApprovalModal({ isOpened, assetsToApprove, bigfootAddress, toggleApprovalModal }) {
+function ApprovalModal({ isOpened, assetsToApprove, spenderAddress, toggleApprovalModal }) {
   const [isLoading, setIsLoading] = useState([])
   const [loaded, setIsLoaded] = useState([])
   //wallet & web3
@@ -22,11 +22,18 @@ function ApprovalModal({ isOpened, assetsToApprove, bigfootAddress, toggleApprov
   const userAddress = wallet.account;
 
   useEffect(()=> {
-    if(loaded.length === assetsToApprove.length) toggleApprovalModal()
+    if(loaded.length === assetsToApprove.length) {
+      toggleApprovalModal();
+      setIsLoaded([]);
+      setIsLoading([]);
+    }
   }, [loaded]);
 
   const requestBigFootApproval = async (element, i) => {
-    const request = await web3Instance.reqApproval(element.address, bigfootAddress);
+    // On several occasions we can receive several banks, so sometimes we receive an object or a string, we have to check it before assigning it.
+    const currentSpenderAddress = typeof spenderAddress === "object" ? spenderAddress[element.code] : spenderAddress;
+
+    const request = await web3Instance.reqApproval(element.address, currentSpenderAddress);
 
     request.send({ from: userAddress })
       .on('transactionHash', function (hash) {
@@ -83,17 +90,14 @@ function ApprovalModal({ isOpened, assetsToApprove, bigfootAddress, toggleApprov
                 onClick={() => requestBigFootApproval(el, i)}
                 disabled={isLoading.includes(el.code) || loaded.includes(el.code)}
               >
-                {isLoading.includes(el.code) ?
+                {loaded.includes(el.code) ?
+                'Approved'
+                : (isLoading.includes(el.code) ?
                   <>
                     <Spinner color="light" size="sm" />
                     <span className="ms-2">Approving</span>
                   </>
-                  : (loaded.includes(el.code) ?
-                    'Approved'
-                    :
-                    'Approve'
-                  )
-                }
+                  : 'Approve')}
               </button>
             </div>
           ))}

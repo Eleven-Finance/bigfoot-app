@@ -45,7 +45,7 @@ function LeverageModal(props) {
   );
 
   const [ assetsToApprove, setAssetsToApprove ] = useState([]);
-  const [ contractToApprove, setContractToApprove ] = useState(null);
+  const [ contractsToApprove, setContractsToApprove ] = useState({});
   const [ borrowFactor, setBorrowFactor ] = useState( initialLeverage ?? 2);
   const [ currencySupply, setCurrencySupply ] = useState(initialSupply);
   const [ currencyValues, setCurrencyValues ] = useState(null);
@@ -114,13 +114,10 @@ function LeverageModal(props) {
     );
   }
 
-  const toggleApprovalModal = (assetDetails, contractDetails) => {
+  const toggleApprovalModal = () => {
     if (assetsToApprove) {
       setAssetsToApprove([]);
-      setContractToApprove(null);
-    } else {
-      setAssetsToApprove(assetDetails);
-      setContractToApprove(contractDetails);
+      setContractsToApprove({});
     }
   }
 
@@ -150,7 +147,10 @@ function LeverageModal(props) {
         if(!isApproved){
           //if user supplies vault asset & that asset is not approved, request approval
           setAssetsToApprove(prevItems => [...prevItems, currency]);
-          setContractToApprove(spenderAddress);
+          setContractsToApprove(prevItem => ({
+            ...prevItem,
+            [currency.code]: spenderAddress
+          }));
           count += 1;
         }
       }
@@ -162,7 +162,7 @@ function LeverageModal(props) {
     }
     //all assets approved
     setAssetsToApprove([]);
-    setContractToApprove(null); 
+    setContractsToApprove({});
 
 
     /* Check currencyValues (depends on the blockchain) */
@@ -208,7 +208,6 @@ function LeverageModal(props) {
         });
     }
   }
-
 
   return (
     <>
@@ -322,8 +321,10 @@ function LeverageModal(props) {
           </ModalBody>
         </div>
       </Modal>
-      <ApprovalModal isOpened={assetsToApprove.length && contractToApprove} assetsToApprove={assetsToApprove} bigfootAddress={contractToApprove} toggleApprovalModal={toggleApprovalModal} />
-    </>
+      {assetsToApprove.length && contractsToApprove && (
+        <ApprovalModal isOpened={!!assetsToApprove.length && !!contractsToApprove} assetsToApprove={assetsToApprove} spenderAddress={contractsToApprove} toggleApprovalModal={toggleApprovalModal} />
+      ) || ''}
+        </>
   )
 };
 

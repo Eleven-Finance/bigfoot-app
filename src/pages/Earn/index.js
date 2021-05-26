@@ -44,7 +44,7 @@ const Earn = () => {
   const [bankStats, setBankStats] = useState({});
   const [loadingBankStats, setLoadingBankStats] = useState(false);
   const [isModalOpen, setisModalOpen] = useState(false);
-  const [ assetsToApprove, setAssetsToApprove ] = useState([]);
+  const [assetsToApprove, setAssetsToApprove] = useState([]);
   const [formData, setFormData] = useState({
     chosenOption: '', // lending option chosen by the user
     action: '', // supply,withdraw
@@ -292,8 +292,9 @@ const Earn = () => {
 
     /* Check approvals */
     let count = 0;
+
     for(const asset of option.assets) {
-      if(asset.address && formData.assetAmounts[asset.code] > 0){ //note: skips if address null (native token)
+      if(asset.address && formData.assetAmounts[asset.code] > 0){ // note: skips if address null (native token)
         const isApproved = await web3Instance.checkApproval(asset.address, option.bankAddress);
         if (!isApproved) {
           setAssetsToApprove(prevItems => [...prevItems, asset]);
@@ -660,7 +661,6 @@ const Earn = () => {
                     </thead>
                     <tbody>
                     { options.map((option, key) => {
-
                       const stats = bankStats[option.title];
 
                       let balanceValue = 0;
@@ -801,7 +801,9 @@ const Earn = () => {
                   </ModalBody>
                 </div>
               </Modal>
-              <ApprovalModal isOpened={assetsToApprove?.length} assetsToApprove={assetsToApprove} bigfootAddress={formData?.chosenOption?.bankAddress} toggleApprovalModal={toggleApprovalModal} />
+              {assetsToApprove?.length && (
+                <ApprovalModal isOpened={assetsToApprove?.length} assetsToApprove={assetsToApprove} spenderAddress={formData?.chosenOption?.bankAddress} toggleApprovalModal={toggleApprovalModal} />) || ''
+              }
             </Card>
           </Col>
         </Row>

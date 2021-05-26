@@ -304,7 +304,7 @@ function Dashboard() {
                           <th scope="col">Type</th>
                           <th scope="col">Bank</th>
                           <th scope="col">APR</th>
-                          <th scope="col">Details</th>
+                          <th scope="col" style={{ minWidth: "200px" }}>Details</th>
                           <th scope="col" colSpan="2">Leverage</th>
                         </tr>
                       </thead>
@@ -367,12 +367,12 @@ function Dashboard() {
                                   }
                                   return (
                                     <Row key={key}>
-                                      <Col sm="6">
+                                      <Col xs="6">
                                         {key === 'yieldFarming' && 'Yield Farming'}
                                         {key === 'tradingFee' && 'Trading Fee'}
                                         {key === 'borrowApy' && 'Borrow APY'}
                                       </Col>
-                                      <Col sm="6" className="text-end">
+                                      <Col xs="6" className="text-end">
                                         {pool.rates[key] ?
                                           pool.rates[key].toFixed(2) + " %" :
                                           "--"

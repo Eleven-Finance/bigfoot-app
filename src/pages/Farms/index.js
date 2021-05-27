@@ -21,7 +21,6 @@ import {
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-// import FarmsUpperInfo from './FarmsUpperInfo'
 import farmOptions from '../../data/farmOptions'
 import { addressMasterChef, addressBfBNB } from '../../data/addresses/addresses';
 import Web3Class from '../../helpers/bigfoot/Web3Class'
@@ -361,9 +360,6 @@ const Farms = () => {
     <React.Fragment>
       <div id="Farms" className="page-content">
         <Container fluid>
-
-          {/* <FarmsUpperInfo /> */}
-
           <Row className="equal-height">
             { farms.map( farm => {
               if(!farm.isDisabled){

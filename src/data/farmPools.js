@@ -69,34 +69,34 @@ const farmPools = [
     percentage: 0,
     percentageOut: 0,
   },
-  {
-    title: "USDT-BUSD WLP",
-    type: "Yield Farming",
-    apiKey: "USDT-BUSD WLP",
-    bigfootAddress: addressBigfoot11UsdtBusd,
-    usesBank: addressBfUSD,
-    deathLeverage: 6.5,
-    maxLeverage: 6,
-    currencies: [
-      {
-        code: "11USDTBUSD",
-        icon: Usdt,
-        address: address11UsdtBusd,
-      },
-      {
-        code: "BUSD",
-        icon: Busd,
-        address: addressBusd,
-      },
-    ],
-    rates: {
-      yieldFarming: 0,
-      tradingFee: 0, //wex (no trading fee)
-      borrowApy: 0,
-    },
-    percentage: 0,
-    percentageOut: 0,
-  },
+  // {
+  //   title: "USDT-BUSD WLP",
+  //   type: "Yield Farming",
+  //   apiKey: "USDT-BUSD WLP",
+  //   bigfootAddress: addressBigfoot11UsdtBusd,
+  //   usesBank: addressBfUSD,
+  //   deathLeverage: 6.5,
+  //   maxLeverage: 6,
+  //   currencies: [
+  //     {
+  //       code: "11USDTBUSD",
+  //       icon: Usdt,
+  //       address: address11UsdtBusd,
+  //     },
+  //     {
+  //       code: "BUSD",
+  //       icon: Busd,
+  //       address: addressBusd,
+  //     },
+  //   ],
+  //   rates: {
+  //     yieldFarming: 0,
+  //     tradingFee: 0, //wex (no trading fee)
+  //     borrowApy: 0,
+  //   },
+  //   percentage: 0,
+  //   percentageOut: 0,
+  // },
 ];
 
 export default farmPools;

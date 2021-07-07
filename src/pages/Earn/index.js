@@ -17,7 +17,6 @@ import {
   Form,
   FormGroup,
   InputGroup,
-  ButtonGroup,
 } from "reactstrap"
 
 import Tooltip from '@material-ui/core/Tooltip';
@@ -33,9 +32,7 @@ import Formatter from "helpers/bigfoot/Formatter"
 import ApprovalModal from "components/BigFoot/ApprovalModal";
 import useApiStats from 'hooks/useApiStats';
 
-
 const Earn = () => {
-
   //wallet & web3
   const wallet = useWallet()
   const web3Instance = new Web3Class(wallet);
@@ -43,11 +40,11 @@ const Earn = () => {
 
   const { isLoadingApiStats, apiStats } = useApiStats();
 
-  const [options, setOptions] = useState(lendingOptions);
+  const options = lendingOptions;
   const [bankStats, setBankStats] = useState({});
   const [loadingBankStats, setLoadingBankStats] = useState(false);
   const [isModalOpen, setisModalOpen] = useState(false);
-  const [ assetToApprove, setAssetToApprove ] = useState(null);
+  const [assetsToApprove, setAssetsToApprove] = useState([]);
   const [formData, setFormData] = useState({
     chosenOption: '', // lending option chosen by the user
     action: '', // supply,withdraw
@@ -110,7 +107,6 @@ const Earn = () => {
     setUserPendingRewards(newPendingRewards);
   }
 
-
   const updateBankStats = async () => {
     setLoadingBankStats(true);
     const newStats = {};
@@ -148,7 +144,6 @@ const Earn = () => {
       }
     });
   }
-
 
   const updateSingleAssetValues = async (bankAddress, coinName) => {
     const amount = formData.assetAmounts[coinName];
@@ -229,11 +224,9 @@ const Earn = () => {
     }
   }
 
-  const toggleApprovalModal = (assetDetails) => {
-    if (assetToApprove) {
-      setAssetToApprove(null);
-    } else {
-      setAssetToApprove(assetDetails);
+  const toggleApprovalModal = () => {
+    if (assetsToApprove) {
+      setAssetsToApprove([]);
     }
   }
 
@@ -269,9 +262,7 @@ const Earn = () => {
     updateAssetAmounts(assetCode, newAmount);
   }
 
-
   const sendTransaction = async (option) => {
-
     /* Validation */
     if( Object.values(formData.assetAmounts).every( amount => !amount ) ){
       toast.warn("Please enter a valid amount")
@@ -299,19 +290,22 @@ const Earn = () => {
       amounts = Calculator.getWeiStrFromAmount(formData.assetAmounts[assetCode]);
     }
 
-
     /* Check approvals */
-    for(const asset of option.assets){
-      if( asset.address && formData.assetAmounts[asset.code] > 0 ){ //note: skips if address null (native token)
+    let count = 0;
+
+    for(const asset of option.assets) {
+      if(asset.address && formData.assetAmounts[asset.code] > 0){ // note: skips if address null (native token)
         const isApproved = await web3Instance.checkApproval(asset.address, option.bankAddress);
-        if(!isApproved){
-          setAssetToApprove(asset); //if user supplies vault asset & that asset is not approved, request approval
-          return; //exit
+        if (!isApproved) {
+          setAssetsToApprove(prevItems => [...prevItems, asset]);
+          count += 1;
         }
       }
     }
-    setAssetToApprove(null); //all assets approved
-
+    // If have any approval pending, exit
+    if (count) {
+      return;
+    }
 
 
     /* Submit tx */
@@ -427,7 +421,7 @@ const Earn = () => {
     
     if (formData.action === 'supply') {
       return (
-        <React.Fragment>
+        <>
           <p>I'd like to supply...</p>
           { assets.map( asset => {
             return(
@@ -438,7 +432,7 @@ const Earn = () => {
                       <Label className="input-group-text">
                         <div className="avatar-xs me-3">
                           <span className={"avatar-title rounded-circle bg-transparent"} >
-                            <img src={asset.icon.default} />
+                            <img src={asset.icon.default} alt={asset.code} />
                           </span>
                         </div>
                         {asset.code}
@@ -469,11 +463,11 @@ const Earn = () => {
             )
           })
           }
-        </React.Fragment>
+        </>
       );
     } else if (formData.action === 'withdraw') {
       return (
-        <React.Fragment>
+        <>
           <p>I'd like to withdraw...</p>
           <FormGroup>
             <Row>
@@ -546,7 +540,7 @@ const Earn = () => {
               })
             }
           </div>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -576,7 +570,6 @@ const Earn = () => {
     );
   }
 
-
   const requestHarvest = async (bankAddress) => {
     const claim = await web3Instance.reqClaimRewards(bankAddress)
     claim.send({ from: userAddress })
@@ -594,7 +587,6 @@ const Earn = () => {
       });
 
   }
-
 
   const renderRewardButtons = (option) => {
     const bankHasFarm = (option.title === "bfBNB") ? true : false;
@@ -641,188 +633,182 @@ const Earn = () => {
   }
 
   return (
-    <React.Fragment>
-      <div className="page-content">
-        <Container fluid>
-          <Row>
-            <Col xl="12">
-              <Card className={ loadingBankStats ? 'card-loading' : ''}>
-                <CardBody>
-                  <h4 className="card-title">
-                    <i className="mdi mdi-rocket-launch text-primary h1"/>
-                    Lending
-                  </h4>
+    <div className="page-content">
+      <Container fluid>
+        <Row>
+          <Col xl="12">
+            <Card className={ loadingBankStats ? 'card-loading' : ''}>
+              <CardBody>
+                <h4 className="card-title">
+                  <i className="mdi mdi-rocket-launch text-primary h1"/>
+                  Lending
+                </h4>
 
-                  <div className="table-responsive">
-                    <Table className="table table-nowrap align-middle text-center mb-0">
-                      <thead>
-                        <tr>
-                          <th scope="col"></th>
-                          <th scope="col">Balance</th>
-                          <th scope="col">APY</th>
-                          <th scope="col">Total Supply</th>
-                          <th scope="col">Utilization</th>
-                          <th scope="col">BigFoot Balance</th>
-                          <th scope="col">BigFoot Chef</th>
-                          <th scope="col">Actions</th>
-                          <th scope="col">Rewards</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        { options.map((option, key) => {
+                <div className="table-responsive">
+                  <Table className="table table-nowrap align-middle text-center mb-0">
+                    <thead>
+                    <tr>
+                      <th scope="col"></th>
+                      <th scope="col">Balance</th>
+                      <th scope="col">APY</th>
+                      <th scope="col">Total Supply</th>
+                      <th scope="col">Utilization</th>
+                      <th scope="col">BigFoot Balance</th>
+                      <th scope="col">BigFoot Chef</th>
+                      <th scope="col">Actions</th>
+                      <th scope="col">Rewards</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    { options.map((option, key) => {
+                      const stats = bankStats[option.title];
 
-                            const stats = bankStats[option.title];
-                            
-                            let balanceValue = 0;
-                            userBalance.map((balance) => {
-                              if(balance.title == option.title){
-                                  balanceValue += balance.valueInBankReferenceAsset;
+                      let balanceValue = 0;
+                      userBalance.map((balance) => {
+                        if(balance.title == option.title){
+                          balanceValue += balance.valueInBankReferenceAsset;
+                        }
+                      })
+
+                      return(
+                        <tr key={key}>
+                          <th scope="row">
+                            <div className="d-flex align-items-center">
+                              <div className="avatar-xs me-3">
+                                        <span className={"avatar-title rounded-circle bg-transparent"} >
+                                          <img src={option.bankIcon.default} />
+                                        </span>
+                              </div>
+                              <span>{option.title}</span>
+                            </div>
+                          </th>
+                          <td>
+                            <div>
+                                      <span>{ option.isComingSoon ? "" :
+                                        option.referenceCurrency ==='$' ? `$${Formatter.formatAmount(balanceValue, 0)}` :
+                                          `${Formatter.formatAmount(balanceValue)} ${option.referenceCurrency}` }</span>
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              {option.isComingSoon ? "" : renderTotalApy(stats)}
+                            </div>
+                          </td>
+                          <td>
+                            <h5 className="font-size-14 mb-1">
+                              { option.isComingSoon ? "" :
+                                option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
+                                  `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
+                            </h5>
+                            <div className="text-muted">
+                              { option.isComingSoon || option.referenceCurrency ==='$' ? "" :
+                                `($${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)})` }
+                            </div>
+                          </td>
+                          <td>
+                            <h5 className="font-size-14 mb-1">
+                              { option.isComingSoon ? "" :
+                                stats?.utilization === undefined ?  ' %' :
+                                  `${stats?.utilization.toFixed(2)} %`
                               }
-                            })
-                            
-                            return(
-                            <tr key={key}>
-                              <th scope="row">
-                                <div className="d-flex align-items-center">
-                                  <div className="avatar-xs me-3">
-                                    <span className={"avatar-title rounded-circle bg-transparent"} >
-                                      <img src={option.bankIcon.default} />
-                                    </span>
-                                  </div>
-                                  <span>{option.title}</span>
-                                </div>
-                              </th>
-                              <td>
-                                <div>
-                                  <span>{ option.isComingSoon ? "" : 
-                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount(balanceValue, 0)}` :
-                                    `${Formatter.formatAmount(balanceValue)} ${option.referenceCurrency}` }</span>
-                                </div>
-                              </td>
-                              <td>
-                                <div>
-                                  {option.isComingSoon ? "" : renderTotalApy(stats)}
-                                </div>
-                              </td>
-                              <td>
-                                <h5 className="font-size-14 mb-1">
-                                  { option.isComingSoon ? "" : 
-                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)}` :
-                                    `${Formatter.formatAmount(stats?.totalSupply)} ${option.referenceCurrency}` }
-                                </h5>
-                                <div className="text-muted">
-                                  { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                    `($${Formatter.formatAmount((stats?.totalSupply * stats?.referenceAssetValueInUsd), 0)})` }
-                                </div>
-                              </td>
-                              <td>
-                                <h5 className="font-size-14 mb-1">
-                                  { option.isComingSoon ? "" : 
-                                    stats?.utilization === undefined ?  ' %' :
-                                    `${stats?.utilization.toFixed(2)} %` 
-                                  }
-                                  
-                                </h5>
-                                <div className="text-muted"> 
-                                  { option.isComingSoon ? "" : 
-                                    option.referenceCurrency ==='$' ? `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` :
-                                    `(${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency})` 
-                                  }
-                                </div>
-                              </td>
-                              <td>
-                                <h5 className="font-size-14 mb-1">
-                                  { option.isComingSoon ? "" : 
-                                    option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))}` :
-                                    `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
-                                </h5>
-                                <div className="text-muted">
-                                  { option.isComingSoon || option.referenceCurrency ==='$' ? "" : 
-                                    `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))})` }
-                                </div>
-                              </td>
-                              <td>
-                                <h5 className="font-size-14 mb-1">
-                                  { option.isComingSoon ? "" : 
-                                    stats?.bigfootChefBalance === null ? "--" :
-                                    `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
-                                </h5>
-                                <div className="text-muted">
-                                  { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" : 
-                                    `($${Formatter.formatAmount(stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd)})` }
-                                </div>
-                              </td>
-                              <td style={{ width: "120px" }}>
-                                {option.isComingSoon ? "Coming Soon" : renderActionButtons(option) }
-                              </td>
-                              <td style={{ width: "120px" }}>
-                                {option.isComingSoon ? "" : renderRewardButtons(option) }
-                              </td>
-                            </tr>
-                        )})}
-                      </tbody>
-                    </Table>
-                  </div>
-                </CardBody>
 
-                <Modal
-                  isOpen={isModalOpen}
-                  role="dialog"
-                  size="lg"
-                  autoFocus={true}
-                  centered={true}
-                  toggle={() => togglemodal()}
-                >
-                  <div className="modal-content">
-                    <ModalHeader toggle={() => togglemodal()}>
-                      <span className="text-capitalize">
-                        {formData.action}: 
-                      </span>
-                      &nbsp;
-                      {formData.chosenOption?.title}
-                    </ModalHeader>
-                    <ModalBody>
-                      <div
-                        className="wizard clearfix"
-                      >
-                        <div className="content clearfix">
-                          <Form>
-                            { formData.chosenOption &&
-                              renderFormContent()
-                            }
-                            <p>
-                              Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/introduction/an-introduction">here</a> to understand the risks involved.
-                            </p>
-                          </Form>
-                        </div>
-                        <div className="actions clearfix">
-                          <ul role="menu" aria-label="Pagination">
-                            <li className={"next"} >
-                              <Link
-                                to="#"
-                                onClick={ () => sendTransaction(formData.chosenOption) }
-                              >
-                                Confirm
-                              </Link>
-                            </li>
-                          </ul>
-                        </div>
+                            </h5>
+                            <div className="text-muted">
+                              { option.isComingSoon ? "" :
+                                option.referenceCurrency ==='$' ? `($${Formatter.formatAmount((stats?.totalBorrow * stats?.referenceAssetValueInUsd), 0)})` :
+                                  `(${Formatter.formatAmount(stats?.totalBorrow)} ${option.referenceCurrency})`
+                              }
+                            </div>
+                          </td>
+                          <td>
+                            <h5 className="font-size-14 mb-1">
+                              { option.isComingSoon ? "" :
+                                option.referenceCurrency ==='$' ? `$${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))}` :
+                                  `${Formatter.formatAmount(stats?.bigfootBalance)} ${option.referenceCurrency}` }
+                            </h5>
+                            <div className="text-muted">
+                              { option.isComingSoon || option.referenceCurrency ==='$' ? "" :
+                                `($${Formatter.formatAmount((stats?.bigfootBalance * stats?.referenceAssetValueInUsd))})` }
+                            </div>
+                          </td>
+                          <td>
+                            <h5 className="font-size-14 mb-1">
+                              { option.isComingSoon ? "" :
+                                stats?.bigfootChefBalance === null ? "--" :
+                                  `${Formatter.formatAmount(stats?.bigfootChefBalance)} ${option.referenceCurrency}` }
+                            </h5>
+                            <div className="text-muted">
+                              { option.isComingSoon || stats?.bigfootChefBalance === null  ? "" :
+                                `($${Formatter.formatAmount(stats?.bigfootChefBalance * stats?.referenceAssetValueInUsd)})` }
+                            </div>
+                          </td>
+                          <td style={{ width: "120px" }}>
+                            {option.isComingSoon ? "Coming Soon" : renderActionButtons(option) }
+                          </td>
+                          <td style={{ width: "120px" }}>
+                            {option.isComingSoon ? "" : renderRewardButtons(option) }
+                          </td>
+                        </tr>
+                      )})}
+                    </tbody>
+                  </Table>
+                </div>
+              </CardBody>
+
+              <Modal
+                isOpen={isModalOpen}
+                role="dialog"
+                size="lg"
+                autoFocus={true}
+                centered={true}
+                toggle={() => togglemodal()}
+              >
+                <div className="modal-content">
+                  <ModalHeader toggle={() => togglemodal()}>
+                          <span className="text-capitalize">
+                            {formData.action}:
+                          </span>
+                    &nbsp;
+                    {formData.chosenOption?.title}
+                  </ModalHeader>
+                  <ModalBody>
+                    <div
+                      className="wizard clearfix"
+                    >
+                      <div className="content clearfix">
+                        <Form>
+                          { formData.chosenOption &&
+                          renderFormContent()
+                          }
+                          <p>
+                            Note: BigFoot is a leveraged yield farming/liquidity providing product. There are risks involved when using this product. Please read <a target="_blank" href="https://11eleven-11finance.gitbook.io/bigfoot/introduction/an-introduction">here</a> to understand the risks involved.
+                          </p>
+                        </Form>
                       </div>
-                    </ModalBody>
-                  </div>
-                </Modal>
-
-                { assetToApprove && 
-                  <ApprovalModal assetToApprove={assetToApprove} bigfootAddress={formData.chosenOption.bankAddress} toggleApprovalModal={toggleApprovalModal} />
-                }
-
-              </Card>
-            </Col>
-          </Row>
-
-        </Container>
-      </div>
-    </React.Fragment>
+                      <div className="actions clearfix">
+                        <ul role="menu" aria-label="Pagination">
+                          <li className={"next"} >
+                            <Link
+                              to="#"
+                              onClick={ () => sendTransaction(formData.chosenOption) }
+                            >
+                              Confirm
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </ModalBody>
+                </div>
+              </Modal>
+              {assetsToApprove?.length && (
+                <ApprovalModal isOpened={assetsToApprove?.length} assetsToApprove={assetsToApprove} spenderAddress={formData?.chosenOption?.bankAddress} toggleApprovalModal={toggleApprovalModal} />) || ''
+              }
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   )
 }
 
